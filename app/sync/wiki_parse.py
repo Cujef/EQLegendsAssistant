@@ -259,6 +259,11 @@ def parse_statsblock(block: str) -> Dict[str, Any]:
             if m.group(2):
                 out['delay'] = int(m.group(2))
             continue
+        # 'Haste: +36%' is mixed-case, so the ALL-CAPS RE_PAIR never saw it
+        m = re.match(r'^Haste:\s*\+?(\d+)\s*%', line, re.I)
+        if m:
+            out['haste_pct'] = int(m.group(1))
+            continue
         sm = RE_SIZE.search(line)
         if sm:
             out['size'] = sm.group(1)

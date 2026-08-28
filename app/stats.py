@@ -21,8 +21,23 @@ FALLBACK_STAT_CAPS.update({s: 255 for s in RESISTS})
 
 
 def _caps() -> list:
-    rows = db.query("SELECT stat, cap, source FROM stat_caps WHERE source='wiki'")
-    have = {r['stat'] for r in rows}
+    """stat_caps rows normalized to the UI's uppercase keys.
+
+    The wiki sync stores lowercase names plus '<stat>_soft' rows; hard caps map
+    onto the stat itself, soft caps ride along as 'soft' so the UI can show
+    '200 soft / 255'."""
+    rows, have = [], set()
+    soft = {}
+    for r in db.query("SELECT stat, cap, source FROM stat_caps WHERE source='wiki'"):
+        stat = r['stat'].upper()
+        if stat.endswith('_SOFT'):
+            soft[stat[:-5]] = r['cap']
+            continue
+        rows.append({'stat': stat, 'cap': r['cap'], 'source': 'wiki'})
+        have.add(stat)
+    for r in rows:
+        if r['stat'] in soft:
+            r['soft'] = soft[r['stat']]
     for stat, cap in FALLBACK_STAT_CAPS.items():
         if stat not in have:
             rows.append({'stat': stat, 'cap': cap, 'source': 'fallback'})

@@ -30,7 +30,7 @@ RE_SUB_SLOT = re.compile(r'^(.*)-Slot(\d+)$')
 RE_DEPOT = re.compile(r'^(.*)-Depot(\d+)$')
 RE_UPGRADE = re.compile(r'\s\+(\d+)$')
 EXALT_SUFFIX = ' (Exaltation)'
-PARSE_REV = 2  # bump when parse_dump changes so identical files re-import
+PARSE_REV = 3  # bump when parse_dump/normalize_name changes so identical files re-import
 
 # Top-level locations whose items are actually worn/equipped (contribute stats).
 # From the observed dump's full prefix set; General/Bank/SharedBank/KeyRing/
@@ -57,13 +57,17 @@ def normalize_name(name: str) -> str:
     """Join key across dump names, wiki titles, and tools names.
 
     Strips the ' (Exaltation)' marker and the '+N' upgrade suffix, collapses
-    whitespace, lowercases. 'Efreeti War Spear +4' and 'Efreeti War Spear'
-    normalize identically on purpose.
+    whitespace, lowercases. Apostrophes are REMOVED because wiki page titles
+    often drop them (dump "Djarn's Amethyst Ring" vs wiki "Djarns Amethyst
+    Ring"), and a trailing '*' (the crafted-item marker) is dropped.
+    Changing these rules requires tools/renormalize_keys.py on existing data
+    and an inventory PARSE_REV bump.
     """
     s = str(name or '').strip()
     if s.endswith(EXALT_SUFFIX):
         s = s[: -len(EXALT_SUFFIX)]
     s = RE_UPGRADE.sub('', s)
+    s = s.replace("'", '').replace('’', '').rstrip('*')
     return ' '.join(s.split()).lower()
 
 

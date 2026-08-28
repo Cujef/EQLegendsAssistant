@@ -8,6 +8,7 @@ threading, cancellation, throttled fetching, and robots discipline.
 import threading
 import time
 import traceback
+import urllib.error
 import urllib.request
 from typing import Optional
 
@@ -48,13 +49,34 @@ class Ctx:
 
         HARD RULE: eqlegendstools.com/api/ is robots.txt-disallowed and must
         never be requested — enforced here so no source module can slip.
+
+        HTTP 429 gets honored, not fought: sleep Retry-After (default 15 s,
+        doubling), then retry up to 3 times, and permanently widen this run's
+        throttle by 50% each time — the first tools crawl drew 94 429s at
+        1 req/s, so the polite rate is whatever the server says it is.
         """
         if 'eqlegendstools.com' in url and '/api/' in url:
             raise RuntimeError(f'refusing robots-disallowed URL: {url}')
-        self._wait_throttle()
-        req = urllib.request.Request(url, headers={'User-Agent': self.user_agent})
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.read()
+        delay = 15.0
+        for attempt in range(4):
+            self._wait_throttle()
+            req = urllib.request.Request(url, headers={'User-Agent': self.user_agent})
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    return r.read()
+            except urllib.error.HTTPError as e:
+                if e.code != 429 or attempt == 3:
+                    raise
+                try:
+                    delay = max(delay, float(e.headers.get('Retry-After') or 0))
+                except (TypeError, ValueError):
+                    pass
+                self.throttle *= 1.5
+                deadline = time.time() + delay
+                while time.time() < deadline:
+                    self.check()
+                    time.sleep(0.2)
+                delay *= 2
 
     def progress(self, phase: str, done: int = 0, total: int = 0, current: str = ''):
         self.check()

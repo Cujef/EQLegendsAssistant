@@ -175,6 +175,18 @@ def run(check):
           gv['open_sockets'])
 
     # ── tradeskills ──
+    # ── normalization + wiki haste parse (join-coverage regressions) ──
+    from app.inventory import normalize_name
+    check('norm: apostrophes stripped both sides',
+          normalize_name("Djarn's Amethyst Ring") == 'djarns amethyst ring'
+          and normalize_name('Djarns Amethyst Ring') == 'djarns amethyst ring')
+    check('norm: crafted-item asterisk stripped',
+          normalize_name('Backpack*') == 'backpack')
+    from app.sync.wiki_parse import parse_statsblock
+    sb = parse_statsblock('MAGIC ITEM<br>Slot: BACK<br>AC: 10<br>'
+                          'Haste: +36%  <br>WT: 0.1  Size: MEDIUM<br>')
+    check('wiki: mixed-case Haste line parsed', sb['haste_pct'] == 36, sb['haste_pct'])
+
     ts = tradeskills.view(99)
     baking = next(t for t in ts['tradeskills'] if t['skill'] == 'Baking')
     check('ts: baking level max', baking['level'] == 57)

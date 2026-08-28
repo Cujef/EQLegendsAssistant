@@ -14,14 +14,13 @@
     for (const c of data.caps) caps[c.stat] = c;
     const rows = [];
     const st = data.computed.stats;
-    for (const k of Object.keys(st)) {
+    const capRow = (k, v) => {
       const cap = caps[k];
-      rows.push({ stat: k, val: st[k], cap: cap ? cap.cap : null, capSrc: cap ? cap.source : null });
-    }
-    for (const [k, v] of Object.entries(data.computed.resists)) {
-      const cap = caps[k];
-      rows.push({ stat: k, val: v, cap: cap ? cap.cap : null, capSrc: cap ? cap.source : null });
-    }
+      return { stat: k, val: v, cap: cap ? cap.cap : null,
+               capSrc: cap ? cap.source : null, soft: cap ? cap.soft : null };
+    };
+    for (const k of Object.keys(st)) rows.push(capRow(k, st[k]));
+    for (const [k, v] of Object.entries(data.computed.resists)) rows.push(capRow(k, v));
     const body = el('div', { class: 'panel-body' });
     renderTable(body, {
       id: 'ov.stats',
@@ -31,7 +30,9 @@
         {
           key: 'cap', label: 'Cap', num: true,
           render: (r) => r.cap === null ? null
-            : el('span', {}, String(r.cap), r.capSrc === 'fallback' ? prov('fallback') : null),
+            : el('span', {},
+              (r.soft ? r.soft + ' soft / ' : '') + r.cap,
+              r.capSrc === 'fallback' ? prov('fallback') : null),
         },
       ],
       rows, defaultSort: null,
