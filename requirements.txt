@@ -1,0 +1,3 @@
+fastapi
+uvicorn[standard]
+Pillow          # optional — only to convert client DDS icon sheets to PNG

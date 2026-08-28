@@ -1,0 +1,86 @@
+/* Metallic theme tokens. Sharp edges everywhere: border-radius is 0 by design.
+   Dark = gunmetal + brass accent (default). Light = polished aluminum.
+   Every color the app uses is a token here; app.css never hardcodes one. */
+
+:root,
+:root[data-theme="dark"] {
+  --bg:          #131519;
+  --bg-alt:      #0e1013;
+  --panel-hi:    #262a31;
+  --panel-lo:    #191c21;
+  --panel-flat:  #1e2126;
+  --brush-line:  rgba(255, 255, 255, 0.022);
+  --bevel-hi:    rgba(255, 255, 255, 0.09);
+  --bevel-lo:    rgba(0, 0, 0, 0.65);
+  --edge:        #3a3f47;
+  --edge-strong: #4c525c;
+
+  --text:        #d6d9de;
+  --text-dim:    #9aa0a9;
+  --text-faint:  #626870;
+  --accent:      #c9a227;
+  --accent-hi:   #e6c14f;
+  --accent-text: #17130a;
+  --link:        #7fb4d9;
+
+  --good:        #6fbf5f;
+  --bad:         #d05545;
+  --warn:        #d9a33c;
+  --info:        #6da8c9;
+
+  --sel-bg:      rgba(201, 162, 39, 0.14);
+  --input-bg:    #101215;
+  --input-border:#454b54;
+  --table-head:  #22262c;
+  --table-stripe:rgba(255, 255, 255, 0.02);
+  --table-hover: rgba(201, 162, 39, 0.07);
+  --scroll-thumb:#3a3f47;
+  --shadow:      rgba(0, 0, 0, 0.55);
+
+  --bar-a:       #c9a227;
+  --bar-b:       #6da8c9;
+  --bar-c:       #8f6dc9;
+
+  --font-body:   "Segoe UI", system-ui, sans-serif;
+  --font-mono:   Consolas, "Cascadia Mono", monospace;
+  --font-display:"Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="light"] {
+  --bg:          #d3d6da;
+  --bg-alt:      #c6c9ce;
+  --panel-hi:    #eef0f2;
+  --panel-lo:    #d9dce0;
+  --panel-flat:  #e4e6e9;
+  --brush-line:  rgba(0, 0, 0, 0.025);
+  --bevel-hi:    rgba(255, 255, 255, 0.85);
+  --bevel-lo:    rgba(0, 0, 0, 0.22);
+  --edge:        #a6abb2;
+  --edge-strong: #878d96;
+
+  --text:        #26292e;
+  --text-dim:    #565c64;
+  --text-faint:  #8a9099;
+  --accent:      #8a6d1f;
+  --accent-hi:   #a3821f;
+  --accent-text: #ffffff;
+  --link:        #2f6a99;
+
+  --good:        #3f8f33;
+  --bad:         #b23a2c;
+  --warn:        #9a6d14;
+  --info:        #2f6a99;
+
+  --sel-bg:      rgba(138, 109, 31, 0.13);
+  --input-bg:    #f5f6f7;
+  --input-border:#9aa0a8;
+  --table-head:  #dcdfe3;
+  --table-stripe:rgba(0, 0, 0, 0.025);
+  --table-hover: rgba(138, 109, 31, 0.08);
+  --scroll-thumb:#a6abb2;
+  --shadow:      rgba(40, 44, 50, 0.35);
+
+  --bar-a:       #8a6d1f;
+  --bar-b:       #2f6a99;
+  --bar-c:       #6a4f9e;
+}

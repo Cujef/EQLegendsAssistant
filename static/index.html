@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EQ Legends Assistant</title>
+<script>
+/* Pre-paint theme (parser pattern): apply before first render to avoid a flash. */
+try {
+  var t = localStorage.getItem('eqa.theme.v1');
+  if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+} catch (e) {}
+</script>
+<link rel="stylesheet" href="/static/css/themes.css">
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<header id="titlebar">
+  <div class="brand">
+    <span class="brand-plate">EQ&nbsp;LEGENDS</span>
+    <span class="brand-sub">ASSISTANT</span>
+  </div>
+  <div id="char-select" class="char-select" title="Active character"></div>
+  <nav class="ext-links">
+    <a href="https://www.everquestlegends.com/" target="_blank" rel="noopener">EQ&nbsp;Legends</a>
+    <a href="https://eqlwiki.com/" target="_blank" rel="noopener">EQLWiki</a>
+    <a href="https://eqlegendstools.com/" target="_blank" rel="noopener">EQL&nbsp;Tools</a>
+  </nav>
+  <button id="theme-toggle" class="metal-btn" title="Toggle light/dark">◐</button>
+  <div id="conn-dot" class="conn-dot" title="Connecting…"></div>
+</header>
+<div id="shell">
+  <nav id="sidebar"></nav>
+  <main id="content"></main>
+</div>
+
+<script defer src="/static/js/api.js"></script>
+<script defer src="/static/js/tables.js"></script>
+<script defer src="/static/js/router.js"></script>
+<script defer src="/static/js/tiles.js"></script>
+<script defer src="/static/js/pages/overview.js"></script>
+<script defer src="/static/js/pages/inventory.js"></script>
+<script defer src="/static/js/pages/quests.js"></script>
+<script defer src="/static/js/pages/suggestions.js"></script>
+<script defer src="/static/js/pages/parserpage.js"></script>
+<script defer src="/static/js/pages/exaltations.js"></script>
+<script defer src="/static/js/pages/whattodo.js"></script>
+<script defer src="/static/js/pages/tradeskills.js"></script>
+<script defer src="/static/js/pages/syncpage.js"></script>
+<script defer src="/static/js/app.js"></script>
+</body>
+</html>
