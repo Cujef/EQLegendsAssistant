@@ -34,9 +34,17 @@ window.addEventListener('snapshot', () => {
   if (sig !== _charsRendered) { _charsRendered = sig; renderCharSelect(); }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   buildSidebar();
+  // characters must be known before the first page render (pages read
+  // App.active for their ?char= param and titles)
+  try {
+    const d = await API.get('/api/characters');
+    App.characters = d.characters || [];
+    App.active = d.active || null;
+    renderCharSelect();
+  } catch (e) { /* server will still push via WS */ }
   navigate();
   connectWS();
 });
