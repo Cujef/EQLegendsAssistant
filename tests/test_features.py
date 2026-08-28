@@ -45,6 +45,10 @@ def _seed(db):
              3, 1, 0, 0, 0, 0, 0),
             ('Augmentation', 'Augmentation', None, None, 'Spare Fang (Exaltation)', 'spare fang',
              4, 1, 0, 0, 1, 0, 0),
+            # an 8-slot bag: its empty pockets 7/8 are POCKETS, never sockets
+            ('Bank1', 'Bank1', None, None, 'Big Bag', 'big bag', 5, 1, 8, 0, 0, 0, 0),
+            ('Bank1-Slot7', 'Bank1', 'Bank1', 7, 'Empty', 'empty', 0, 0, 0, 1, 0, 0, 0),
+            ('Bank1-Slot8', 'Bank1', 'Bank1', 8, 'Empty', 'empty', 0, 0, 0, 1, 0, 0, 0),
         ]
         c.executemany(
             'INSERT INTO inventory_items(snapshot_id, location, root, parent_location, sub_slot, '
@@ -66,6 +70,16 @@ def _seed(db):
         c.execute("INSERT OR IGNORE INTO deaths(character_id, ts, killer) VALUES(99, 30, 'a wolf')")
         c.execute("INSERT OR REPLACE INTO highlights(character_id, key, value_num, ts) "
                   "VALUES(99, 'max_melee_hit', 46, 40)")
+        # guides use the SYNC WRITER's slugs (wiki_api.GUIDES); consumers must
+        # match by kind (zem/leveling) or those exact slugs — regression for the
+        # title-vs-slug drift the code review caught
+        c.execute("INSERT OR REPLACE INTO guides(slug, title, kind, parsed_json, parsed_ok) "
+                  "VALUES('zem_list', 'Recommended Levels and ZEM List', 'zem', "
+                  "'{\"rows\": [{\"zone\": \"Unrest\", \"level_min\": 40, "
+                  "\"level_max\": 50, \"zem\": 100}]}', 1)")
+        c.execute("INSERT OR REPLACE INTO guides(slug, title, kind, parsed_json, parsed_ok) "
+                  "VALUES('skill_baking', 'Skill Baking', 'tradeskill', "
+                  "'{\"sections\": []}', 1)")
 
 
 def run(check):
@@ -105,6 +119,10 @@ def run(check):
           len(wtd['quest_matches']) == 1 and wtd['quest_matches'][0]['id'] == 7,
           wtd['quest_matches'])
     check('whattodo: level from history', wtd['leveling']['level'] == 44)
+    check('whattodo: zem rows via kind (slug-drift regression)',
+          len(wtd['leveling']['zem_rows']) == 1
+          and wtd['leveling']['zem_rows'][0]['zone'] == 'Unrest',
+          wtd['leveling'])
 
     # ── overview stats ──
     ov = stats.overview(99)
@@ -141,15 +159,29 @@ def run(check):
           and ex['loose'][0]['item'] == 'Spare Fang (Exaltation)')
     check('exalt: unknown flagged', len(ex['unknown']) == 1
           and ex['unknown'][0]['name_norm'] == 'spare fang')
-    check('exalt: open socket on weapon', len(ex['open_sockets']) == 1
+    check('exalt: open socket on weapon ONLY (bag pockets excluded)',
+          len(ex['open_sockets']) == 1
           and ex['open_sockets'][0]['host_item'] == 'Swift Blade'
           and ex['open_sockets'][0]['host_is_weapon'] is True, ex['open_sockets'])
     check('exalt: rules flagged assumed', ex['rules']['assumed'] is True)
+    from app.inventory import get_view, is_container_location
+    check('inv: container detection', is_container_location('Bank1')
+          and is_container_location('General 8')
+          and not is_container_location('Bank1-Slot4')
+          and not is_container_location('Face'))
+    gv = get_view(99)
+    check('inv: view open sockets exclude bag pockets',
+          all(s['parent_location'] != 'Bank1' for s in gv['open_sockets']),
+          gv['open_sockets'])
 
     # ── tradeskills ──
     ts = tradeskills.view(99)
     baking = next(t for t in ts['tradeskills'] if t['skill'] == 'Baking')
     check('ts: baking level max', baking['level'] == 57)
+    check('ts: guide matched by sync slug (slug-drift regression)',
+          baking['guide_synced'] is True, baking)
+    check('ts: wiki url uses page title',
+          baking['wiki_url'].endswith('/Skill_Baking'), baking['wiki_url'])
     check('ts: unknown skill null',
           next(t for t in ts['tradeskills'] if t['skill'] == 'Pottery')['level'] is None)
     check('ts: other skills', any(s['skill'] == '1H Slashing' and s['level'] == 100

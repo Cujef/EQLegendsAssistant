@@ -15,6 +15,7 @@ start() is called once at server startup and is safe with no character/log; the
 single daemon thread also watches for active-character changes and restarts the
 pipeline on the new log. Tests call Pipeline(char).scan_to_eof() synchronously.
 """
+import copy
 import hashlib
 import json
 import os
@@ -279,6 +280,12 @@ class Pipeline:
             'session': {k: (list(v) if isinstance(v, list) else v)
                         for k, v in self.session.items()},
         }
+        # Fight.to_dict() is a SHALLOW copy: by_spell/by_victim (and a completed
+        # fight's loot list inside LOOT_GRACE) stay live references this thread
+        # keeps mutating between pushes. The WS handler json.dumps()es the
+        # snapshot on another thread with no lock, so publish a deep copy —
+        # taken HERE, on the only mutating thread, where it is race-free.
+        payload = copy.deepcopy(payload)
         with state.lock:
             state.live.clear()
             state.live.update(payload)

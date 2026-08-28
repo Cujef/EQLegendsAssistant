@@ -141,9 +141,11 @@ def whattodo(character_id: int) -> dict:
         'SELECT MAX(level) AS lvl FROM level_history WHERE character_id=?', (character_id,))
     level = level_row['lvl'] if level_row and level_row['lvl'] else None
     leveling = {'level': level, 'zem_rows': [], 'hunting_rows': []}
-    for slug, key in (('Recommended_Levels_and_ZEM_List', 'zem_rows'),
-                      ('Per-Level_Hunting_Guide', 'hunting_rows')):
-        g = db.query_one('SELECT parsed_json, parsed_ok FROM guides WHERE slug=?', (slug,))
+    # keyed by KIND, not slug — the sync writer owns slug spelling and the two
+    # already drifted once (wiki_api stores 'zem_list'/'hunting')
+    for kind, key in (('zem', 'zem_rows'), ('leveling', 'hunting_rows')):
+        g = db.query_one("SELECT parsed_json, parsed_ok FROM guides WHERE kind=? "
+                         "AND parsed_ok=1 LIMIT 1", (kind,))
         if g and g['parsed_ok'] and g['parsed_json']:
             try:
                 rows = json.loads(g['parsed_json'])

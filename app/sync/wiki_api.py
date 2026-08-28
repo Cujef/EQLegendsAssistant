@@ -6,7 +6,8 @@ Pipeline (resumable, cheap re-sync):
              slug list; plus the Quest_Items name set and effect-category rows.
   revisions  batched prop=revisions (50 titles/request) -> current revid per
              page; pages whose revid matches sync_pages are skipped entirely.
-  fetch      action=raw for each changed page; raw_pages + domain tables +
+  fetch      batched prop=revisions content (50 pages/request) for changed
+             pages; raw_pages + domain tables +
              sync_pages are written in ONE tx per page, so a cancel/crash
              resumes by skipping the already-committed pages.
 
@@ -98,10 +99,38 @@ def _api_paged(ctx, limit_pages=None, **params):
         cont = {k: v for k, v in cont.items() if k != 'continue'}
 
 
-def _raw_url(title: str) -> str:
-    from urllib.parse import quote
-    return (wp.WIKI_BASE + '/index.php?title='
-            + quote(title.replace(' ', '_'), safe='') + '&action=raw')
+def _fetch_contents(ctx, batch) -> dict:
+    """title -> (wikitext, revid) for up to 50 worklist units in ONE request
+    (plus 'continue' follow-ups when MediaWiki truncates the response).
+
+    The worklist turned out to be ~19k pages, not ~1.4k — the wiki's "content
+    articles" stat undercounts its bot-made item pages — so per-page action=raw
+    would take 5+ hours at the throttle. Batched prop=revisions content is both
+    ~50x fewer requests for us and less load for their shared host.
+    """
+    got = {}
+    titles = '|'.join(u['title'] for u in batch)
+    cont = {}
+    while True:
+        resp = _api(ctx, prop='revisions', rvprop='content|ids', rvslots='main',
+                    titles=titles, **cont)
+        q = resp.get('query', {})
+        norm = {n['to']: n['from'] for n in q.get('normalized', [])}
+        for page in q.get('pages', {}).values():
+            if 'missing' in page or 'invalid' in page or not page.get('revisions'):
+                continue
+            rev = page['revisions'][0]
+            content = (rev.get('slots', {}).get('main', {}).get('*')
+                       if 'slots' in rev else rev.get('*'))
+            if content is None:
+                continue
+            title = page['title']
+            got[title] = (content, rev.get('revid'))
+            got[norm.get(title, title)] = (content, rev.get('revid'))
+        cont = resp.get('continue')
+        if not cont:
+            return got
+        cont = {k: v for k, v in cont.items() if k != 'continue'}
 
 
 # ── phase: inventory ─────────────────────────────────────────────────────────
@@ -414,23 +443,45 @@ def run(ctx, _limit_pages=None):
 
     total = len(changed)
     ctx.progress('fetch', 0, total)
-    for done, unit in enumerate(changed):
-        ctx.progress('fetch', done, total, current=unit['title'])
+
+    def _note_fetch_failure(unit, e):
+        db.execute(
+            'INSERT INTO sync_pages(url, source, kind, parse_ok, parse_error) '
+            'VALUES(?,?,?,0,?) ON CONFLICT(url) DO UPDATE SET '
+            'parse_ok=0, parse_error=excluded.parse_error',
+            (wp.title_to_url(unit['title']), 'wiki', unit['kind'],
+             f'fetch failed: {e}'))
+
+    done = 0
+    BATCH = 50
+    for bi in range(0, total, BATCH):
+        batch = changed[bi:bi + BATCH]
+        ctx.progress('fetch', done, total, current=batch[0]['title'])
         try:
-            content = ctx.fetch(_raw_url(unit['title'])).decode('utf-8', errors='replace')
+            contents = _fetch_contents(ctx, batch)
         except Exception as e:
             from .engine import Cancelled
             if isinstance(e, Cancelled):
                 raise
+            # whole batch failed: one error, every page stays retryable
             ctx.errors += 1
-            db.execute(
-                'INSERT INTO sync_pages(url, source, kind, parse_ok, parse_error) '
-                'VALUES(?,?,?,0,?) ON CONFLICT(url) DO UPDATE SET '
-                'parse_ok=0, parse_error=excluded.parse_error',
-                (wp.title_to_url(unit['title']), 'wiki', unit['kind'],
-                 f'fetch failed: {type(e).__name__}: {e}'))
+            for unit in batch:
+                _note_fetch_failure(unit, f'{type(e).__name__}: {e}')
+            done += len(batch)
             continue
-        parse_ok, parse_error = _process_page(unit, content, unit['revid'], quest_items)
-        if not parse_ok:
-            ctx.errors += 1
+        for unit in batch:
+            got = contents.get(unit['title'])
+            if got is None:
+                ctx.errors += 1
+                _note_fetch_failure(unit, 'content missing from batch response')
+                done += 1
+                continue
+            content, revid = got
+            parse_ok, _err = _process_page(unit, content,
+                                           revid or unit['revid'], quest_items)
+            if not parse_ok:
+                ctx.errors += 1
+            done += 1
+            if done % 25 == 0:
+                ctx.progress('fetch', done, total, current=unit['title'])
     ctx.progress('fetch', total, total, current='')

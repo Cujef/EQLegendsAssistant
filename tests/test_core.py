@@ -130,6 +130,25 @@ def _db(check):
         pass
     row = db.query_one("SELECT server FROM characters WHERE name='T'")
     check('db: rollback on error', row['server'] == 'test2', row)
+    # lock-leak regression: a failing BEGIN inside __enter__ must release the
+    # write lock, or every writer in the app deadlocks forever
+    class _Boom:
+        def execute(self, *a):
+            raise RuntimeError('boom')
+    real = db._conn
+    db._conn = _Boom()
+    try:
+        with db.tx():
+            pass
+        check('db: tx enter failure raises', False)
+    except RuntimeError:
+        pass
+    finally:
+        db._conn = real
+    got_lock = db._write_lock.acquire(timeout=1)
+    if got_lock:
+        db._write_lock.release()
+    check('db: lock released after enter failure', got_lock)
 
 
 def _icons(check):

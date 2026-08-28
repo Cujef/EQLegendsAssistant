@@ -43,6 +43,16 @@ WORN_ROOTS = {
 }
 
 
+def is_container_location(location) -> bool:
+    """True when `location` denotes a bag/container itself — a top-level
+    General/Bank/SharedBank slot. Its SlotN children are bag POCKETS (an 8-slot
+    bag has Slot7/Slot8), which must never be read as augment sockets; only
+    SlotN children of non-container ITEMS are sockets."""
+    if not location or '-Slot' in location:
+        return False
+    return location.startswith(('General ', 'Bank', 'SharedBank'))
+
+
 def normalize_name(name: str) -> str:
     """Join key across dump names, wiki titles, and tools names.
 
@@ -166,7 +176,10 @@ def get_view(character_id: int) -> dict:
         'SELECT i.*, it.icon, (it.name_norm IS NOT NULL) AS in_item_db '
         'FROM inventory_items i LEFT JOIN items it ON it.name_norm = i.name_norm '
         'WHERE i.snapshot_id=? AND i.is_empty=0 ORDER BY i.id', (snap['id'],))
-    open_sockets = db.query(
-        'SELECT location, root, parent_location, sub_slot FROM inventory_items '
-        'WHERE snapshot_id=? AND is_empty=1 AND sub_slot >= 7 ORDER BY id', (snap['id'],))
+    open_sockets = [
+        r for r in db.query(
+            'SELECT location, root, parent_location, sub_slot FROM inventory_items '
+            'WHERE snapshot_id=? AND is_empty=1 AND sub_slot >= 7 ORDER BY id',
+            (snap['id'],))
+        if not is_container_location(r['parent_location'])]
     return {'snapshot': snap, 'items': items, 'open_sockets': open_sockets}

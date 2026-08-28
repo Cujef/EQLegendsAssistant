@@ -56,13 +56,17 @@ def view(character_id: int) -> dict:
         elif r['root'] == 'Activated':
             entry['where'] = 'activated'
             loose.append(entry)
-        elif r['parent_location']:
+        elif r['parent_location'] and not inventory.is_container_location(r['parent_location']):
             host = by_loc.get(r['parent_location'])
             entry['where'] = 'socketed'
             entry['host_item'] = host['name'] if host else r['parent_location']
             entry['host_location'] = r['parent_location']
             entry['host_equipped'] = bool(host and host['is_equipped'])
             socketed.append(entry)
+        elif r['parent_location']:
+            # sitting loose in a big bag's 7th+ pocket, not socketed in an item
+            entry['where'] = 'storage'
+            loose.append(entry)
         else:
             entry['where'] = 'other'
             loose.append(entry)
@@ -73,6 +77,8 @@ def view(character_id: int) -> dict:
     for r in rows:
         if not r['is_empty'] or r['sub_slot'] is None or not (lo <= r['sub_slot'] <= hi):
             continue
+        if inventory.is_container_location(r['parent_location']):
+            continue  # an 8+-slot bag's empty pocket, not an augment socket
         host = by_loc.get(r['parent_location'])
         if not host or host['is_empty']:
             continue

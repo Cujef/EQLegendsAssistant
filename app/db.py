@@ -256,6 +256,11 @@ MIGRATIONS = [
         fetched_at REAL NOT NULL
     );
     """,
+    # the wiki worklist proved to be ~19k pages; every sync scans sync_pages by
+    # source, which was a full-table scan
+    """
+    CREATE INDEX idx_sync_pages_source ON sync_pages(source);
+    """,
 ]
 
 
@@ -305,12 +310,18 @@ class tx:
     def __enter__(self) -> sqlite3.Connection:
         global _tx_depth
         _write_lock.acquire()
-        if _conn is None:
-            init()
-        if _tx_depth == 0:
-            _conn.execute('BEGIN')
-        _tx_depth += 1
-        return _conn
+        # if init()/BEGIN raises, __exit__ never runs — release or the lock
+        # leaks and every writer in the app blocks forever
+        try:
+            if _conn is None:
+                init()
+            if _tx_depth == 0:
+                _conn.execute('BEGIN')
+            _tx_depth += 1
+            return _conn
+        except BaseException:
+            _write_lock.release()
+            raise
 
     def __exit__(self, exc_type, exc, tb):
         global _tx_depth

@@ -8,12 +8,13 @@
   const SOURCES = [
     {
       id: 'wiki', name: 'eqlwiki.com',
-      desc: 'Quests, items, guides via the MediaWiki API (~1,360 pages, ' +
-        '~25 min first run; re-syncs only fetch changed pages).',
+      desc: 'Quests, items, guides via the MediaWiki API (~19k pages fetched ' +
+        '50-per-request, ~10 min first run; re-syncs only fetch changed pages).',
     },
     {
       id: 'tools', name: 'EQL Tools',
-      desc: 'eqlegendstools.com item/zone pages via sitemap.xml (arrives in M6).',
+      desc: 'eqlegendstools.com item/zone pages via sitemap.xml ' +
+        '(~995 pages, ~17 min first run; re-syncs follow lastmod).',
     },
   ];
 

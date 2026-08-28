@@ -3,21 +3,21 @@ import json
 
 from . import db
 
-# Skill names exactly as the log prints them ("You have become better at X! (N)").
-# wiki_slug -> the eqlwiki guide page for each.
+# (log skill name, wiki page title, guides.slug as the sync writer stores it —
+# see app/sync/wiki_api.py GUIDES; slug and title differ, don't conflate them)
 TRADESKILLS = [
-    ('Alchemy', 'Skill_Alchemy'),
-    ('Baking', 'Skill_Baking'),
-    ('Blacksmithing', 'Skill_Blacksmithing'),
-    ('Brewing', 'Skill_Brewing'),
-    ('Fishing', 'Skill_Fishing'),
-    ('Fletching', 'Skill_Fletching'),
-    ('Jewelry Making', 'Skill_Jewelcrafting'),
-    ('Make Poison', 'Skill_Make_Poison'),
-    ('Pottery', 'Skill_Pottery'),
-    ('Research', 'Skill_Research'),
-    ('Tailoring', 'Skill_Tailoring'),
-    ('Tinkering', 'Skill_Tinkering'),
+    ('Alchemy', 'Skill_Alchemy', 'skill_alchemy'),
+    ('Baking', 'Skill_Baking', 'skill_baking'),
+    ('Blacksmithing', 'Skill_Blacksmithing', 'skill_blacksmithing'),
+    ('Brewing', 'Skill_Brewing', 'skill_brewing'),
+    ('Fishing', 'Skill_Fishing', 'skill_fishing'),
+    ('Fletching', 'Skill_Fletching', 'skill_fletching'),
+    ('Jewelry Making', 'Skill_Jewelcrafting', 'skill_jewelcrafting'),
+    ('Make Poison', 'Skill_Make_Poison', 'skill_make_poison'),
+    ('Pottery', 'Skill_Pottery', 'skill_pottery'),
+    ('Research', 'Skill_Research', 'skill_research'),
+    ('Tailoring', 'Skill_Tailoring', 'skill_tailoring'),
+    ('Tinkering', 'Skill_Tinkering', 'skill_tinkering'),
 ]
 
 
@@ -26,7 +26,7 @@ def view(character_id: int) -> dict:
         'SELECT skill, MAX(level) AS level, MAX(ts) AS last_ts FROM skill_levels '
         'WHERE character_id=? GROUP BY skill', (character_id,))}
     out = []
-    for skill, slug in TRADESKILLS:
+    for skill, page_title, slug in TRADESKILLS:
         row = levels.get(skill)
         guide = db.query_one('SELECT slug, title, parsed_json, parsed_ok FROM guides '
                              'WHERE slug=?', (slug,))
@@ -47,12 +47,12 @@ def view(character_id: int) -> dict:
             'skill': skill,
             'level': row['level'] if row else None,
             'last_ts': row['last_ts'] if row else None,
-            'wiki_url': f'https://eqlwiki.com/{slug}',
+            'wiki_url': f'https://eqlwiki.com/{page_title}',
             'guide_synced': bool(guide),
             'craftables': craftables[:25],
         })
     # non-tradeskill skills as a secondary table (combat/casting skills)
-    ts_names = {s for s, _ in TRADESKILLS}
+    ts_names = {s for s, _, _ in TRADESKILLS}
     other = [r for r in db.query(
         'SELECT skill, MAX(level) AS level, MAX(ts) AS last_ts FROM skill_levels '
         'WHERE character_id=? GROUP BY skill ORDER BY skill', (character_id,))

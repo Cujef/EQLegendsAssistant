@@ -256,10 +256,19 @@ async def ws(sock: WebSocket):
     await sock.accept()
     try:
         while True:
-            payload = await asyncio.to_thread(lambda: json.dumps(_snapshot()))
+            try:
+                payload = await asyncio.to_thread(lambda: json.dumps(_snapshot()))
+            except Exception:
+                # a bad frame must cost one tick, not the socket — and loudly:
+                # the parser project once swallowed exactly this into silence
+                import traceback
+                traceback.print_exc()
+                await asyncio.sleep(1)
+                continue
             await sock.send_text(payload)
             await asyncio.sleep(1)
     except (WebSocketDisconnect, RuntimeError):
+        # RuntimeError covers send-on-closed-socket during shutdown
         pass
 
 
