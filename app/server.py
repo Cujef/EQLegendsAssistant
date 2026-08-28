@@ -135,6 +135,91 @@ def api_fight(fight_id: int):
     return json.loads(row['data'])
 
 
+# ── overview (M8) ────────────────────────────────────────────────────────────
+@app.get('/api/overview')
+def api_overview(char: int = None):
+    from . import stats
+    c = _char_or_404(char)
+    return stats.overview(c['id'])
+
+
+@app.post('/api/manual-stat')
+def api_manual_stat(body: dict, char: int = None):
+    from . import stats
+    c = _char_or_404(char)
+    stats.set_manual(c['id'], str(body.get('key', '')), str(body.get('value', '')))
+    return {'ok': True}
+
+
+# ── quests (M7) ──────────────────────────────────────────────────────────────
+@app.get('/api/quests')
+def api_quests(char: int = None, cls: str = '', race: str = '',
+               level_min: int = None, level_max: int = None, zone: str = '',
+               q: str = '', hide_completed: bool = False):
+    from . import quests
+    c = _char_or_404(char)
+    return {'quests': quests.list_quests(c['id'], cls, race, level_min, level_max,
+                                         zone, q, hide_completed),
+            'classes': quests.CLASSES, 'races': quests.RACES}
+
+
+@app.get('/api/quest-progress')
+def api_quest_progress(char: int = None):
+    from . import quests
+    c = _char_or_404(char)
+    return quests.progress_view(c['id'])
+
+
+@app.get('/api/quests/{quest_id}')
+def api_quest_detail(quest_id: int, char: int = None):
+    from . import quests
+    c = _char_or_404(char)
+    detail = quests.quest_detail(c['id'], quest_id)
+    if not detail:
+        raise HTTPException(404, 'no such quest')
+    return detail
+
+
+@app.post('/api/quests/{quest_id}/status')
+def api_quest_status(quest_id: int, body: dict, char: int = None):
+    from . import quests
+    c = _char_or_404(char)
+    status = str(body.get('status', ''))
+    if status not in ('tracked', 'completed', 'dismissed', 'untracked'):
+        raise HTTPException(422, 'bad status')
+    quests.set_status(c['id'], quest_id, status)
+    return {'ok': True}
+
+
+@app.post('/api/quests/{quest_id}/steps/{step_index}/toggle')
+def api_quest_step(quest_id: int, step_index: int, char: int = None):
+    from . import quests
+    c = _char_or_404(char)
+    return {'done': quests.toggle_step(c['id'], quest_id, step_index)}
+
+
+# ── what to do / exaltations / tradeskills (M9-M10) ──────────────────────────
+@app.get('/api/whattodo')
+def api_whattodo(char: int = None):
+    from . import quests
+    c = _char_or_404(char)
+    return quests.whattodo(c['id'])
+
+
+@app.get('/api/exaltations')
+def api_exaltations(char: int = None):
+    from . import exaltation
+    c = _char_or_404(char)
+    return exaltation.view(c['id'])
+
+
+@app.get('/api/tradeskills')
+def api_tradeskills(char: int = None):
+    from . import tradeskills
+    c = _char_or_404(char)
+    return tradeskills.view(c['id'])
+
+
 # ── sync ─────────────────────────────────────────────────────────────────────
 @app.post('/api/sync/start')
 def api_sync_start(body: dict):
