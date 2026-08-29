@@ -343,7 +343,8 @@ async def ws(sock: WebSocket):
 
 @app.get('/api/health')
 def health():
-    return {'ok': True, 'port': CONFIG['port']}
+    from . import __version__
+    return {'ok': True, 'version': __version__, 'port': CONFIG['port']}
 
 
 # Mounted last so API routes win. /static/icons serves the vendored module's

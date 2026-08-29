@@ -1,0 +1,22 @@
+[project]
+name = "eqlegends-assistant"
+version = "1.0.0"
+description = "Local companion web app for EverQuest Legends: character overview, inventory, quests, live combat parser, exaltations, tradeskills"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+# item icons are decoded from the game's DDS sheets; without Pillow the app
+# runs fine and simply shows no icons
+icons = ["Pillow"]
+
+[project.urls]
+Homepage = "https://github.com/Cujef/EQLegendsAssistant"
+
+# The app is run in place (`python run.py`), not installed — this manifest exists
+# so the version has one machine-readable home and the release check can find it.
+# selftest keeps it in step with app.__version__.

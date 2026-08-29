@@ -23,8 +23,9 @@ def main():
     import uvicorn
     from app.server import app  # noqa: F401 - imported for uvicorn; also triggers startup wiring
 
+    from app import __version__
     url = f'http://127.0.0.1:{port}'
-    print(f'EQ Legends Assistant -> {url}')
+    print(f'EQ Legends Assistant v{__version__} -> {url}')
     if '--no-browser' not in sys.argv:
         threading.Timer(1.2, lambda: webbrowser.open(url)).start()
     uvicorn.run(app, host='127.0.0.1', port=port, log_level='warning')

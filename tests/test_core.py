@@ -2,10 +2,29 @@
 
 
 def run(check):
+    _version(check)
     _vendor(check)
     _inventory(check)
     _db(check)
     _icons(check)
+
+
+def _version(check):
+    """pyproject.toml and app.__version__ must never drift — the release check
+    reads the manifest, the app reports the module."""
+    import re
+    from pathlib import Path
+
+    import app
+    root = Path(__file__).resolve().parent.parent
+    text = (root / 'pyproject.toml').read_text(encoding='utf-8')
+    m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.M)
+    check('version: pyproject declares one', bool(m))
+    if m:
+        check('version: manifest matches app.__version__',
+              m.group(1) == app.__version__, f'{m.group(1)} vs {app.__version__}')
+    check('version: looks like semver',
+          bool(re.fullmatch(r'\d+\.\d+\.\d+', app.__version__)), app.__version__)
 
 
 def _vendor(check):
