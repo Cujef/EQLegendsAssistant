@@ -4,10 +4,26 @@ from pathlib import Path
 
 
 def run(check):
+    from app import db
+    db.init()          # idempotent; suites must stand alone (`selftest.py setup`)
     _naming(check)
     _scan(check)
     _crud(check)
     _inventory_bytes(check)
+    _origin_guard(check)
+
+
+def _origin_guard(check):
+    """The app has no auth by design; the only thing standing between a random
+    open tab and its file-reading POST endpoints is the Origin check."""
+    from app.server import is_local_origin
+
+    for ok in ('', 'http://127.0.0.1:8766', 'http://localhost:8766',
+               'https://localhost', 'http://[::1]:8766'):
+        check(f'origin: allows {ok or "(none)"}', is_local_origin(ok) is True, ok)
+    for bad in ('http://evil.com', 'https://evil.com:8766', 'http://127.0.0.1.evil.com',
+                'http://notlocalhost', 'null'):
+        check(f'origin: refuses {bad}', is_local_origin(bad) is False, bad)
 
 
 def _naming(check):

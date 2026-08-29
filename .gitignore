@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 data/
 config.json
+.env
+.env.*
 static/icons/*.png
 vendor/eqlparser/static/
 vendor/eqlparser/icons.json

@@ -6,6 +6,7 @@ Serves the static shell, the JSON API, and a 1 Hz full-snapshot WebSocket
 import asyncio
 import json
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
@@ -20,6 +21,37 @@ STATIC_DIR = ROOT / 'static'
 VENDOR_ICON_DIR = Path(icons.ICON_DIR)  # vendor/eqlparser/static/icons
 
 app = FastAPI(title='EQ Legends Assistant')
+
+
+LOCAL_HOSTS = ('127.0.0.1', 'localhost', '::1')
+
+
+def is_local_origin(origin: str) -> bool:
+    """True when an Origin header belongs to this machine.
+
+    No Origin at all is allowed: non-browser clients (curl, the selftest, a
+    script) do not send one, and they are not the threat here. `urlsplit` does
+    the parsing because hand-splitting on ':' gets IPv6 (`http://[::1]:8766`)
+    wrong — it did, and the tests caught it.
+    """
+    if not origin:
+        return True
+    return urlsplit(origin).hostname in LOCAL_HOSTS
+
+
+@app.middleware('http')
+async def _same_origin_only(request, call_next):
+    """Refuse state-changing calls from another site's page.
+
+    The app has no auth by design (single user, loopback only), and its POST
+    endpoints read local files — so any page open in the same browser could
+    otherwise POST here in the background. Browsers always attach Origin to
+    cross-site POSTs, which is all this needs to say no.
+    """
+    if request.method not in ('GET', 'HEAD', 'OPTIONS') \
+            and not is_local_origin(request.headers.get('origin', '')):
+        return JSONResponse({'detail': 'cross-origin request refused'}, status_code=403)
+    return await call_next(request)
 
 
 @app.middleware('http')

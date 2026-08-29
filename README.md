@@ -1,5 +1,9 @@
 # EQ Legends Assistant
 
+*An unofficial, fan-made companion tool. Not affiliated with, endorsed by, or
+sponsored by Daybreak Game Company. It reads your own log and inventory files
+and never modifies the game.*
+
 A local web app that supplements playing **EverQuest Legends**: character
 overview, inventory analysis, quest tracking and suggestions, a compact live
 combat parser, exaltation (focus/proc/worn/click effect) matching, "what to
@@ -90,6 +94,20 @@ eqlwiki via its public MediaWiki API, eqlegendstools via its sitemap pages
 (its robots.txt-disallowed `/api/` path is refused in code:
 `app/sync/engine.py`). Everything is cached permanently in
 `data/assistant.db`; re-syncs fetch only changed pages.
+
+## Security note — this is a localhost tool
+
+The server binds `127.0.0.1` only and has no authentication, by design: it is a
+single-user app running on the machine that has the game installed.
+
+It reads local files you point it at — the setup endpoints accept a folder to
+scan and a log/inventory path to open — so **do not expose it to a network or
+put it behind a public reverse proxy**. Anyone who can reach the port can ask it
+to read files as your user. It never writes to your game files, and never sends
+your character data anywhere.
+
+`data/`, `config.json`, and the item icons converted from your game client are
+gitignored and stay on your machine.
 
 ## Development
 
