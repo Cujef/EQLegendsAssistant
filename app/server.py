@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnec
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import characters, db, inventory, state
+from . import characters, db, inventory, naming, state
 from .config import CONFIG, ROOT
 
 from vendor.eqlparser import icons
@@ -20,6 +20,18 @@ STATIC_DIR = ROOT / 'static'
 VENDOR_ICON_DIR = Path(icons.ICON_DIR)  # vendor/eqlparser/static/icons
 
 app = FastAPI(title='EQ Legends Assistant')
+
+
+@app.middleware('http')
+async def _revalidate_static(request, call_next):
+    """Make the browser revalidate /static assets instead of heuristically
+    caching them. Chrome will happily serve a stale app.js for hours after an
+    update otherwise; StaticFiles already sends ETag/Last-Modified, so this
+    costs one conditional request that answers 304 on localhost."""
+    response = await call_next(request)
+    if request.url.path.startswith('/static/') or request.url.path == '/':
+        response.headers['Cache-Control'] = 'no-cache'
+    return response
 
 
 @app.on_event('startup')
@@ -41,7 +53,8 @@ def index():
 @app.get('/api/characters')
 def api_characters():
     return {'characters': characters.list_all(),
-            'active': characters.get()}
+            'active': characters.get(),
+            'needs_setup': characters.needs_setup()}
 
 
 @app.post('/api/characters/{char_id}/select')
@@ -50,6 +63,41 @@ def api_select_character(char_id: int):
         raise HTTPException(404, 'no such character')
     characters.select(char_id)
     return {'ok': True, 'active': characters.get()}
+
+
+@app.get('/api/setup/scan')
+def api_setup_scan(dir: str = ''):
+    """Characters discoverable in a folder (install root or its Logs), no writes."""
+    try:
+        return characters.scan(dir or None)
+    except OSError as e:
+        raise HTTPException(400, f'cannot read that folder: {e}')
+
+
+@app.post('/api/characters')
+def api_add_character(body: dict):
+    """Add (or update) a character by name + paths, and make it active."""
+    try:
+        row = characters.add(
+            body.get('name', ''), body.get('server', ''),
+            body.get('log_path'), body.get('inventory_path'),
+            activate=body.get('activate', True))
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    if not row:
+        raise HTTPException(500, 'character was not stored')
+    # a newly added character means a different log: let the pipeline pick it up
+    from .logscan import tailer
+    tailer.start()
+    return {'ok': True, 'character': row}
+
+
+@app.delete('/api/characters/{char_id}')
+def api_remove_character(char_id: int):
+    if not characters.get(char_id):
+        raise HTTPException(404, 'no such character')
+    characters.remove(char_id)
+    return {'ok': True, 'characters': characters.list_all(), 'active': characters.get()}
 
 
 def _char_or_404(char: int = None) -> dict:
@@ -67,14 +115,31 @@ def api_inventory(char: int = None):
 
 
 @app.post('/api/inventory/import')
-def api_inventory_import(char: int = None):
+def api_inventory_import(body: dict = None, char: int = None):
+    """Import the character's dump.
+
+    Body is optional: `{content}` imports text the browser read from a file the
+    server cannot see (the file picker gives no real path), `{path}` points at a
+    new server-side file and remembers it. With no body, re-read the stored path.
+    """
     c = _char_or_404(char)
-    path = c.get('inventory_path')
-    if not path or not Path(path).is_file():
-        raise HTTPException(404, f'inventory dump not found for {c["name"]} '
-                                 f'(run /outputfile inventory in game)')
+    body = body or {}
+    content = body.get('content')
     try:
-        result = inventory.import_file(c['id'], path)
+        if content:
+            result = inventory.import_bytes(
+                c['id'], str(content).encode('utf-8'),
+                source_path=str(body.get('filename') or 'uploaded'))
+        else:
+            path = body.get('path') or c.get('inventory_path')
+            if not path or not Path(path).is_file():
+                raise HTTPException(404, f'inventory dump not found for {c["name"]} '
+                                         f'(run /outputfile inventory in game, or '
+                                         f'pick the file in Characters)')
+            result = inventory.import_file(c['id'], path)
+            if path != c.get('inventory_path'):
+                db.execute('UPDATE characters SET inventory_path=? WHERE id=?',
+                           (path, c['id']))
     except ValueError as e:
         raise HTTPException(422, str(e))
     return result
@@ -129,10 +194,12 @@ def api_fights(char: int = None, limit: int = 50):
 
 @app.get('/api/fights/{fight_id}')
 def api_fight(fight_id: int):
-    row = db.query_one('SELECT data FROM fights WHERE id=?', (fight_id,))
+    row = db.query_one('SELECT data, character_id FROM fights WHERE id=?', (fight_id,))
     if not row:
         raise HTTPException(404, 'no such fight')
-    return json.loads(row['data'])
+    owner = characters.get(row['character_id'])
+    return naming.humanize_fight(json.loads(row['data']),
+                                 owner['name'] if owner else None)
 
 
 # ── overview (M8) ────────────────────────────────────────────────────────────
@@ -244,9 +311,11 @@ def api_sync_status():
 
 # ── websocket: 1 Hz full snapshot ────────────────────────────────────────────
 def _snapshot() -> dict:
+    active = characters.get()
     snap = {'type': 'state',
             'characters': characters.list_all(),
-            'active': characters.get()}
+            'active': active,
+            'needs_setup': characters.needs_setup()}
     snap.update(state.snapshot_extras())
     return snap
 

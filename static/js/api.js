@@ -8,6 +8,13 @@ const App = {
   characters: [],
   active: null,         // active character row
   charId() { return App.active ? App.active.id : null; },
+  /* The parser's internal actor key is 'player'; the server substitutes the
+     real name on the way out (app/naming.py). Pages that label "you" use this
+     so the two never disagree. */
+  playerName() {
+    const live = App.snapshot && App.snapshot.live;
+    return (live && live.player_name) || (App.active && App.active.name) || 'player';
+  },
   q(extra) {            // query-string with the active char id
     const p = new URLSearchParams(extra || {});
     if (App.active) p.set('char', App.active.id);
@@ -28,6 +35,11 @@ const API = {
       headers: body !== undefined ? { 'Content-Type': 'application/json' } : {},
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
+    if (!r.ok) throw new Error(await API._err(r));
+    return r.json();
+  },
+  async del(path) {
+    const r = await fetch(path, { method: 'DELETE' });
     if (!r.ok) throw new Error(await API._err(r));
     return r.json();
   },

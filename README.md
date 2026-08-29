@@ -29,14 +29,35 @@ Opens http://127.0.0.1:8766 (the parser project uses 8765; both can run together
 
 ## First-time setup
 
-1. **Inventory page** → *Import inventory file* (after `/outputfile inventory` in game).
-2. The **log pipeline** starts automatically and scans your full log once
+On first run the app opens a **setup prompt**: point it at your EverQuest
+Legends folder (either the install root or its `Logs` folder), press *Scan*,
+and add your character. It finds characters from the game's `_characters.ini`
+and from `Logs\eqlog_<Name>_<server>.txt`, shows which ones have a log and an
+inventory dump, and imports the inventory automatically when it finds one.
+
+If nothing is found you can add a character by hand (name, server, full path to
+the log). The log stays where it is — the app only ever reads it. An inventory
+dump anywhere on disk can also be picked with the file browser.
+
+Add or switch characters later from **＋ Characters** in the title bar; each
+character keeps its own imported data, and removing one removes only this app's
+copy.
+
+Then:
+1. The **log pipeline** starts automatically and scans your full log once
    (progress shows on the Parser page); after that it tails live.
-3. **Data Sync page** → run *eqlwiki* and *EQL Tools* syncs (throttled to
-   ~1 request/second out of respect for the community sites; the first wiki
-   sync takes ~25 minutes, re-syncs only fetch changed pages).
-4. **Overview page** → pick your class(es)/race (they exist in no local file,
+2. **Data Sync page** → run *eqlwiki* and *EQL Tools* syncs (throttled out of
+   respect for the community sites; the first run takes ~10–20 minutes each,
+   re-syncs only fetch changed pages).
+3. **Overview page** → pick your class(es)/race (they exist in no local file,
    so they're manual).
+
+## Layout
+
+Every page is a grid of tiles. The 🔒 button unlocks the page for editing:
+drag a tile by its ⠿ handle to reorder, drag its right/bottom edge to resize,
+✕ to hide one, and **⊞ Tiles** to bring hidden ones back or reset the layout.
+Each page remembers its own arrangement and lock state.
 
 ## Pages
 

@@ -135,7 +135,17 @@ def parse_dump(text: str) -> List[dict]:
 def import_file(character_id: int, path: str) -> dict:
     """Import a dump file as a new snapshot. Returns a summary dict."""
     p = Path(path)
-    raw = p.read_bytes()
+    try:
+        mtime = p.stat().st_mtime
+    except OSError:
+        mtime = None
+    return import_bytes(character_id, p.read_bytes(), str(p), mtime)
+
+
+def import_bytes(character_id: int, raw: bytes, source_path: str = '',
+                 file_mtime: float = None) -> dict:
+    """Import dump CONTENT — the browser-upload path, where there is no server
+    file to read. Same snapshot semantics as import_file."""
     rows = parse_dump(_decode(raw))
     sha = hashlib.sha256(raw).hexdigest()
 
@@ -149,7 +159,7 @@ def import_file(character_id: int, path: str) -> dict:
         cur = c.execute(
             'INSERT INTO inventory_snapshots(character_id, imported_at, source_path, '
             'file_mtime, raw_sha256, parse_rev) VALUES(?,?,?,?,?,?)',
-            (character_id, db.now(), str(p), p.stat().st_mtime, sha, PARSE_REV))
+            (character_id, db.now(), source_path, file_mtime, sha, PARSE_REV))
         snap_id = cur.lastrowid
         c.executemany(
             'INSERT INTO inventory_items(snapshot_id, location, root, parent_location, '

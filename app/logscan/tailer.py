@@ -25,7 +25,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from .. import characters, db, state
+from .. import characters, db, naming, state
 from . import ext_parser
 from .highlights import Aggregator, TRACKED_EVENTS
 
@@ -286,6 +286,9 @@ class Pipeline:
         # snapshot on another thread with no lock, so publish a deep copy —
         # taken HERE, on the only mutating thread, where it is race-free.
         payload = copy.deepcopy(payload)
+        # the parser's internal 'player' actor becomes the character's real name
+        # here, at the display boundary — the DB keeps 'player'
+        naming.humanize_live(payload, self.char.get('name'))
         with state.lock:
             state.live.clear()
             state.live.update(payload)

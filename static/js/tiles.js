@@ -61,6 +61,8 @@ const TILES_CSS = `
   text-transform:uppercase; color:var(--text-dim); margin-bottom:6px; }
 .tiles-panel label { display:flex; align-items:center; gap:6px; padding:2px 0;
   font-size:12px; color:var(--text); cursor:pointer; white-space:nowrap; }
+.tiles-panel .tp-reset { margin-top:8px; width:100%; font-size:11px; }
+.tiles-hint { font-size:11px; color:var(--text-faint); letter-spacing:0.02em; }
 `;
 
 const Tiles = {
@@ -111,8 +113,9 @@ function _mountGrid(container, opts) {
   const toolbar = el('div', { class: 'tiles-toolbar' });
   const panelBtn = el('button', { class: 'metal-btn', title: 'Show or hide tiles' }, '⊞ Tiles');
   const lockBtn = el('button', { class: 'metal-btn', title: '' }, '🔒');
+  const hint = el('span', { class: 'tiles-hint' });
   const panel = el('div', { class: 'tiles-panel' });
-  toolbar.append(panelBtn, lockBtn);
+  toolbar.append(panelBtn, lockBtn, hint);
   const grid = el('div', { class: 'tiles-grid' });
   container.append(toolbar, grid, panel);
 
@@ -135,6 +138,8 @@ function _mountGrid(container, opts) {
     lockBtn.title = layout.locked
       ? 'Layout locked — click to unlock dragging & resizing'
       : 'Layout unlocked — drag by ⠿, resize from the edges; click to lock';
+    // the grips are invisible until you hover them, so say what is possible
+    hint.textContent = layout.locked ? '' : 'drag ⠿ to move · drag a tile edge to resize';
   }
   lockBtn.addEventListener('click', () => {
     layout.locked = !layout.locked;
@@ -165,6 +170,14 @@ function _mountGrid(container, opts) {
       cb.addEventListener('change', () => (cb.checked ? openTile(id) : closeTile(id)));
       panel.append(el('label', {}, cb, byId[id].title));
     }
+    // an escape hatch: a layout dragged into a mess should never be permanent
+    const reset = el('button', { class: 'metal-btn tp-reset' }, 'Reset layout');
+    reset.addEventListener('click', () => {
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      panel.classList.remove('open');
+      if (typeof navigate === 'function') navigate();   // re-render this page
+    });
+    panel.append(reset);
   }
 
   // ── tile build ──────────────────────────────────────────────────────────

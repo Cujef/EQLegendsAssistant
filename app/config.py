@@ -38,6 +38,10 @@ def _load() -> dict:
 
 
 CONFIG = _load()
+# env override wins over config.json: lets a second install (or a test) run
+# against a different game folder without editing the file
+if os.environ.get('EQA_GAME_DIR'):
+    CONFIG['game_dir'] = os.environ['EQA_GAME_DIR']
 GAME_DIR = Path(CONFIG['game_dir'])
 LOGS_DIR = GAME_DIR / 'Logs'
 
