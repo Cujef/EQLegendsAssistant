@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Not affiliated with, endorsed by, or sponsored by Daybreak Game Company.
-EverQuest and EverQuest Legends are trademarks of Daybreak Game Company LLC.
-
-This license covers the source code in this repository, including the files in
-vendor/eqlparser/ (copied from the same author's EQLegendsParser project; see
-vendor/eqlparser/PROVENANCE.md). It does NOT cover any game data, artwork, or
-icons: those are read from your own game installation at runtime and are never
-distributed with this software.

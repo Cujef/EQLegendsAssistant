@@ -2,7 +2,8 @@
 
 *An unofficial, fan-made companion tool. Not affiliated with, endorsed by, or
 sponsored by Daybreak Game Company. It reads your own log and inventory files
-and never modifies the game.*
+and never modifies the game. MIT licensed — see [LICENSE](LICENSE) and
+[NOTICE.md](NOTICE.md).*
 
 A local web app that supplements playing **EverQuest Legends**: character
 overview, inventory analysis, quest tracking and suggestions, a compact live
