@@ -8,13 +8,19 @@
      onSnapshot?(snap) {},      // called on every 1 Hz push while the page is visible
      onLeave?() {},
    })
-   Registration order = sidebar order. */
+   Registration order = sidebar order.
+
+   Pages.registerAction({ id, title, icon, onClick }) adds a sidebar entry that
+   is an ACTION, not a route (e.g. Import Inventory): rendered below a divider
+   at the bottom of the nav, never marked active, no hash change. */
 'use strict';
 
 const Pages = {
   defs: [],
+  actions: [],
   current: null,
   register(def) { Pages.defs.push(def); },
+  registerAction(def) { Pages.actions.push(def); },
   byId(id) { return Pages.defs.find((d) => d.id === id); },
 };
 
@@ -27,6 +33,18 @@ function buildSidebar() {
       el('span', {}, d.title));
     item.addEventListener('click', () => { location.hash = '#/' + d.id; });
     nav.append(item);
+  }
+  if (Pages.actions.length) {
+    nav.append(el('div', { class: 'nav-divider' }));
+    for (const a of Pages.actions) {
+      const item = el('div', { class: 'nav-item nav-action', 'data-action': a.id, title: a.title },
+        el('span', { class: 'ico' }, a.icon || '•'),
+        el('span', {}, a.title));
+      item.addEventListener('click', () => {
+        try { a.onClick(); } catch (e) { console.error(e); }
+      });
+      nav.append(item);
+    }
   }
 }
 

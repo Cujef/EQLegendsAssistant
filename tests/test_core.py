@@ -57,6 +57,19 @@ def _vendor(check):
          {'type': 'level_up', 'level': 12}),
         ('[Fri Jul 31 18:40:00 2026] --You have looted a Rusty Dagger.--',
          {'type': 'loot'}),
+        # v1.6.0 events (upstream's own fixtures): faction + tradeskills
+        ('[Fri Jul 31 18:40:00 2026] Your faction standing with Frogloks of Guk has been adjusted by -5.',
+         {'type': 'faction', 'faction': 'Frogloks of Guk', 'delta': -5}),
+        ('[Fri Jul 31 18:40:00 2026] Your faction standing with Knights of Truth could not possibly get any better.',
+         {'type': 'faction_capped', 'faction': 'Knights of Truth', 'direction': 'better'}),
+        ('[Fri Jul 31 18:40:00 2026] You have fashioned the items together to create something new: Tumpy Tonic.',
+         {'type': 'craft', 'item': 'Tumpy Tonic', 'ok': True}),
+        ('[Fri Jul 31 18:40:00 2026] You lacked the skills to fashion Fish Rolls.',
+         {'type': 'craft', 'item': 'Fish Rolls', 'ok': False}),
+        ('[Fri Jul 31 18:40:00 2026] You can no longer advance your skill from making this item.',
+         {'type': 'craft_capped'}),
+        ('[Fri Jul 31 18:40:00 2026] Consumed 2 x Water Flask (leaving 7) from your personal depot.',
+         {'type': 'depot_consume', 'qty': 2, 'item': 'Water Flask', 'left': 7}),
         # trap lines that must NOT parse as anything alarming
         ('[Fri Jul 31 18:37:49 2026] Taibhse tells General2:2, \'I am an Erudite....\'', None),
         ('not a log line at all', None),
@@ -69,6 +82,22 @@ def _vendor(check):
         else:
             ok = ev is not None and all(ev.get(k) == v for k, v in expect.items())
             check(f'vendor parse: {line[:60]!r}', ok, f'got {ev}')
+
+    # v1.6.0: a group member's miss and damage shield are events now (they were
+    # dropped before), but only for names in the roster
+    grp = {'Bob'}
+    ev = parse_line('[Fri Jul 31 18:40:00 2026] Bob tries to slash a rat, but misses!',
+                    group_members=grp)
+    check('vendor parse: ally miss', ev is not None and ev['type'] == 'miss'
+          and ev['attacker'] == 'Bob' and ev['outcome'] == 'miss', ev)
+    ev = parse_line('[Fri Jul 31 18:40:00 2026] A rat is burned by Bob\'s thorns for 7 points of non-melee damage.',
+                    group_members=grp)
+    check('vendor parse: ally damage shield', ev is not None and ev['type'] == 'damage'
+          and ev['attacker'] == 'Bob' and ev['dmg_type'] == 'ds' and ev['amount'] == 7, ev)
+    ev = parse_line('[Fri Jul 31 18:40:00 2026] Stranger tries to slash a rat, but misses!',
+                    group_members=grp)
+    check('vendor parse: non-member miss ignored',
+          ev is None or ev.get('type') in ('emote_unknown', 'group_member_seen'), ev)
 
 
 def _inventory(check):
@@ -128,6 +157,88 @@ def _inventory(check):
         check('inv: rejects non-dump', False)
     except ValueError:
         check('inv: rejects non-dump', True)
+
+    # ── PARSE_REV 4: row linkage + container detection, shaped like the live dump ──
+    from app.inventory import PARSE_REV, is_container_location, parent_is_container
+    check('inv: parse rev bumped for the linkage columns', PARSE_REV >= 4, PARSE_REV)
+    SAMPLE2 = (
+        'Location\tName\tID\tCount\tSlots\r\n'
+        'Any Slot\tEfreeti War Spear +4\t20831\t1\t10\r\n'
+        'Any Slot-Slot7\tEmpty\t0\t0\t0\r\n'
+        # paired slots repeat their Location verbatim
+        'Fingers\tRing of Pureblood +2\t1540\t1\t10\r\n'
+        'Fingers-Slot7\tMoonstone Ring (Exaltation)\t10150\t1\t10\r\n'
+        'Fingers\tEngineer`s Ring +3\t1545\t1\t10\r\n'
+        'Fingers-Slot7\tDjarn`s Amethyst Ring (Exaltation)\t10366\t1\t10\r\n'
+        'Fingers-Slot8\tEmpty\t0\t0\t0\r\n'
+        # a 10-slot bag: Slots says 10 like any item, the pocket indices give it away
+        'General 1\tKavruul`s Mystic Pouch\t17701\t1\t10\r\n'
+        'General 1-Slot1\tFish Rolls\t13475\t99\t10\r\n'
+        'General 1-Slot4\tEmpty\t0\t0\t0\r\n'
+        'General 1-Slot7\tEmpty\t0\t0\t0\r\n'
+        # a socketed ITEM parked in a general slot: children {2,7,8} -> not a bag
+        'General 9\tEfreeti War Axe\t20711\t1\t10\r\n'
+        'General 9-Slot2\tEmpty\t0\t0\t0\r\n'
+        'General 9-Slot7\tEmpty\t0\t0\t0\r\n'
+        'General 9-Slot8\tEmpty\t0\t0\t0\r\n'
+        # a bag inside a bag: its pockets are pockets, not sockets
+        'Bank12\tStorage Trunk\t177752\t1\t50\r\n'
+        'Bank12-Slot1\tBracelet of Exertion +2\t12805\t1\t10\r\n'
+        'Bank12-Slot1-Slot7\tEmpty\t0\t0\t0\r\n'
+        'Bank12-Slot8\tLight Burlap Sack\t17353\t1\t8\r\n'
+        'Bank12-Slot8-Slot7\tEmpty\t0\t0\t0\r\n'
+        'Bank12-Slot8-Slot8\tEmpty\t0\t0\t0\r\n'
+        'Personal-Depot69\tPhosphorous Powder\t24082\t496\t10\r\n'
+        '\r\n'
+        'KeyRing\tName\tID\t\r\n'
+        'Augmentation\tEarthshaker (Exaltation)\t5667\r\n'
+        'Equipment\tShield of the Stalwart Seas +5\t11552\r\n'
+    )
+    rows2 = parse_dump(SAMPLE2)
+    by_seq = {r['seq']: r for r in rows2}
+    check('inv2: seq is the row ordinal', [r['seq'] for r in rows2] == list(range(len(rows2))))
+    fingers = [r for r in rows2 if r['location'] == 'Fingers']
+    sockets = [r for r in rows2 if r['location'] == 'Fingers-Slot7']
+    check('inv2: paired-slot sockets resolve to the nearest PRECEDING host',
+          len(sockets) == 2
+          and by_seq[sockets[0]['parent_seq']]['name'] == 'Ring of Pureblood +2'
+          and by_seq[sockets[1]['parent_seq']]['name'] == 'Engineer`s Ring +3',
+          [(s['parent_seq'], by_seq[s['parent_seq']]['name']) for s in sockets])
+    check('inv2: two Fingers rows both worn', len(fingers) == 2
+          and all(r['is_equipped'] for r in fingers))
+    anyslot = next(r for r in rows2 if r['location'] == 'Any Slot')
+    check('inv2: Any Slot counts as worn', anyslot['is_equipped'] == 1)
+    check('inv2: backtick apostrophe normalized away',
+          normalize_name('Kavruul`s Mystic Pouch') == 'kavruuls mystic pouch'
+          and normalize_name('Engineer`s Ring +3') == normalize_name("Engineer's Ring"))
+    pocket10 = next(r for r in rows2 if r['location'] == 'General 1-Slot7')
+    check('inv2: 10-slot bag detected via a pocket index a socket never uses',
+          pocket10['parent_is_container'] == 1, pocket10)
+    axe_sock = next(r for r in rows2 if r['location'] == 'General 9-Slot7')
+    check('inv2: socketed item in a general slot is NOT a bag',
+          axe_sock['parent_is_container'] == 0, axe_sock)
+    nested = next(r for r in rows2 if r['location'] == 'Bank12-Slot8-Slot7')
+    check('inv2: nested bag pocket flagged as pocket',
+          nested['parent_is_container'] == 1 and parent_is_container(nested), nested)
+    check('inv2: legacy rule misses the nested bag (why the flag exists)',
+          is_container_location('Bank12-Slot8') is False)
+    inner_sock = next(r for r in rows2 if r['location'] == 'Bank12-Slot1-Slot7')
+    check('inv2: socket on a bagged item stays a socket',
+          inner_sock['parent_is_container'] == 0
+          and by_seq[inner_sock['parent_seq']]['name'] == 'Bracelet of Exertion +2')
+    trunk_pocket = next(r for r in rows2 if r['location'] == 'Bank12-Slot8')
+    check('inv2: nested bag itself is a pocket of the trunk',
+          trunk_pocket['parent_is_container'] == 1
+          and by_seq[trunk_pocket['parent_seq']]['name'] == 'Storage Trunk')
+    depot2 = next(r for r in rows2 if r['location'] == 'Personal-Depot69')
+    check('inv2: depot row has no host row', depot2['parent_seq'] is None
+          and depot2['parent_location'] == 'Personal')
+    eq = next(r for r in rows2 if r['root'] == 'Equipment')
+    check('inv2: trailing Equipment row parsed, not worn, no parent',
+          eq['is_equipped'] == 0 and eq['parent_seq'] is None and eq['upgrade_tier'] == 5, eq)
+    check('inv2: legacy fallback used when the flag is NULL',
+          parent_is_container({'parent_is_container': None, 'parent_location': 'Bank1'}) is True
+          and parent_is_container({'parent_is_container': None, 'parent_location': 'Face'}) is False)
 
 
 def _db(check):

@@ -9,6 +9,7 @@ import time
 def run(check):
     _ext(check)
     _agg(check)
+    _agg_events(check)
     _pipeline(check)
 
 
@@ -51,6 +52,43 @@ def _ext(check):
     check('ext: melee falls through to vendored parse',
           ev is not None and ev['type'] == 'damage' and ev['amount'] == 11, ev)
     check('ext: garbage -> None', parse('not a log line') is None)
+
+    # depot moves + combine errors (app-specific); the vendored tradeskill/faction
+    # lines must still come through the same entry point unchanged
+    DEPOT = [
+        ('[Sat Aug 01 21:00:00 2026] You have deposited 20 Kiola Nut to your personal depot.',
+         {'type': 'depot_deposit', 'qty': 20, 'item': 'Kiola Nut'}),
+        ('[Sat Aug 01 21:00:01 2026] You have taken 5 Bone Chips from your personal depot.',
+         {'type': 'depot_withdraw', 'qty': 5, 'item': 'Bone Chips'}),
+        ('[Sat Aug 01 21:00:02 2026] Consumed 2 x Water Flask (leaving 7) from your personal depot.',
+         {'type': 'depot_consume', 'qty': 2, 'item': 'Water Flask', 'left': 7}),
+        ("[Sat Aug 01 21:00:03 2026] Sorry, but you don't have everything you need for this "
+         "recipe in your general inventory.",
+         {'type': 'craft_error', 'reason': 'missing_materials'}),
+        ('[Sat Aug 01 21:00:04 2026] The result of this combine would produce an unusable item.',
+         {'type': 'craft_error', 'reason': 'unusable_result'}),
+        ('[Sat Aug 01 21:00:05 2026] You cannot combine these items in this container type!',
+         {'type': 'craft_error', 'reason': 'wrong_container'}),
+        ('[Sat Aug 01 21:00:06 2026] You have fashioned the items together to create something new: Tumpy Tonic.',
+         {'type': 'craft', 'item': 'Tumpy Tonic', 'ok': True}),
+        ('[Sat Aug 01 21:00:07 2026] Your faction standing with Frogloks of Guk has been adjusted by -5.',
+         {'type': 'faction', 'faction': 'Frogloks of Guk', 'delta': -5}),
+        # item merges: no trailing period; +N gear and rank results both occur
+        ('[Fri Jul 31 22:02:32 2026] You have successfully merged two items together to create a new item: Platinum Ring +3',
+         {'type': 'upgrade', 'item': 'Platinum Ring +3', 'base': 'Platinum Ring', 'tier': 3}),
+        ('[Sat Aug 01 21:08:05 2026] You have successfully merged two items together to create a new item: Sprouting Heal II',
+         {'type': 'upgrade', 'item': 'Sprouting Heal II', 'base': 'Sprouting Heal II', 'tier': None}),
+    ]
+    for line, expect in DEPOT:
+        ev = parse(line)
+        ok = ev is not None and all(ev.get(k) == v for k, v in expect.items())
+        check(f'ext: {line[27:80]!r}', ok, f'got {ev}')
+    # chat about combining must not become a craft_error
+    ev = parse("[Sat Aug 01 21:00:08 2026] You tell your party, 'lets combine forces'")
+    check('ext: chat mentioning combine is not an error event',
+          ev is None or ev.get('type') != 'craft_error', ev)
+    ev = parse('[Sat Aug 01 21:00:09 2026] Request to merge items canceled, both items remain unmodified.')
+    check('ext: cancelled merge is not an upgrade', ev is None or ev.get('type') != 'upgrade', ev)
 
 
 # ── Aggregator ────────────────────────────────────────────────────────────────
@@ -163,6 +201,158 @@ def _agg(check):
     check('agg: log_first_ts unchanged', hl('log_first_ts')['value_num'] == t0 + 1)
 
 
+# ── Aggregator: tradeskill / depot / faction events ───────────────────────────
+def _agg_events(check):
+    from app import db
+    from app.logscan.highlights import Aggregator, CRAFT_LINK_WINDOW
+
+    db.init()
+    with db.tx() as c:
+        c.execute("INSERT OR IGNORE INTO characters(name, server, created_at) "
+                  "VALUES('AggEv','test',0)")
+    cid = db.query_one("SELECT id FROM characters WHERE name='AggEv'")['id']
+    t0 = 1_800_200_000.0
+
+    def crafts():
+        return db.query('SELECT * FROM craft_events WHERE character_id=? ORDER BY ts', (cid,))
+
+    def caps():
+        return {r['item']: r for r in db.query(
+            'SELECT * FROM craft_caps WHERE character_id=?', (cid,))}
+
+    def votes():
+        return {(r['item'], r['skill']): r['votes'] for r in db.query(
+            'SELECT * FROM craft_recipe_skill WHERE character_id=?', (cid,))}
+
+    agg = Aggregator(player_name='AggEv')
+    # a cap notice PRECEDES the combine it refers to (same second in the real log)
+    agg.feed({'type': 'craft', 'ts': t0, 'item': 'Fish Rolls', 'ok': True})
+    agg.feed({'type': 'craft_capped', 'ts': t0 + 3})
+    agg.feed({'type': 'craft', 'ts': t0 + 3, 'item': 'Tumpy Tonic', 'ok': True})
+    check('aggev: cap flag set on the FOLLOWING craft', agg.last_craft_capped is True)
+    # skill-up after the combine (same second) -> vote; before the next one -> vote
+    agg.feed({'type': 'skill', 'ts': t0 + 3, 'skill': 'Brewing', 'level': 12})
+    agg.feed({'type': 'skill', 'ts': t0 + 6, 'skill': 'Baking', 'level': 40})
+    agg.feed({'type': 'craft', 'ts': t0 + 6, 'item': 'Bat Wing Crunchies', 'ok': False})
+    # a skill-up 3 s from any combine is nobody's vote
+    agg.feed({'type': 'skill', 'ts': t0 + 9 + CRAFT_LINK_WINDOW, 'skill': 'Pottery', 'level': 5})
+    agg.feed({'type': 'craft', 'ts': t0 + 20, 'item': 'Clay Bowl', 'ok': True})
+    # a combat skill next to a combine is not a tradeskill vote
+    agg.feed({'type': 'skill', 'ts': t0 + 20, 'skill': 'Dodge', 'level': 100})
+    with db.tx() as c:
+        agg.flush(c, cid)
+
+    rows = crafts()
+    check('aggev: four craft rows', len(rows) == 4, len(rows))
+    by = {r['item']: r for r in rows}
+    check('aggev: cap lands on Tumpy Tonic, not on the previous recipe',
+          by['Tumpy Tonic']['capped'] == 1 and by['Fish Rolls']['capped'] == 0, by)
+    check('aggev: ok/fail recorded', by['Tumpy Tonic']['ok'] == 1
+          and by['Bat Wing Crunchies']['ok'] == 0)
+    check('aggev: item_norm stored', by['Fish Rolls']['item_norm'] == 'fish rolls')
+    check('aggev: craft_caps row for the capped recipe only',
+          set(caps()) == {'Tumpy Tonic'} and caps()['Tumpy Tonic']['count'] == 1, caps())
+    v = votes()
+    check('aggev: skill-up AFTER the combine votes', v.get(('Tumpy Tonic', 'Brewing')) == 1, v)
+    check('aggev: skill-up BEFORE the combine votes', v.get(('Bat Wing Crunchies', 'Baking')) == 1, v)
+    check('aggev: distant skill-up does not vote', not any(k[1] == 'Pottery' for k in v), v)
+    check('aggev: combat skill does not vote', not any(k[1] == 'Dodge' for k in v), v)
+    check('aggev: skill_levels still written for tradeskill skill-ups', db.query_one(
+        "SELECT * FROM skill_levels WHERE character_id=? AND skill='Brewing'", (cid,)) is not None)
+    hl = db.query_one("SELECT value_num FROM highlights WHERE character_id=? AND key='total_crafts'",
+                      (cid,))
+    check('aggev: total_crafts counter', hl and hl['value_num'] == 4, hl)
+
+    # correlation state survives a flush between the cap notice and its combine
+    agg.feed({'type': 'craft_capped', 'ts': t0 + 30})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    agg.feed({'type': 'craft', 'ts': t0 + 30, 'item': 'Tumpy Tonic', 'ok': True})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    check('aggev: cap straddling a flush still attaches',
+          [r['capped'] for r in crafts() if r['item'] == 'Tumpy Tonic'] == [1, 1]
+          and caps()['Tumpy Tonic']['count'] == 2, caps())
+
+    # faction: two byte-identical same-second hits are two rows; caps upsert
+    agg.feed({'type': 'faction', 'ts': t0 + 40, 'faction': 'Frogloks of Guk', 'delta': -5})
+    agg.feed({'type': 'faction', 'ts': t0 + 40, 'faction': 'Frogloks of Guk', 'delta': -5})
+    agg.feed({'type': 'faction_capped', 'ts': t0 + 41, 'faction': 'Knights of Truth',
+              'direction': 'better'})
+    agg.feed({'type': 'faction_capped', 'ts': t0 + 42, 'faction': 'Knights of Truth',
+              'direction': 'better'})
+    # depot: the three kinds
+    agg.feed({'type': 'depot_consume', 'ts': t0 + 50, 'qty': 2, 'item': 'Water Flask', 'left': 7})
+    agg.feed({'type': 'depot_deposit', 'ts': t0 + 51, 'qty': 20, 'item': 'Water Flask'})
+    agg.feed({'type': 'depot_withdraw', 'ts': t0 + 52, 'qty': 5, 'item': 'Water Flask'})
+    agg.feed({'type': 'craft_error', 'ts': t0 + 53, 'reason': 'missing_materials'})
+    agg.feed({'type': 'upgrade', 'ts': t0 + 60, 'item': 'Platinum Ring +3', 'base': 'Platinum Ring',
+              'tier': 3})
+    agg.feed({'type': 'upgrade', 'ts': t0 + 61, 'item': 'Sprouting Heal II',
+              'base': 'Sprouting Heal II', 'tier': None})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    up = db.query('SELECT item, item_norm, tier FROM upgrade_events WHERE character_id=? ORDER BY ts',
+                  (cid,))
+    check('aggev: upgrade rows with base-name key and optional tier',
+          [(r['item'], r['item_norm'], r['tier']) for r in up]
+          == [('Platinum Ring +3', 'platinum ring', 3), ('Sprouting Heal II', 'sprouting heal ii', None)],
+          up)
+    hl = db.query_one("SELECT value_num FROM highlights WHERE character_id=? AND key='total_upgrades'",
+                      (cid,))
+    check('aggev: total_upgrades counter', hl and hl['value_num'] == 2, hl)
+    fe = db.query('SELECT * FROM faction_events WHERE character_id=?', (cid,))
+    check('aggev: identical same-second faction hits both kept', len(fe) == 2
+          and sum(r['delta'] for r in fe) == -10, fe)
+    fc = db.query_one('SELECT * FROM faction_caps WHERE character_id=?', (cid,))
+    check('aggev: faction cap upserted with count', fc and fc['faction'] == 'Knights of Truth'
+          and fc['direction'] == 'better' and fc['count'] == 2 and fc['last_ts'] == t0 + 42, fc)
+    de = db.query('SELECT kind, qty, left_qty FROM depot_events WHERE character_id=? ORDER BY ts',
+                  (cid,))
+    check('aggev: depot rows by kind',
+          [(r['kind'], r['qty'], r['left_qty']) for r in de]
+          == [('consume', 2, 7), ('deposit', 20, None), ('withdraw', 5, None)], de)
+    hl = db.query_one("SELECT value_num FROM highlights WHERE character_id=? "
+                      "AND key='total_craft_errors'", (cid,))
+    check('aggev: craft error counter', hl and hl['value_num'] == 1, hl)
+
+    # events-only mode (the backfill): events land, nothing additive is touched
+    with db.tx() as c:
+        c.execute("INSERT OR IGNORE INTO characters(name, server, created_at) "
+                  "VALUES('AggBf','test',0)")
+    cid2 = db.query_one("SELECT id FROM characters WHERE name='AggBf'")['id']
+    bf = Aggregator(events_only=True)
+    bf.feed({'type': 'kill', 'ts': t0, 'target': 'a rat'})
+    bf.feed({'type': 'skill', 'ts': t0 + 1, 'skill': 'Baking', 'level': 41})
+    bf.feed({'type': 'craft', 'ts': t0 + 1, 'item': 'Fish Rolls', 'ok': True})
+    bf.feed({'type': 'faction', 'ts': t0 + 2, 'faction': 'X', 'delta': 1})
+    bf.add_lines(3)
+    with db.tx() as c:
+        bf.flush(c, cid2)
+    # a narrowed events-only pass (a later backfill revision) ignores the rest
+    nar = Aggregator(events_only=True, only_types={'upgrade'})
+    nar.feed({'type': 'craft', 'ts': t0 + 3, 'item': 'Fish Rolls', 'ok': True})
+    nar.feed({'type': 'upgrade', 'ts': t0 + 4, 'item': 'Ring +1', 'base': 'Ring', 'tier': 1})
+    with db.tx() as c:
+        nar.flush(c, cid2)
+    check('aggev: only_types narrows an events-only pass',
+          len(db.query('SELECT * FROM craft_events WHERE character_id=?', (cid2,))) == 1
+          and len(db.query('SELECT * FROM upgrade_events WHERE character_id=?', (cid2,))) == 1)
+    check('aggev: events-only writes craft + faction rows',
+          len(db.query('SELECT * FROM craft_events WHERE character_id=?', (cid2,))) == 1
+          and len(db.query('SELECT * FROM faction_events WHERE character_id=?', (cid2,))) == 1)
+    check('aggev: events-only still votes recipe->skill',
+          db.query_one('SELECT votes FROM craft_recipe_skill WHERE character_id=? '
+                       "AND item='Fish Rolls' AND skill='Baking'", (cid2,)) is not None)
+    check('aggev: events-only writes NO skill_levels / kills / lines / sessions',
+          db.query_one('SELECT 1 FROM skill_levels WHERE character_id=?', (cid2,)) is None
+          and not any(r['key'] in ('total_kills', 'lines_parsed', 'total_sessions',
+                                   'playtime_seconds', 'log_first_ts')
+                      for r in db.query('SELECT key FROM highlights WHERE character_id=?',
+                                        (cid2,))),
+          db.query('SELECT key FROM highlights WHERE character_id=?', (cid2,)))
+
+
 # ── pipeline: chunked scan, resume, truncation, fight persistence ─────────────
 def _mklines(t0, specs):
     """specs: list of text-after-timestamp strings; 1s apart, real log format."""
@@ -213,6 +403,17 @@ def _pipeline(check):
         'You have improved Combat Fury 2 at a cost of 2 ability points.',
         'Someone healed you for 50 hit points by Minor Healing.',
         'You have been slain by a rabid squirrel!',
+        # v1.1 events: tradeskills (cap precedes its combine), depot, faction
+        'You can no longer advance your skill from making this item.',
+        'You have fashioned the items together to create something new: Tumpy Tonic.',
+        'You have become better at Brewing! (12)',
+        'You lacked the skills to fashion Fish Rolls.',
+        'Consumed 2 x Water Flask (leaving 7) from your personal depot.',
+        'You have deposited 20 Kiola Nut to your personal depot.',
+        'Your faction standing with Frogloks of Guk has been adjusted by -5.',
+        'Your faction standing with Frogloks of Guk has been adjusted by -5.',
+        'Your faction standing with Knights of Truth could not possibly get any better.',
+        'You have successfully merged two items together to create a new item: Platinum Ring +3',
     ]
     while len(body) < 50:
         body.append('You begin casting Minor Healing.')
@@ -264,6 +465,86 @@ def _pipeline(check):
     pipe._flush()
     check('pipe: duplicate fight ignored', len(db.query(
         'SELECT * FROM fights WHERE character_id=?', (cid,))) == 1)
+
+    # ── v1.1 events through the real pipeline ──
+    def ev_counts():
+        return {
+            'craft': db.query_one('SELECT COUNT(*) n, COALESCE(SUM(ok),0) ok, '
+                                  'COALESCE(SUM(capped),0) capped FROM craft_events '
+                                  'WHERE character_id=?', (cid,)),
+            'depot': db.query_one('SELECT COUNT(*) n FROM depot_events WHERE character_id=?',
+                                  (cid,))['n'],
+            'faction': db.query_one('SELECT COUNT(*) n, COALESCE(SUM(delta),0) d FROM '
+                                    'faction_events WHERE character_id=?', (cid,)),
+            'fcaps': db.query_one('SELECT COUNT(*) n FROM faction_caps WHERE character_id=?',
+                                  (cid,))['n'],
+            'votes': db.query_one("SELECT votes FROM craft_recipe_skill WHERE character_id=? "
+                                  "AND item='Tumpy Tonic' AND skill='Brewing'", (cid,)),
+            'upgrades': db.query_one('SELECT COUNT(*) n FROM upgrade_events WHERE character_id=?',
+                                     (cid,))['n'],
+        }
+    ec = ev_counts()
+    check('pipe: craft rows (2, 1 ok, 1 capped)', ec['craft']['n'] == 2 and ec['craft']['ok'] == 1
+          and ec['craft']['capped'] == 1, dict(ec['craft']))
+    check('pipe: cap attached to Tumpy Tonic', db.query_one(
+        "SELECT capped FROM craft_events WHERE character_id=? AND item='Tumpy Tonic'",
+        (cid,))['capped'] == 1)
+    check('pipe: recipe->skill vote', ec['votes'] and ec['votes']['votes'] == 1, ec['votes'])
+    check('pipe: depot rows', ec['depot'] == 2, ec['depot'])
+    check('pipe: faction rows kept both identical hits', ec['faction']['n'] == 2
+          and ec['faction']['d'] == -10, dict(ec['faction']))
+    check('pipe: faction cap row', ec['fcaps'] == 1)
+    check('pipe: upgrade row', ec['upgrades'] == 1, ec['upgrades'])
+    from app.logscan import backfill
+
+    def guard(key):
+        r = db.query_one('SELECT value_num FROM highlights WHERE character_id=? AND key=?',
+                         (cid, key))
+        return r['value_num'] if r else None
+    check('pipe: a from-zero scan sets the backfill guards without reading',
+          guard(backfill.GUARD_KEY) == 0 and guard(backfill.REV_KEY) == backfill.BACKFILL_REV,
+          (guard(backfill.GUARD_KEY), guard(backfill.REV_KEY)))
+
+    # ── backfill: an install whose checkpoint already sits at EOF gets the
+    #    event history exactly once ──
+    EVENT_TABLES = ('craft_events', 'craft_caps', 'craft_recipe_skill', 'depot_events',
+                    'faction_events', 'faction_caps', 'upgrade_events')
+    with db.tx() as c:
+        for table in EVENT_TABLES:
+            c.execute(f'DELETE FROM {table} WHERE character_id=?', (cid,))
+        c.execute('DELETE FROM highlights WHERE character_id=? AND key IN (?, ?)',
+                  (cid, backfill.GUARD_KEY, backfill.REV_KEY))
+    lines_before = hl('lines_parsed')['value_num']
+    kills_before = hl('total_kills')['value_num']
+    r_bf = importer.scan_once(dict(char))
+    check('pipe: backfill scan consumed no new bytes', r_bf['lines'] == 0
+          and r_bf['offset'] == size1, r_bf)
+    ec2 = ev_counts()
+    check('pipe: backfill restored craft/depot/faction/upgrade rows',
+          ec2['craft']['n'] == 2 and ec2['craft']['capped'] == 1 and ec2['depot'] == 2
+          and ec2['faction']['n'] == 2 and ec2['fcaps'] == 1 and ec2['upgrades'] == 1
+          and ec2['votes'] and ec2['votes']['votes'] == 1, ec2)
+    check('pipe: backfill touched no additive counters',
+          hl('lines_parsed')['value_num'] == lines_before
+          and hl('total_kills')['value_num'] == kills_before)
+    check('pipe: backfill guards record offset + revision',
+          guard(backfill.GUARD_KEY) == size1 and guard(backfill.REV_KEY) == backfill.BACKFILL_REV,
+          (guard(backfill.GUARD_KEY), guard(backfill.REV_KEY)))
+    importer.scan_once(dict(char))
+    check('pipe: second scan does not backfill again', ev_counts()['craft']['n'] == 2)
+
+    # ── backfill revision 2 on a v1.1 install: only the offset guard exists (rev 1
+    #    ran), so only the NEW event kind is replayed — no duplicate craft rows ──
+    with db.tx() as c:
+        c.execute('DELETE FROM upgrade_events WHERE character_id=?', (cid,))
+        c.execute('DELETE FROM highlights WHERE character_id=? AND key=?', (cid, backfill.REV_KEY))
+    check('pipe: offset guard alone reads as revision 1', backfill.stored_rev(cid) == 1)
+    importer.scan_once(dict(char))
+    ec3 = ev_counts()
+    check('pipe: rev-2 backfill adds upgrades only',
+          ec3['upgrades'] == 1 and ec3['craft']['n'] == 2 and ec3['faction']['n'] == 2, ec3)
+    check('pipe: revision recorded after the partial backfill',
+          guard(backfill.REV_KEY) == backfill.BACKFILL_REV and not backfill.needed(cid))
 
     # ── append 5 lines: only the new bytes are consumed ──
     extra = ['You slash a spider for 9 points of damage.',

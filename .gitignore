@@ -9,3 +9,8 @@ vendor/eqlparser/static/
 vendor/eqlparser/icons.json
 .venv/
 venv/
+
+# your own /outputfile exports (import them through the app instead)
+*-Inventory.txt
+*-Faction.txt
+*-Recipes.txt

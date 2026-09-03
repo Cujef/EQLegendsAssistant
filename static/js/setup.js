@@ -2,8 +2,8 @@
 
    Opens automatically when the server reports `needs_setup` (no character, or
    an active character with neither a log nor an inventory dump), and on demand
-   from the title bar. Everything here is self-contained: its own CSS, its own
-   modal, no page registration — a brand-new install must be able to reach it
+   from the title bar. Self-contained apart from the shared Modal frame
+   (modal.js): no page registration — a brand-new install must be able to reach it
    before any page has data to render.
 
    Why a folder path and not a file picker for the log: the browser's picker
@@ -12,77 +12,28 @@
    and read once, so that one DOES accept a picked file. */
 'use strict';
 
-const SETUP_CSS = `
-.su-backdrop { position:fixed; inset:0; z-index:100; display:none;
-  background:rgba(0,0,0,0.55); }
-.su-backdrop.open { display:flex; align-items:flex-start; justify-content:center;
-  overflow:auto; padding:40px 16px; }
-.su-modal { width:min(760px, 100%); border:1px solid var(--edge-strong);
-  background:
-    repeating-linear-gradient(90deg, transparent 0 2px, var(--brush-line) 2px 3px),
-    linear-gradient(180deg, var(--panel-hi), var(--panel-lo));
-  box-shadow: inset 1px 1px 0 var(--bevel-hi), inset -1px -1px 0 var(--bevel-lo),
-    0 10px 40px rgba(0,0,0,0.6); }
-.su-hdr { display:flex; align-items:center; gap:10px; padding:10px 14px;
-  border-bottom:2px solid var(--edge-strong);
-  background:linear-gradient(180deg, var(--panel-hi), var(--panel-flat)); }
-.su-hdr h2 { margin:0; flex:1; font:800 13px var(--font-display);
-  letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); }
-.su-body { padding:14px; }
-.su-lead { color:var(--text-dim); font-size:13px; margin-bottom:14px; line-height:1.6; }
-.su-sec { margin-bottom:16px; border:1px solid var(--edge); }
-.su-sec > h3 { margin:0; padding:5px 10px; font:700 10px var(--font-display);
-  letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim);
-  border-bottom:1px solid var(--edge);
-  background:linear-gradient(180deg, var(--panel-hi), var(--panel-flat)); }
-.su-sec > div { padding:10px; }
-.su-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.su-row input[type=text] { flex:1; min-width:220px; }
-.su-cand { display:flex; align-items:center; gap:10px; padding:7px 8px;
-  border:1px solid var(--edge); margin-bottom:6px;
-  background:linear-gradient(180deg, var(--panel-hi), var(--panel-lo)); }
-.su-cand .nm { font:700 13px var(--font-body); color:var(--text); }
-.su-cand .meta { flex:1; font-size:11px; color:var(--text-dim); }
-.su-cand .meta b { color:var(--text); font-weight:600; }
-.su-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-  gap:8px; }
-.su-note { font-size:11px; color:var(--text-faint); margin-top:8px; line-height:1.5; }
-.su-msg { margin-top:10px; font-size:12px; min-height:16px; }
-.su-label { display:block; font:600 10px var(--font-display); letter-spacing:0.1em;
-  text-transform:uppercase; color:var(--text-faint); margin-bottom:3px; }
-`;
+/* Dialog chrome + the .su-* form vocabulary live in modal.js (shared with
+   Import Inventory); this file owns only the setup flow. */
 
 const Setup = (() => {
-  let backdrop = null, bodyEl = null, titleEl = null, closeBtn = null;
+  let dlg = null, backdrop = null, bodyEl = null, titleEl = null, closeBtn = null;
   let lastScan = null;
   let onDone = null;
 
   function ensureDom() {
-    if (backdrop) return;
-    const st = document.createElement('style');
-    st.id = 'setup-css';
-    st.textContent = SETUP_CSS;
-    document.head.append(st);
-
-    bodyEl = el('div', { class: 'su-body' });
-    titleEl = el('h2', {}, 'Set up your character');
-    closeBtn = el('button', { class: 'metal-btn' }, '✕');
-    closeBtn.addEventListener('click', () => close());
-    backdrop = el('div', { class: 'su-backdrop' },
-      el('div', { class: 'su-modal' },
-        el('div', { class: 'su-hdr' }, titleEl, closeBtn),
-        bodyEl));
-    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && backdrop.classList.contains('open')) close();
+    if (dlg) return;
+    dlg = Modal.create({
+      title: 'Set up your character',
+      onClose: () => { if (onDone) { const f = onDone; onDone = null; f(); } },
     });
-    document.body.append(backdrop);
+    backdrop = dlg.backdrop;
+    bodyEl = dlg.body;
+    titleEl = dlg.titleEl;
+    closeBtn = dlg.closeBtn;
   }
 
   function close() {
-    if (!backdrop) return;
-    backdrop.classList.remove('open');
-    if (onDone) { const f = onDone; onDone = null; f(); }
+    if (dlg) dlg.close(true);
   }
 
   async function open(opts) {
@@ -91,7 +42,7 @@ const Setup = (() => {
     onDone = opts.onDone || null;
     titleEl.textContent = opts.firstRun ? 'Welcome — set up your character' : 'Characters';
     closeBtn.style.display = opts.firstRun ? 'none' : '';   // first run needs a choice
-    backdrop.classList.add('open');
+    dlg.open();
     await render(opts);
   }
 
@@ -308,6 +259,13 @@ const Setup = (() => {
       const f = file.files && file.files[0];
       if (!f) { msg.className = 'su-msg warn'; msg.textContent = 'Pick a file first.'; return; }
       if (!chars.active) { msg.className = 'su-msg warn'; msg.textContent = 'Add a character first.'; return; }
+      const who = (typeof ImportInventory !== 'undefined') ? ImportInventory.detect(f.name) : null;
+      if (who && (who.name.toLowerCase() !== chars.active.name.toLowerCase()
+                  || who.server.toLowerCase() !== chars.active.server.toLowerCase())) {
+        msg.className = 'su-msg warn';
+        msg.textContent = `That file is named for ${who.name} (${who.server}), not ${chars.active.name} — use Import Inventory in the sidebar to import it for the right character.`;
+        return;
+      }
       btn.disabled = true;
       try {
         const text = await f.text();

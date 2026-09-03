@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Optional
 
 from .. import characters, db, naming, state
-from . import ext_parser
+from . import backfill, ext_parser
 from .highlights import Aggregator, TRACKED_EVENTS
 
 from vendor.eqlparser.tracker import FightTracker
@@ -54,7 +54,8 @@ def _fingerprint(path: Path) -> Optional[str]:
 def _blank_session() -> dict:
     return {'dmg_dealt': 0, 'dmg_taken': 0, 'kills': 0, 'deaths': 0,
             'xp_pct': 0.0, 'casts': 0, 'fizzles': 0,
-            'loot': [], 'skill_ups': [], 'aa': [], 'deaths_recent': [], 'levels': []}
+            'loot': [], 'skill_ups': [], 'aa': [], 'deaths_recent': [], 'levels': [],
+            'crafts': [], 'faction': [], 'craft_errors': [], 'upgrades': []}
 
 
 class Pipeline:
@@ -249,6 +250,24 @@ class Pipeline:
                                    'balance_after': ev.get('balance_after')}])[-5:]
         elif t == 'level_up':
             s['levels'] = (s['levels'] + [{'ts': ev['ts'], 'level': ev['level']}])[-5:]
+        elif t == 'craft':
+            # agg.feed already ran: last_craft_capped says whether a cap notice
+            # preceded this very combine
+            s['crafts'] = (s['crafts'] + [{'ts': ev['ts'], 'item': ev['item'],
+                                           'ok': bool(ev.get('ok')),
+                                           'capped': bool(self.agg.last_craft_capped)}])[-10:]
+        elif t == 'faction':
+            s['faction'] = (s['faction'] + [{'ts': ev['ts'], 'faction': ev['faction'],
+                                             'delta': ev['delta']}])[-10:]
+        elif t == 'faction_capped':
+            s['faction'] = (s['faction'] + [{'ts': ev['ts'], 'faction': ev['faction'],
+                                             'capped': ev['direction']}])[-10:]
+        elif t == 'craft_error':
+            s['craft_errors'] = (s['craft_errors'] + [{'ts': ev['ts'],
+                                                       'reason': ev['reason']}])[-5:]
+        elif t == 'upgrade':
+            s['upgrades'] = (s['upgrades'] + [{'ts': ev['ts'], 'item': ev['item'],
+                                               'tier': ev.get('tier')}])[-10:]
 
     # ── snapshot ─────────────────────────────────────────────────────────────
     def _push_live(self, status: str):
@@ -320,6 +339,12 @@ class Pipeline:
         except OSError as e:
             state.set_import(status='error', error=str(e))
             raise
+        # v1.1 upgrade path: tradeskill/faction history for bytes consumed before
+        # those events existed. Guarded, so it costs one query afterwards.
+        try:
+            backfill.run(self.cid, self.path, self.offset)
+        except OSError as e:
+            print(f'[tail] backfill skipped: {e!r}', file=sys.stderr)
         state.set_import(status='running', pct=self._pct(size), offset=self.offset,
                          size=size, lines=self.lines, started_at=started,
                          reset=self.reset, error=None)

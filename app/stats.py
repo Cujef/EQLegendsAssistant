@@ -47,7 +47,7 @@ def _caps() -> list:
 def _equipped_rows(snapshot_id: int) -> list:
     """Worn top-level items + their socketed exaltations, joined to the item DB."""
     return db.query(
-        'SELECT i.location, i.name, i.name_norm, i.upgrade_tier, i.is_exaltation, '
+        'SELECT i.location, i.root, i.name, i.name_norm, i.upgrade_tier, i.is_exaltation, '
         'i.sub_slot, it.stats_json, it.resists_json, it.ac, it.hp, it.mana, '
         'it.haste_pct, it.name_norm AS db_hit '
         'FROM inventory_items i LEFT JOIN items it ON it.name_norm=i.name_norm '
@@ -67,12 +67,13 @@ def _focus_effects(snapshot_id: int) -> list:
 
 
 def overview(character_id: int) -> dict:
-    snap = inventory.latest_snapshot(character_id)
+    snap = inventory.ensure_current(character_id)
     totals = {s: 0 for s in PRIMARY_STATS}
     resists = {s: 0 for s in RESISTS}
     ac = hp = mana = 0
     worn_haste = 0
     matched = unmatched = 0
+    any_slot = 0
     caveats = []
 
     if snap:
@@ -81,6 +82,8 @@ def overview(character_id: int) -> dict:
             # stats only from the worn item itself (sub_slot is the socket tier).
             if r['sub_slot'] is not None:
                 continue
+            if r['root'] == 'Any Slot':
+                any_slot += 1
             if not r['db_hit']:
                 unmatched += 1
                 continue
@@ -103,6 +106,9 @@ def overview(character_id: int) -> dict:
             worn_haste = max(worn_haste, int(r['haste_pct'] or 0))
         if unmatched:
             caveats.append(f'{unmatched} worn item(s) missing from the item DB — run a Data Sync; totals are incomplete.')
+        if any_slot:
+            caveats.append(f'{any_slot} "Any Slot" item(s) counted as worn — the dump does not say '
+                           f'whether these are equipped or a swap set (assumed worn).')
         caveats.append('Gear totals use base item stats; +N upgrade scaling is not in the item DB.')
         caveats.append('Worn haste shown is the highest single worn source (worn haste does not stack).')
 

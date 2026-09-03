@@ -1,9 +1,17 @@
-/* Inventory page: import the /outputfile inventory dump, browse it.
+/* Inventory page: browse the imported /outputfile inventory dump.
 
-   Layout is the draggable / resizable / lockable tile grid (tiles.js). Import
-   stays a PAGE action (it acts on the whole page, not one tile); the item
-   filters live inside the items tile, above its table. Every render* guards on
-   its body still being connected, so close → reopen → drag is safe. */
+   Import is a PAGE action that opens the shared Import Inventory dialog (the
+   same one the sidebar offers). Layout is the draggable / resizable / lockable
+   tile grid (tiles.js); the item filters live inside the items tile, above its
+   table. Every render* guards on its body still being connected, so close →
+   reopen → drag is safe.
+
+   Server-side facts this page leans on (app/inventory.py): rows carry
+   `section` (worn/bags/bank/shared/lists/depot), `host_name` (the item a socket
+   or pocket sits in — resolved by row order, since paired slots repeat their
+   Location string), `is_pocket`; `containers` lists every bag incl. nested ones;
+   `ladder` groups +N tiers and duplicate copies; `lists` are the trailing
+   Augmentation / Activated / Equipment sections. */
 'use strict';
 
 (() => {
@@ -17,11 +25,15 @@
   let spriteCache = {}; // icon -> {url,x,y}
 
   function section(row) {
+    if (row.section) return row.section;
     if (row.is_equipped) return 'worn';
     if (row.root.startsWith('SharedBank')) return 'shared';
     if (row.root.startsWith('Bank')) return 'bank';
     if (row.root.startsWith('General')) return 'bags';
     return 'other';
+  }
+  function bagSeqs() {
+    return new Set((view && view.containers || []).map((c) => c.seq).filter((s) => s !== null && s !== undefined));
   }
 
   function iconCell(row) {
@@ -56,7 +68,8 @@
     const q = filter.q.toLowerCase();
     return ((view && view.items) || []).filter((r) => {
       if (filter.section !== 'all' && section(r) !== filter.section) return false;
-      return !q || r.name.toLowerCase().includes(q) || r.location.toLowerCase().includes(q);
+      return !q || r.name.toLowerCase().includes(q) || r.location.toLowerCase().includes(q)
+        || (r.host_name && r.host_name.toLowerCase().includes(q));
     });
   }
 
@@ -93,6 +106,8 @@
       el('option', { value: 'bags' }, 'Bags'),
       el('option', { value: 'bank' }, 'Bank'),
       el('option', { value: 'shared' }, 'Shared bank'),
+      el('option', { value: 'lists' }, 'Keyring lists'),
+      el('option', { value: 'depot' }, 'Depot'),
       el('option', { value: 'other' }, 'Other'));
     for (const o of sect.options) if (o.value === filter.section) o.selected = true;
     sect.addEventListener('change', () => { filter.section = sect.value; renderItemsTable(); });
@@ -108,12 +123,19 @@
 
   function renderItemsTable() {
     if (!els.itemsTable || !els.itemsTable.isConnected) return;
+    const bags = bagSeqs();
     renderTable(els.itemsTable, {
       id: 'inventory',
       columns: [
         { key: 'icon', label: '', render: iconCell },
         { key: 'name', label: 'Item' },
-        { key: 'location', label: 'Location' },
+        {
+          key: 'location', label: 'Location',
+          render: (r) => r.host_name
+            ? el('span', { title: r.location }, r.location, ' ',
+                el('span', { class: 'faint' }, r.is_pocket ? `in ${r.host_name}` : `on ${r.host_name}`))
+            : r.location,
+        },
         {
           key: 'flags', label: 'Notes',
           sortVal: (r) => (r.is_exaltation ? 2 : 0) + (r.upgrade_tier ? 1 : 0),
@@ -121,11 +143,8 @@
             const bits = [];
             if (r.is_exaltation) bits.push('Exaltation');
             if (r.upgrade_tier) bits.push('+' + r.upgrade_tier);
-            // `Slots` on equipment means augment capacity; it is a bag only when
-            // it sits directly in a General/Bank/SharedBank slot.
-            if (r.slots && !r.parent_location && /^(General|Bank|SharedBank)/.test(r.root)) {
-              bits.push(r.slots + '-slot bag');
-            }
+            // bag-ness comes from the server's container detection (nested bags included)
+            if (bags.has(r.seq)) bits.push(r.slots + '-slot bag');
             if (!r.in_item_db) bits.push('no item data');
             return bits.join(' · ') || null;
           },
@@ -149,10 +168,13 @@
     const items = view.items || [];
     const exalts = items.filter((r) => r.is_exaltation).length;
     const nodb = items.filter((r) => !r.in_item_db).length;
+    const bags = (view.containers || []).length;
+    const nested = (view.containers || []).filter((c) => c.nested).length;
     b.append(
       statRow('Items', fmt(items.length)),
       statRow('Exaltations', fmt(exalts)),
       statRow('Open sockets', fmt((view.open_sockets || []).length)),
+      statRow('Bags', fmt(bags) + (nested ? ` (${nested} inside other bags)` : '')),
       statRow('No item-DB match', fmt(nodb), nodb ? 'warn' : ''),
       statRow('Imported', new Date(view.snapshot.imported_at * 1000).toLocaleString()));
     if (nodb) {
@@ -163,14 +185,6 @@
 
   // ── tile: open sockets ──────────────────────────────────────────────────
   function buildSockets(body) { els.sockets = body; renderSockets(); }
-  function socketRows() {
-    const byLoc = {};
-    for (const r of (view.items || [])) byLoc[r.location] = r;
-    return (view.open_sockets || []).map((s) => ({
-      location: s.location,
-      host: (byLoc[s.parent_location] || {}).name || null,
-    }));
-  }
   function renderSockets() {
     if (!els.sockets || !els.sockets.isConnected) return;
     const b = els.sockets;
@@ -182,25 +196,190 @@
       id: 'inv.sockets',
       columns: [
         { key: 'location', label: 'Socket' },
-        { key: 'host', label: 'On item' },
+        { key: 'host_name', label: 'On item' },
+        {
+          key: 'host_equipped', label: 'Worn', num: true,
+          render: (r) => r.host_equipped ? 'yes' : el('span', { class: 'faint' }, 'no'),
+        },
       ],
-      rows: socketRows(),
-      defaultSort: { key: 'host', dir: 1 },
+      rows: view.open_sockets || [],
+      defaultSort: { key: 'host_name', dir: 1 },
       empty: 'No open sockets.',
     });
   }
 
+  // ── tile: bag & bank space ──────────────────────────────────────────────
+  function buildSpace(body) { els.space = body; renderSpace(); }
+  function renderSpace() {
+    if (!els.space || !els.space.isConnected) return;
+    const b = els.space;
+    if (noData(b)) return;
+    b.replaceChildren();
+    const sp = view.space || {};
+    const line = el('div', { class: 'row', style: 'gap:18px;margin-bottom:8px;font-size:12px' });
+    for (const [key, label] of [['bags', 'Bags'], ['bank', 'Bank'], ['shared', 'Shared bank']]) {
+      const s = sp[key];
+      line.append(el('span', {}, el('span', { class: 'muted' }, label + ': '),
+        s ? el('span', { class: s.free ? '' : 'warn' }, `${fmt(s.free)} free of ${fmt(s.capacity)}`)
+          : el('span', { class: 'faint' }, 'no bags')));
+    }
+    b.append(line);
+    const host = el('div', {});
+    b.append(host);
+    renderTable(host, {
+      id: 'inv.space',
+      columns: [
+        {
+          key: 'location', label: 'Slot',
+          render: (r) => r.nested ? el('span', { title: 'a bag inside another bag' }, r.location, ' ', el('span', { class: 'faint' }, '(nested)')) : r.location,
+        },
+        { key: 'name', label: 'Bag' },
+        { key: 'capacity', label: 'Size', num: true },
+        { key: 'used', label: 'Used', num: true },
+        {
+          key: 'free', label: 'Free', num: true,
+          render: (r) => el('span', { class: r.free ? (r.free === r.capacity ? 'faint' : '') : 'warn' }, String(r.free)),
+        },
+      ],
+      rows: view.containers || [],
+      defaultSort: { key: 'free', dir: 1 },
+      empty: 'No bags found in the dump.',
+    });
+  }
+
+  // ── tile: upgrade ladder ────────────────────────────────────────────────
+  function buildLadder(body) { els.ladder = body; renderLadder(); }
+  function renderLadder() {
+    if (!els.ladder || !els.ladder.isConnected) return;
+    const b = els.ladder;
+    if (noData(b)) return;
+    b.replaceChildren();
+    const host = el('div', {});
+    b.append(host);
+    renderTable(host, {
+      id: 'inv.ladder',
+      columns: [
+        {
+          key: 'name', label: 'Item',
+          render: (r) => r.upgrade_available
+            ? el('span', {}, r.name, ' ', el('span', { class: 'good', title: 'a higher +N copy than the one you wear' }, '▲ better copy owned'))
+            : r.name,
+        },
+        {
+          key: 'worn_tier', label: 'Worn', num: true,
+          render: (r) => r.worn_tier === null ? el('span', { class: 'faint' }, 'not worn') : '+' + r.worn_tier,
+        },
+        {
+          key: 'tiers', label: 'Copies (+N)',
+          sortVal: (r) => r.best_tier,
+          render: (r) => `${r.copies}× ` + r.tiers.map((t) => '+' + t).join(', '),
+        },
+        {
+          key: 'exalt_copies', label: 'Exaltations', num: true,
+          render: (r) => r.exalt_copies ? String(r.exalt_copies) : el('span', { class: 'faint' }, '-'),
+        },
+        {
+          key: 'merges', label: 'Merges (log)', num: true,
+          render: (r) => r.merges
+            ? el('span', { title: 'times the log saw two copies merged into this item' },
+                String(r.merges) + (r.merge_max_tier ? ` → +${r.merge_max_tier}` : ''))
+            : el('span', { class: 'faint' }, '-'),
+        },
+        {
+          key: 'locations', label: 'Where',
+          render: (r) => r.locations.map((l) => l.location + (l.tier ? ` +${l.tier}` : '') + (l.exaltation ? ' (ex)' : '')).join(', '),
+        },
+      ],
+      rows: view.ladder || [],
+      defaultSort: { key: 'worn_tier', dir: -1 },
+      empty: 'No upgraded (+N) items, duplicates, or exaltation copies to compare.',
+    });
+  }
+
+  // ── tile: merge history (from the log) ──────────────────────────────────
+  function buildMerges(body) { els.merges = body; renderMerges(); }
+  function renderMerges() {
+    if (!els.merges || !els.merges.isConnected) return;
+    const b = els.merges;
+    b.replaceChildren();
+    const rows = (view && view.merge_history) || [];
+    const t = (view && view.merge_totals) || {};
+    if (t.merges) {
+      b.append(el('div', { class: 'muted', style: 'font-size:12px;margin-bottom:6px' },
+        `${fmt(t.merges)} merges across ${fmt(t.items)} items — from "You have successfully merged two items" log lines`));
+    }
+    const host = el('div', {});
+    b.append(host);
+    renderTable(host, {
+      id: 'inv.merges',
+      columns: [
+        { key: 'ts', label: 'When', num: true, render: (r) => new Date(r.ts * 1000).toLocaleString() },
+        { key: 'item', label: 'Result' },
+        {
+          key: 'tier', label: 'Tier', num: true,
+          render: (r) => r.tier === null || r.tier === undefined
+            ? el('span', { class: 'faint', title: 'a rank merge, not a +N upgrade' }, 'rank') : '+' + r.tier,
+        },
+      ],
+      rows,
+      defaultSort: { key: 'ts', dir: -1 },
+      empty: 'No item merges in the log yet.',
+    });
+  }
+
+  // ── tile: keyring lists ─────────────────────────────────────────────────
+  function buildLists(body) { els.lists = body; renderLists(); }
+  function renderLists() {
+    if (!els.lists || !els.lists.isConnected) return;
+    const b = els.lists;
+    if (noData(b)) return;
+    b.replaceChildren();
+    const lists = view.lists || {};
+    const rows = [];
+    for (const [cat, label, note] of [
+      ['augmentation', 'Augmentation', 'unsocketed exaltations you own'],
+      ['activated', 'Activated', 'activated exaltations'],
+      ['equipment', 'Equipment', 'meaning not confirmed — shown, never counted as worn'],
+    ]) {
+      for (const r of lists[cat] || []) rows.push({ category: label, note, name: r.name, item_id: r.item_id, in_item_db: r.in_item_db });
+    }
+    const host = el('div', {});
+    b.append(host);
+    renderTable(host, {
+      id: 'inv.lists',
+      columns: [
+        { key: 'category', label: 'List', render: (r) => el('span', { title: r.note }, r.category) },
+        { key: 'name', label: 'Item' },
+        { key: 'item_id', label: 'ID', num: true },
+      ],
+      rows,
+      defaultSort: { key: 'category', dir: 1 },
+      empty: 'The dump had no trailing keyring sections.',
+    });
+    b.append(el('div', { class: 'faint', style: 'margin-top:6px;font-size:11px' },
+      'These are the 3-column lists after the main body. "Equipment" is undocumented — '
+      + 'its items appear nowhere else in the dump, so they are listed but not counted.'));
+  }
+
   // ── tile registry ───────────────────────────────────────────────────────
   const DEFS = [
-    { id: 'items',   title: 'Items',        span: 8, height: 520, minSpan: 4, build: buildItems },
-    { id: 'summary', title: 'Summary',      span: 4, height: 240, minSpan: 3, build: buildSummary },
-    { id: 'sockets', title: 'Open Sockets', span: 4, height: 270, minSpan: 3, build: buildSockets },
+    { id: 'items',   title: 'Items',            span: 8, height: 520, minSpan: 4, build: buildItems },
+    { id: 'summary', title: 'Summary',          span: 4, height: 250, minSpan: 3, build: buildSummary },
+    { id: 'sockets', title: 'Open Sockets',     span: 4, height: 260, minSpan: 3, build: buildSockets },
+    { id: 'space',   title: 'Bag & Bank Space', span: 6, height: 330, minSpan: 3, build: buildSpace },
+    { id: 'ladder',  title: 'Upgrade Ladder',   span: 6, height: 330, minSpan: 3, build: buildLadder },
+    { id: 'lists',   title: 'Keyring Lists',    span: 6, height: 260, minSpan: 3, build: buildLists },
+    { id: 'merges',  title: 'Merge History (From The Log)', span: 6, height: 260, minSpan: 3, build: buildMerges },
   ];
 
   function renderAll() {
     renderItems();
     renderSummary();
     renderSockets();
+    renderSpace();
+    renderLadder();
+    renderLists();
+    renderMerges();
   }
 
   async function reload() {
@@ -230,28 +409,16 @@
     title: 'Inventory',
     icon: '🎒',
     render(container) {
-      const importBtn = el('button', { class: 'metal-btn primary' }, 'Import inventory file');
-      const status = el('span', { class: 'muted', style: 'margin-left:10px' });
-      importBtn.addEventListener('click', async () => {
-        importBtn.disabled = true;
-        status.className = 'muted';          // clear a previous failure's red
-        status.textContent = 'importing…';
-        try {
-          const res = await API.post('/api/inventory/import' + App.q());
-          status.textContent = res.unchanged
-            ? 'File unchanged since last import.'
-            : `Imported ${res.items} items (${res.exaltations} exaltations).`;
-          await reload();
-        } catch (e) {
-          status.textContent = e.message;
-          status.className = 'bad';
-        } finally { importBtn.disabled = false; }
-      });
-
+      const importBtn = el('button', { class: 'metal-btn primary' }, '⤓ Import inventory…');
+      importBtn.addEventListener('click', () => ImportInventory.open({ onDone: () => reload() }));
+      const hint = el('span', { class: 'muted', style: 'margin-left:10px;font-size:12px' },
+        view && view.snapshot
+          ? 'Last import ' + new Date(view.snapshot.imported_at * 1000).toLocaleString()
+          : 'In game: /outputfile inventory');
       container.append(
         el('h1', { class: 'page-title' }, 'Inventory'),
         el('div', { class: 'row', style: 'align-items:center;margin-bottom:10px' },
-          importBtn, status));
+          importBtn, hint));
       const host = el('div', {});
       container.append(host);
       Tiles.mount(host, { storageKey: SKEY, defs: DEFS });

@@ -28,7 +28,7 @@ def _effects_for(name_norm: str) -> list:
 
 
 def view(character_id: int) -> dict:
-    snap = inventory.latest_snapshot(character_id)
+    snap = inventory.ensure_current(character_id)
     if not snap:
         return {'snapshot': None, 'socketed': [], 'loose': [], 'open_sockets': [],
                 'all_effects': [], 'unknown': [], 'rules': COMPATIBILITY_RULES}
@@ -37,7 +37,10 @@ def view(character_id: int) -> dict:
         'SELECT i.*, it.class_text, it.dmg FROM inventory_items i '
         'LEFT JOIN items it ON it.name_norm=i.name_norm '
         'WHERE i.snapshot_id=? ORDER BY i.id', (snap['id'],))
-    by_loc = {r['location']: r for r in rows}
+    # host resolution by row order, not by Location string: paired slots
+    # (Fingers, Ear, Wrist, Any Slot) repeat their Location verbatim, so a dict
+    # keyed on it would hand ring 1's socket to ring 2
+    inventory.attach_hosts(rows)
 
     socketed, loose, unknown = [], [], []
     for r in rows:
@@ -56,11 +59,12 @@ def view(character_id: int) -> dict:
         elif r['root'] == 'Activated':
             entry['where'] = 'activated'
             loose.append(entry)
-        elif r['parent_location'] and not inventory.is_container_location(r['parent_location']):
-            host = by_loc.get(r['parent_location'])
+        elif r['parent_location'] and not inventory.parent_is_container(r):
+            host = r.get('_host')
             entry['where'] = 'socketed'
             entry['host_item'] = host['name'] if host else r['parent_location']
             entry['host_location'] = r['parent_location']
+            entry['host_seq'] = host.get('seq') if host else None
             entry['host_equipped'] = bool(host and host['is_equipped'])
             socketed.append(entry)
         elif r['parent_location']:
@@ -77,14 +81,15 @@ def view(character_id: int) -> dict:
     for r in rows:
         if not r['is_empty'] or r['sub_slot'] is None or not (lo <= r['sub_slot'] <= hi):
             continue
-        if inventory.is_container_location(r['parent_location']):
-            continue  # an 8+-slot bag's empty pocket, not an augment socket
-        host = by_loc.get(r['parent_location'])
+        if inventory.parent_is_container(r):
+            continue  # a bag's empty pocket (nested bags included), not an augment socket
+        host = r.get('_host')
         if not host or host['is_empty']:
             continue
         open_sockets.append({
             'location': r['location'], 'sub_slot': r['sub_slot'],
             'host_item': host['name'], 'host_location': host['location'],
+            'host_seq': host.get('seq'),
             'host_equipped': bool(host['is_equipped']),
             'host_class_text': host['class_text'],
             'host_is_weapon': bool(host['dmg']),

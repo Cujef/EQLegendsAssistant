@@ -20,6 +20,25 @@ from . import db
 from .config import GAME_DIR, LOGS_DIR
 
 RE_LOG_FILENAME = re.compile(r'^eqlog_(\w+)_(\w+)\.txt$')
+# the game names the dump <Name>_<server>-Inventory.txt; the file itself carries
+# no character header, so the filename is the only in-band owner hint
+RE_INVENTORY_FILENAME = re.compile(r'^(\w+)_(\w+)-Inventory\.txt$', re.I)
+
+
+def parse_inventory_filename(name) -> Optional[tuple]:
+    """(name, server) from a dump filename or path, or None when it does not
+    follow the game's naming. Accepts either slash style on any OS."""
+    base = re.split(r'[\\/]', str(name or ''))[-1]
+    m = RE_INVENTORY_FILENAME.match(base)
+    return (m.group(1), m.group(2)) if m else None
+
+
+def parse_outputfile_owner(name) -> Optional[tuple]:
+    """(name, server) from ANY /outputfile export name (-Inventory, -Faction,
+    -<Skill>-Recipes); see app/gamefiles.py for the kind."""
+    from . import gamefiles
+    meta = gamefiles.parse_outputfile_name(name)
+    return (meta['name'], meta['server']) if meta else None
 
 
 def _read_characters_ini(game_dir: Path) -> List[tuple]:
@@ -141,7 +160,9 @@ def add(name: str, server: str, log_path_: str = None, inventory_path_: str = No
 # every table keyed by character_id, so removing a character leaves nothing behind
 _CHAR_TABLES = ('manual_stats', 'quest_progress', 'quest_step_progress', 'skill_levels',
                 'level_history', 'aa_ledger', 'deaths', 'highlights', 'fights',
-                'log_source')
+                'log_source', 'craft_events', 'craft_caps', 'craft_recipe_skill',
+                'depot_events', 'faction_events', 'faction_caps', 'upgrade_events',
+                'faction_standings', 'known_recipes')
 
 
 def remove(char_id: int) -> None:
@@ -168,6 +189,29 @@ def needs_setup() -> bool:
     if not active:
         return True
     return not (active['log_path'] or active['inventory_path'])
+
+
+def readiness(active: Optional[dict]) -> Optional[dict]:
+    """What the active character has fed the app so far — drives the first-open
+    suggestion box. Three indexed reads on one connection; rides the 1 Hz snapshot."""
+    if not active:
+        return None
+    cid = active['id']
+    conn = db.reader()
+    try:
+        inv = conn.execute('SELECT MAX(imported_at) FROM inventory_snapshots '
+                           'WHERE character_id=?', (cid,)).fetchone()[0]
+        lines = conn.execute("SELECT value_num FROM highlights WHERE character_id=? "
+                             "AND key='lines_parsed'", (cid,)).fetchone()
+        items = conn.execute('SELECT COUNT(*) FROM items').fetchone()[0]
+    finally:
+        conn.close()
+    return {
+        'inventory_imported_at': inv,
+        'log_path_set': bool(active.get('log_path')),
+        'log_lines_parsed': int(lines[0]) if lines and lines[0] else 0,
+        'items_in_db': int(items or 0),
+    }
 
 
 def seed() -> None:

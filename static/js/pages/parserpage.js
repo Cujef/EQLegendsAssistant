@@ -243,6 +243,23 @@ tr.pp-sel td { background:var(--sel-bg); }
     for (const x of s.deaths_recent || []) items.push({ ts: x.ts, ico: '☠', text: `Died to ${x.killer}`, cls: 'bad' });
     for (const x of s.loot || []) items.push({ ts: x.ts, ico: '◆', text: x.item + (x.source ? ` (${x.source})` : '') });
     for (const x of s.levels || []) items.push({ ts: x.ts, ico: '▲', text: `Level ${x.level}!`, cls: 'good' });
+    for (const x of s.crafts || []) {
+      items.push(x.ok
+        ? { ts: x.ts, ico: '⚗', text: `Made ${x.item}` + (x.capped ? ' · CAP (no longer trains)' : '') }
+        : { ts: x.ts, ico: '✗', text: `Failed to make ${x.item}`, cls: 'bad' });
+    }
+    for (const x of s.craft_errors || []) {
+      const why = { missing_materials: 'missing materials', unusable_result: 'unusable result',
+                    wrong_container: 'wrong container' }[x.reason] || x.reason;
+      items.push({ ts: x.ts, ico: '✗', text: `Combine refused: ${why}`, cls: 'warn' });
+    }
+    for (const x of s.upgrades || []) items.push({ ts: x.ts, ico: '▲', text: `Merged into ${x.item}`, cls: 'good' });
+    for (const x of s.faction || []) {
+      items.push(x.capped
+        ? { ts: x.ts, ico: '⚖', text: `${x.faction}: already at ${x.capped === 'better' ? 'MAX' : 'MIN'}` }
+        : { ts: x.ts, ico: '⚖', text: `${x.faction} ${x.delta > 0 ? '+' : ''}${x.delta}`,
+            cls: x.delta < 0 ? 'bad' : '' });
+    }
     items.sort((a, b) => b.ts - a.ts);
     const b = els.feed;
     b.replaceChildren();

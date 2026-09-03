@@ -84,9 +84,11 @@ def index():
 # ── characters ────────────────────────────────────────────────────────────────
 @app.get('/api/characters')
 def api_characters():
+    active = characters.get()
     return {'characters': characters.list_all(),
-            'active': characters.get(),
-            'needs_setup': characters.needs_setup()}
+            'active': active,
+            'needs_setup': characters.needs_setup(),
+            'readiness': characters.readiness(active)}
 
 
 @app.post('/api/characters/{char_id}/select')
@@ -146,35 +148,102 @@ def api_inventory(char: int = None):
     return inventory.get_view(c['id'])
 
 
+def _import_target(body: dict, char: int, expected_suffix: str) -> tuple:
+    """(character row, detected (name, server) | None) for an import request.
+
+    No /outputfile export carries a character header; the game's filename
+    (<Name>_<server>-Inventory.txt / -Faction.txt / -<Skill>-Recipes.txt) is the
+    only owner hint. `target: 'detected'` imports for THAT character (created if
+    needed, activated only when `activate` is true — or when there is no
+    character at all yet) instead of the active one, so one install can hold
+    several characters' files without hand-switching first.
+    """
+    filename = str(body.get('filename') or '')
+    path = body.get('path') or ''
+    detected = characters.parse_outputfile_owner(filename or path)
+    target = str(body.get('target') or 'active')
+    if target == 'detected':
+        if not detected:
+            raise HTTPException(422, 'could not read a character name from the file name '
+                                     f'(expected <Name>_<server>{expected_suffix})')
+        try:
+            c = characters.add(detected[0], detected[1], None, None,
+                               activate=bool(body.get('activate')) or not characters.get())
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+    elif target == 'active':
+        c = _char_or_404(char)
+    else:
+        raise HTTPException(422, 'target must be "active" or "detected"')
+    return c, detected
+
+
+def _owner_fields(result: dict, c: dict, detected) -> dict:
+    result['character'] = {'id': c['id'], 'name': c['name'], 'server': c['server']}
+    result['detected'] = ({'name': detected[0], 'server': detected[1]} if detected else None)
+    result['mismatch'] = bool(detected and (
+        detected[0].lower(), detected[1].lower()) != (c['name'].lower(), c['server'].lower()))
+    return result
+
+
+@app.post('/api/import')
+def api_import_any(body: dict, char: int = None):
+    """Import ANY /outputfile export — inventory, faction, or recipes — telling
+    them apart by filename, then by content. `{content, filename}` from the
+    browser picker or `{path}` on this computer; owner handling as above."""
+    from . import gamefiles
+    body = body or {}
+    c, detected = _import_target(body, char, '-Inventory.txt / -Faction.txt / -<Skill>-Recipes.txt')
+    content = body.get('content')
+    filename = str(body.get('filename') or '')
+    path = body.get('path') or ''
+    try:
+        if content:
+            result = gamefiles.import_any(c['id'], str(content).encode('utf-8'), filename=filename)
+        else:
+            if not path or not Path(path).is_file():
+                raise HTTPException(404, f'file not found: {path or "(no path given)"}')
+            result = gamefiles.import_any(c['id'], Path(path).read_bytes(), path=path)
+            if result.get('kind') == 'inventory' and path != c.get('inventory_path'):
+                db.execute('UPDATE characters SET inventory_path=? WHERE id=?', (path, c['id']))
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    return _owner_fields(result, c, detected)
+
+
 @app.post('/api/inventory/import')
 def api_inventory_import(body: dict = None, char: int = None):
-    """Import the character's dump.
+    """Import a dump.
 
-    Body is optional: `{content}` imports text the browser read from a file the
-    server cannot see (the file picker gives no real path), `{path}` points at a
-    new server-side file and remembers it. With no body, re-read the stored path.
+    Body is optional: `{content, filename}` imports text the browser read from a
+    file the server cannot see (the file picker gives no real path), `{path}`
+    points at a new server-side file and remembers it. With no body, re-read the
+    stored path. Owner detection: see _import_target.
     """
-    c = _char_or_404(char)
     body = body or {}
+    c, detected = _import_target(body, char, '-Inventory.txt')
     content = body.get('content')
+    filename = str(body.get('filename') or '')
+    path = body.get('path') or ''
     try:
         if content:
             result = inventory.import_bytes(
                 c['id'], str(content).encode('utf-8'),
-                source_path=str(body.get('filename') or 'uploaded'))
+                source_path=filename or 'uploaded')
         else:
-            path = body.get('path') or c.get('inventory_path')
+            path = path or c.get('inventory_path')
             if not path or not Path(path).is_file():
                 raise HTTPException(404, f'inventory dump not found for {c["name"]} '
                                          f'(run /outputfile inventory in game, or '
-                                         f'pick the file in Characters)')
+                                         f'pick the file in Import Inventory)')
             result = inventory.import_file(c['id'], path)
             if path != c.get('inventory_path'):
                 db.execute('UPDATE characters SET inventory_path=? WHERE id=?',
                            (path, c['id']))
     except ValueError as e:
         raise HTTPException(422, str(e))
-    return result
+    result['kind'] = 'inventory'
+    return _owner_fields(result, c, detected)
 
 
 # ── icons ─────────────────────────────────────────────────────────────────────
@@ -319,6 +388,13 @@ def api_tradeskills(char: int = None):
     return tradeskills.view(c['id'])
 
 
+@app.get('/api/factions')
+def api_factions(char: int = None):
+    from . import factions
+    c = _char_or_404(char)
+    return factions.view(c['id'])
+
+
 # ── sync ─────────────────────────────────────────────────────────────────────
 @app.post('/api/sync/start')
 def api_sync_start(body: dict):
@@ -347,7 +423,8 @@ def _snapshot() -> dict:
     snap = {'type': 'state',
             'characters': characters.list_all(),
             'active': active,
-            'needs_setup': characters.needs_setup()}
+            'needs_setup': characters.needs_setup(),
+            'readiness': characters.readiness(active)}
     snap.update(state.snapshot_extras())
     return snap
 

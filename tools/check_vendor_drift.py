@@ -13,7 +13,9 @@ FILES = ('parser.py', 'tracker.py', 'icons.py')
 
 
 def _sha(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()
+    # EOL-insensitive: upstream has core.autocrlf=true, so a checkout may be CRLF
+    # while the git blob (and any LF checkout) is LF. Same content, same hash.
+    return hashlib.sha256(p.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
 
 
 def main() -> int:

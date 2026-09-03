@@ -42,15 +42,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   // characters must be known before the first page render (pages read
   // App.active for their ?char= param and titles)
   let needsSetup = false;
+  let readiness;
   try {
     const d = await API.get('/api/characters');
     App.characters = d.characters || [];
     App.active = d.active || null;
     needsSetup = !!d.needs_setup;
+    readiness = d.readiness;
     renderCharSelect();
   } catch (e) { /* server will still push via WS */ }
   navigate();
   connectWS();
+  // the suggestion box: what to feed the app next (inventory, log, sync) —
+  // sits above the pages and follows the 1 Hz readiness on the snapshot
+  Suggest.init(readiness);
   // nothing to show yet — a fresh install lands in the wizard, not an empty app
   if (needsSetup) Setup.open({ firstRun: true });
 });

@@ -11,6 +11,84 @@ def run(check):
     _crud(check)
     _inventory_bytes(check)
     _origin_guard(check)
+    _filename_and_readiness(check)
+    _char_tables(check)
+
+
+def _filename_and_readiness(check):
+    from app import characters, db, inventory
+
+    p = characters.parse_inventory_filename
+    check('invname: plain', p('Cujef_halas-Inventory.txt') == ('Cujef', 'halas'))
+    check('invname: windows path', p('C:\\Games\\EQ\\Cujef_halas-Inventory.txt') == ('Cujef', 'halas'))
+    check('invname: posix path + case', p('/tmp/cujef_HALAS-inventory.TXT') == ('cujef', 'HALAS'))
+    check('invname: not a dump name', p('inventory.txt') is None and p('eqlog_Cujef_halas.txt') is None
+          and p('') is None and p(None) is None)
+
+    check('readiness: none without a character', characters.readiness(None) is None)
+    row = characters.add('Ready', 'srv', None, None, activate=False)
+    r = characters.readiness(row)
+    check('readiness: fresh character', r['inventory_imported_at'] is None
+          and r['log_path_set'] is False and r['log_lines_parsed'] == 0
+          and isinstance(r['items_in_db'], int), r)
+    inventory.import_bytes(row['id'], b'Location\tName\tID\tCount\tSlots\nHead\tCap\t1\t1\t10\n',
+                           source_path='x.txt')
+    with db.tx() as c:
+        c.execute("INSERT OR REPLACE INTO highlights(character_id, key, value_num) "
+                  "VALUES(?, 'lines_parsed', 1234)", (row['id'],))
+    r = characters.readiness(row)
+    check('readiness: reflects an import and parsed lines',
+          r['inventory_imported_at'] is not None and r['log_lines_parsed'] == 1234, r)
+    characters.remove(row['id'])
+
+
+def _char_tables(check):
+    """Every character-keyed table must be on the removal list, or remove()
+    leaks rows — pinned by reading the live schema, not a hand-kept list."""
+    from app import characters, db
+    db.init()
+    conn = db.reader()
+    try:
+        tables = [r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+        keyed = []
+        for t in tables:
+            cols = [c[1] for c in conn.execute(f'PRAGMA table_info({t})').fetchall()]
+            if 'character_id' in cols:
+                keyed.append(t)
+    finally:
+        conn.close()
+    # inventory_snapshots is cleared explicitly (its items hang off snapshot_id)
+    missing = [t for t in keyed if t not in characters._CHAR_TABLES
+               and t != 'inventory_snapshots']
+    check('char tables: removal list covers every character-keyed table', not missing, missing)
+    check('char tables: new v1.1 tables present',
+          {'craft_events', 'craft_caps', 'craft_recipe_skill', 'depot_events', 'faction_events',
+           'faction_caps', 'upgrade_events'} <= set(keyed), keyed)
+
+    # and remove() really empties them
+    row = characters.add('Wipe', 'srv', None, None, activate=False)
+    cid = row['id']
+    with db.tx() as c:
+        c.execute("INSERT INTO craft_events(character_id, ts, item, item_norm, ok) "
+                  "VALUES(?,1,'X','x',1)", (cid,))
+        c.execute("INSERT INTO craft_caps(character_id, item, first_ts, last_ts) VALUES(?,'X',1,1)",
+                  (cid,))
+        c.execute("INSERT INTO craft_recipe_skill(character_id, item, skill) VALUES(?,'X','Baking')",
+                  (cid,))
+        c.execute("INSERT INTO depot_events(character_id, ts, kind, item, item_norm, qty) "
+                  "VALUES(?,1,'consume','Y','y',1)", (cid,))
+        c.execute("INSERT INTO faction_events(character_id, ts, faction, delta) VALUES(?,1,'F',1)",
+                  (cid,))
+        c.execute("INSERT INTO faction_caps(character_id, faction, direction, first_ts, last_ts) "
+                  "VALUES(?,'F','better',1,1)", (cid,))
+        c.execute("INSERT INTO upgrade_events(character_id, ts, item, item_norm, tier) "
+                  "VALUES(?,1,'X +1','x',1)", (cid,))
+    characters.remove(cid)
+    for t in ('craft_events', 'craft_caps', 'craft_recipe_skill', 'depot_events',
+              'faction_events', 'faction_caps', 'upgrade_events'):
+        n = db.query_one(f'SELECT COUNT(*) n FROM {t} WHERE character_id=?', (cid,))['n']
+        check(f'remove: {t} cleaned', n == 0, n)
 
 
 def _origin_guard(check):

@@ -179,6 +179,45 @@ RE_DS_OTHER = re.compile(
     r"^(.+?) is \w+ by (\w+)'s (.+?) for (\d+) points? of non-melee damage[.!]$"
 )
 
+# A group member swinging and missing. Identical in shape to RE_PET_MISS — the only thing
+# that tells a member's swing from the pet's is which set the caller checks the name
+# against, so the two share one compiled pattern rather than duplicating it.
+#
+# This is the regex the README used to say could not exist. It claimed "your log records
+# their hits but not their misses, so any accuracy number would be a fabricated 100%".
+# That was wrong: the misses are right there, 40,430 of them while grouped on the
+# reference log, and discarding them is what made accuracy look uncomputable.
+RE_OTHER_MISS = RE_PET_MISS
+
+# ── faction ───────────────────────────────────────────────────────────────────
+# "Your faction standing with Frogloks of Guk has been adjusted by -5."
+RE_FACTION_ADJ = re.compile(
+    r'^Your faction standing with (.+?) has been adjusted by (-?\d+)\.$'
+)
+# "Your faction standing with Faydarks Champions could not possibly get any better."
+# Emitted as its own event rather than a 0 adjustment: "already maxed" and "no change"
+# are different facts, and folding them together would make a capped faction look idle.
+RE_FACTION_CAP = re.compile(
+    r'^Your faction standing with (.+?) could not possibly get any (better|worse)\.$'
+)
+
+# ── tradeskills ───────────────────────────────────────────────────────────────
+# "You have fashioned the items together to create something new: Tumpy Tonic."
+RE_TS_MADE = re.compile(
+    r'^You have fashioned the items together to create something new: (.+?)\.$'
+)
+# "You lacked the skills to fashion Tumpy Tonic." — the failure names the item too, so
+# success rate is per recipe rather than a single global number.
+RE_TS_FAILED = re.compile(r'^You lacked the skills to fashion (.+?)\.$')
+# Skill is capped for this recipe: the combine still works, it just no longer trains.
+RE_TS_CAPPED = re.compile(
+    r'^You can no longer advance your skill from making this item\.$'
+)
+# "Consumed 2 x Water Flask (leaving 7) from your personal depot."
+RE_DEPOT_CONSUME = re.compile(
+    r'^Consumed (\d+) x (.+?) \(leaving (\d+)\) from your personal depot\.?$'
+)
+
 # healing (over-time pattern is more specific — check first)
 RE_HEAL_OT = re.compile(
     r'^(.+?) healed (.+?) over time for (\d+)(?:\s*\((\d+)\))? hit points?(?: by (.+?))?\.$'
@@ -804,6 +843,16 @@ def parse_line(line: str, pet_name: Optional[str] = None,
             return {'type': 'damage', 'ts': ts, 'attacker': gos.group(1),
                     'target': gos.group(2), 'amount': int(gos.group(3)),
                     'dmg_type': 'spell', 'spell': gos.group(4), 'verb': 'spell', **_NO_FLAGS}
+        # A member's swing that did not land. Emitted with the same shape as your own and
+        # the pet's misses, so the accuracy maths downstream needs no new branch.
+        gmm = RE_OTHER_MISS.match(text)
+        if gmm and gmm.group(1) in group_members and gmm.group(1) != pet_name:
+            avoid = gmm.group('avoid')
+            outcome = _AVOID_NORMALIZE.get(avoid, 'miss') if avoid else (
+                'absorb' if gmm.group('absorber') else 'miss')
+            return {'type': 'miss', 'ts': ts, 'attacker': gmm.group(1),
+                    'target': gmm.group(3), 'verb': _norm_verb(gmm.group(2)),
+                    'outcome': outcome, **_flags(gmm.groups()[-1])}
 
     # pet damage shield (checked after group damage so a grouped player named like the pet
     # is not misattributed)
@@ -813,6 +862,17 @@ def parse_line(line: str, pet_name: Optional[str] = None,
             return {'type': 'damage', 'ts': ts, 'attacker': 'pet',
                     'target': dsp.group(1), 'amount': int(dsp.group(4)),
                     'dmg_type': 'ds', 'spell': dsp.group(3), 'verb': 'ds', **_NO_FLAGS}
+
+    # A group member's damage shield. Checked after the pet's so that a member who happens
+    # to share the pet's name is still counted as the pet, matching every other branch.
+    # Worth 293,757 damage over 22,676 hits on the reference log, all of it previously
+    # dropped on the floor -- one member's shield alone out-damaged several members' swings.
+    if group_members:
+        dsa = RE_DS_OTHER.match(text)
+        if dsa and dsa.group(2) in group_members and dsa.group(2) != pet_name:
+            return {'type': 'damage', 'ts': ts, 'attacker': dsa.group(2),
+                    'target': dsa.group(1), 'amount': int(dsa.group(4)),
+                    'dmg_type': 'ds', 'spell': dsa.group(3), 'verb': 'ds', **_NO_FLAGS}
 
     # melee damage taken by an ally — the pet, or a current group member.
     # Sits OUTSIDE `if pet_name:` on purpose: a caster in a group with no pet out still
@@ -864,6 +924,33 @@ def parse_line(line: str, pet_name: Optional[str] = None,
         if copper is not None:
             return {'type': 'coin', 'ts': ts, 'copper': copper, 'source': source}
         return {'type': 'loot', 'ts': ts, 'item': item, 'source': source, 'copper': None}
+
+    # ── faction ───────────────────────────────────────────────────────────────
+    fam = RE_FACTION_ADJ.match(text)
+    if fam:
+        return {'type': 'faction', 'ts': ts, 'faction': fam.group(1),
+                'delta': int(fam.group(2))}
+    fcm = RE_FACTION_CAP.match(text)
+    if fcm:
+        # 'better' means already maxed ally, 'worse' already bottomed enemy
+        return {'type': 'faction_capped', 'ts': ts, 'faction': fcm.group(1),
+                'direction': fcm.group(2)}
+
+    # ── tradeskills ───────────────────────────────────────────────────────────
+    tsm = RE_TS_MADE.match(text)
+    if tsm:
+        return {'type': 'craft', 'ts': ts, 'item': tsm.group(1), 'ok': True}
+    tsf = RE_TS_FAILED.match(text)
+    if tsf:
+        return {'type': 'craft', 'ts': ts, 'item': tsf.group(1), 'ok': False}
+    if RE_TS_CAPPED.match(text):
+        # No recipe name on this line: it follows the combine it refers to, so the server
+        # attaches it to the last craft rather than guessing here.
+        return {'type': 'craft_capped', 'ts': ts}
+    dcm = RE_DEPOT_CONSUME.match(text)
+    if dcm:
+        return {'type': 'depot_consume', 'ts': ts, 'qty': int(dcm.group(1)),
+                'item': dcm.group(2), 'left': int(dcm.group(3))}
 
     # unrecognized buff-shaped emote — surfaced so BUFF_EMOTES can be grown from real data
     if RE_EMOTE_CANDIDATE.match(text):

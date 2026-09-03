@@ -261,6 +261,115 @@ MIGRATIONS = [
     """
     CREATE INDEX idx_sync_pages_source ON sync_pages(source);
     """,
+    # v1.1: log-derived tradeskill + faction history (parser v1.6.0 events) and
+    # the inventory row linkage that the /outputfile dump needs (paired slots
+    # repeat their Location string verbatim, so parent_location alone is
+    # ambiguous; nested bags need a per-row container flag).
+    #
+    # The event tables have NO uniqueness constraint on purpose: the pipeline
+    # commits rows and the log_source byte-offset checkpoint in one transaction
+    # (exactly-once), and byte-identical same-second lines are legitimate (two
+    # kills in one second give two identical faction hits).
+    """
+    ALTER TABLE inventory_items ADD COLUMN seq INTEGER;                 -- row ordinal in the dump
+    ALTER TABLE inventory_items ADD COLUMN parent_seq INTEGER;          -- seq of the host row (nearest preceding match)
+    ALTER TABLE inventory_items ADD COLUMN parent_is_container INTEGER; -- 1: host is a bag, so this is a pocket
+
+    CREATE TABLE craft_events(
+        id INTEGER PRIMARY KEY,
+        character_id INTEGER NOT NULL,
+        ts REAL NOT NULL,
+        item TEXT NOT NULL,
+        item_norm TEXT NOT NULL,
+        ok INTEGER NOT NULL,
+        capped INTEGER NOT NULL DEFAULT 0            -- a "can no longer advance" notice preceded this combine
+    );
+    CREATE INDEX idx_craft_char_item ON craft_events(character_id, item_norm);
+    CREATE TABLE craft_caps(
+        character_id INTEGER NOT NULL,
+        item TEXT NOT NULL,
+        first_ts REAL NOT NULL,
+        last_ts REAL NOT NULL,
+        count INTEGER NOT NULL DEFAULT 1,
+        PRIMARY KEY(character_id, item)
+    );
+    CREATE TABLE craft_recipe_skill(                 -- INFERRED: skill-up within 1 s of the combine
+        character_id INTEGER NOT NULL,
+        item TEXT NOT NULL,
+        skill TEXT NOT NULL,
+        votes INTEGER NOT NULL DEFAULT 1,
+        last_ts REAL,
+        PRIMARY KEY(character_id, item, skill)
+    );
+    CREATE TABLE depot_events(
+        id INTEGER PRIMARY KEY,
+        character_id INTEGER NOT NULL,
+        ts REAL NOT NULL,
+        kind TEXT NOT NULL CHECK(kind IN ('consume','deposit','withdraw')),
+        item TEXT NOT NULL,
+        item_norm TEXT NOT NULL,
+        qty INTEGER NOT NULL,
+        left_qty INTEGER                             -- "(leaving N)" on consume lines; NULL otherwise
+    );
+    CREATE INDEX idx_depot_char_item ON depot_events(character_id, item_norm);
+    CREATE TABLE faction_events(
+        id INTEGER PRIMARY KEY,
+        character_id INTEGER NOT NULL,
+        ts REAL NOT NULL,
+        faction TEXT NOT NULL,
+        delta INTEGER NOT NULL
+    );
+    CREATE INDEX idx_faction_char_name ON faction_events(character_id, faction);
+    CREATE TABLE faction_caps(
+        character_id INTEGER NOT NULL,
+        faction TEXT NOT NULL,
+        direction TEXT NOT NULL CHECK(direction IN ('better','worse')),
+        first_ts REAL NOT NULL,
+        last_ts REAL NOT NULL,
+        count INTEGER NOT NULL DEFAULT 1,
+        PRIMARY KEY(character_id, faction)
+    );
+    """,
+    # item upgrade merges ("You have successfully merged two items together to
+    # create a new item: Platinum Ring +3") — the +N ladder's history. Same
+    # exactly-once contract as the other event tables: plain INSERT.
+    """
+    CREATE TABLE upgrade_events(
+        id INTEGER PRIMARY KEY,
+        character_id INTEGER NOT NULL,
+        ts REAL NOT NULL,
+        item TEXT NOT NULL,                          -- the result, e.g. "Platinum Ring +3"
+        item_norm TEXT NOT NULL,                     -- base name key, e.g. "platinum ring"
+        tier INTEGER                                 -- the +N; NULL for rank results ("Sprouting Heal II")
+    );
+    CREATE INDEX idx_upgrade_char_item ON upgrade_events(character_id, item_norm);
+    """,
+    # the other two /outputfile exports (app/gamefiles.py): absolute faction
+    # standings and the learned-recipe list. Latest import wins (per character;
+    # per character+skill for recipes) — these are snapshots, not history.
+    """
+    CREATE TABLE faction_standings(
+        character_id INTEGER NOT NULL,
+        faction TEXT NOT NULL,
+        faction_id INTEGER,
+        value INTEGER NOT NULL,                      -- current standing (-2000..2000 in EverQuest)
+        to_max INTEGER,                              -- points to max, when the file has it
+        imported_at REAL NOT NULL,
+        source_path TEXT,
+        PRIMARY KEY(character_id, faction)
+    );
+    CREATE TABLE known_recipes(
+        character_id INTEGER NOT NULL,
+        skill TEXT NOT NULL,                         -- log skill name ("Jewelry Making"), or 'all'/'unknown'
+        recipe_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        name_norm TEXT NOT NULL,
+        imported_at REAL NOT NULL,
+        source_path TEXT,
+        PRIMARY KEY(character_id, skill, recipe_id)
+    );
+    CREATE INDEX idx_known_recipes_norm ON known_recipes(character_id, name_norm);
+    """,
 ]
 
 
