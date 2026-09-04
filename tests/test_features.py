@@ -293,18 +293,18 @@ def _gamefiles(check, db):
     from app import characters, factions, gamefiles, tradeskills
 
     p = gamefiles.parse_outputfile_name
-    check('gf: inventory name', p('Cujef_halas-Inventory.txt')
-          == {'name': 'Cujef', 'server': 'halas', 'kind': 'inventory', 'skill': None})
-    check('gf: faction name + path', p('C:\\EQ\\Cujef_halas-Faction.txt')['kind'] == 'faction')
+    check('gf: inventory name', p('Fizzwick_halas-Inventory.txt')
+          == {'name': 'Fizzwick', 'server': 'halas', 'kind': 'inventory', 'skill': None})
+    check('gf: faction name + path', p('C:\\EQ\\Fizzwick_halas-Faction.txt')['kind'] == 'faction')
     check('gf: recipes name carries the skill',
-          p('Cujef_halas-Baking-Recipes.txt') == {'name': 'Cujef', 'server': 'halas',
+          p('Fizzwick_halas-Baking-Recipes.txt') == {'name': 'Fizzwick', 'server': 'halas',
                                                     'kind': 'recipes', 'skill': 'Baking'})
     check('gf: recipes skill token mapped to the log name',
-          p('Cujef_halas-Jewelcrafting-Recipes.txt')['skill'] == 'Jewelry Making'
-          and p('Cujef_halas-Poisonmaking-Recipes.txt')['skill'] == 'Make Poison'
-          and p('Cujef_halas-all-Recipes.txt')['skill'] == 'all'
-          and p('cujef_halas-baking-recipes.TXT')['skill'] == 'Baking')
-    check('gf: not an export', p('eqlog_Cujef_halas.txt') is None and p('notes.txt') is None)
+          p('Fizzwick_halas-Jewelcrafting-Recipes.txt')['skill'] == 'Jewelry Making'
+          and p('Fizzwick_halas-Poisonmaking-Recipes.txt')['skill'] == 'Make Poison'
+          and p('Fizzwick_halas-all-Recipes.txt')['skill'] == 'all'
+          and p('fizzwick_halas-baking-recipes.TXT')['skill'] == 'Baking')
+    check('gf: not an export', p('eqlog_Fizzwick_halas.txt') is None and p('notes.txt') is None)
     check('gf: owner helper covers every kind',
           characters.parse_outputfile_owner('X_y-Faction.txt') == ('X', 'y')
           and characters.parse_outputfile_owner('X_y-Baking-Recipes.txt') == ('X', 'y'))

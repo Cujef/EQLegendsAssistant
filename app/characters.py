@@ -3,8 +3,8 @@
 Characters are seeded from the game's own `_characters.ini`:
 
     [Characters]
-    Character0=Cujef,halas
-    Character1=Cooj,qeynos
+    Character0=Fizzwick,halas
+    Character1=Grimsby,qeynos
 
 Paths derived per character (verified against the real install):
 - log:       <game_dir>/Logs/eqlog_<Name>_<server>.txt

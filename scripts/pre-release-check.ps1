@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-    Read-only pre-release GO / NO-GO gate for Jeff's release discipline.
+    Read-only pre-release GO / NO-GO gate enforcing this project's release discipline.
 
 .DESCRIPTION
     Verifies (without mutating anything remote) that a project is ready to tag
@@ -245,7 +245,7 @@ Write-Host '====================================' -ForegroundColor White
 if ($script:Problems.Count -eq 0) {
     Write-Host ' VERDICT: GO' -ForegroundColor Green
     Write-Host ' All checks passed. Safe to proceed to the CONSENT GATE.' -ForegroundColor Green
-    Write-Host ' Reminder: still ask Jeff before any push / tag-push / release.' -ForegroundColor Yellow
+    Write-Host ' Reminder: still get explicit consent before any push / tag-push / release.' -ForegroundColor Yellow
     $exit = 0
 } else {
     Write-Host ' VERDICT: NO-GO' -ForegroundColor Red

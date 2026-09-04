@@ -19,10 +19,10 @@ def _filename_and_readiness(check):
     from app import characters, db, inventory
 
     p = characters.parse_inventory_filename
-    check('invname: plain', p('Cujef_halas-Inventory.txt') == ('Cujef', 'halas'))
-    check('invname: windows path', p('C:\\Games\\EQ\\Cujef_halas-Inventory.txt') == ('Cujef', 'halas'))
-    check('invname: posix path + case', p('/tmp/cujef_HALAS-inventory.TXT') == ('cujef', 'HALAS'))
-    check('invname: not a dump name', p('inventory.txt') is None and p('eqlog_Cujef_halas.txt') is None
+    check('invname: plain', p('Fizzwick_halas-Inventory.txt') == ('Fizzwick', 'halas'))
+    check('invname: windows path', p('C:\\Games\\EQ\\Fizzwick_halas-Inventory.txt') == ('Fizzwick', 'halas'))
+    check('invname: posix path + case', p('/tmp/fizzwick_HALAS-inventory.TXT') == ('fizzwick', 'HALAS'))
+    check('invname: not a dump name', p('inventory.txt') is None and p('eqlog_Fizzwick_halas.txt') is None
           and p('') is None and p(None) is None)
 
     check('readiness: none without a character', characters.readiness(None) is None)
@@ -115,16 +115,16 @@ def _naming(check):
         'hits': [{'actor': 'player', 'tgt': 'a bear'}, {'actor': 'a bear', 'tgt': 'player'}],
         'offense': {'actors': {'player': {'swings': 9}}, 'verbs': {'player': {}}},
     }
-    naming.humanize_fight(fight, 'Cujef')
+    naming.humanize_fight(fight, 'Fizzwick')
     check('naming: damage key renamed',
-          'Cujef' in fight['damage'] and 'player' not in fight['damage'])
+          'Fizzwick' in fight['damage'] and 'player' not in fight['damage'])
     check('naming: other actors untouched', fight['damage']['pet']['total'] == 20)
-    check('naming: healing renamed', 'Cujef' in fight['healing'])
+    check('naming: healing renamed', 'Fizzwick' in fight['healing'])
     check('naming: by_victim renamed',
-          fight['tanking']['a bear']['by_victim'].get('Cujef') == 40)
-    check('naming: hit actor renamed', fight['hits'][0]['actor'] == 'Cujef')
-    check('naming: hit target renamed', fight['hits'][1]['tgt'] == 'Cujef')
-    check('naming: offense renamed', 'Cujef' in fight['offense']['actors'])
+          fight['tanking']['a bear']['by_victim'].get('Fizzwick') == 40)
+    check('naming: hit actor renamed', fight['hits'][0]['actor'] == 'Fizzwick')
+    check('naming: hit target renamed', fight['hits'][1]['tgt'] == 'Fizzwick')
+    check('naming: offense renamed', 'Fizzwick' in fight['offense']['actors'])
 
     # a missing/blank name must be a no-op, never a crash or a 'None' actor
     plain = {'damage': {'player': {'total': 1}}}

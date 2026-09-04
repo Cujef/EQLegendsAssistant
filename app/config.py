@@ -14,7 +14,7 @@ DATA_DIR = Path(os.environ.get('EQA_DATA_DIR') or (ROOT / 'data'))
 CONFIG_PATH = ROOT / 'config.json'
 
 _DEFAULTS = {
-    'game_dir': 'J:/EQLegends',
+    'game_dir': 'C:/Users/Public/Daybreak Game Company/Installed Games/EverQuest Legends',
     'port': 8766,
     'sync': {
         'throttle_seconds': 1.0,

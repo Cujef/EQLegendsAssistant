@@ -50,8 +50,12 @@ ICON_MAX = ICON_BASE + SHEETS * CELLS - 1
 RE_SHEET = re.compile(r'^dragitem(\d+)\.dds$', re.I)
 
 # ── paths ─────────────────────────────────────────────────────────────────────
+# Windows fallback genericized to the game's real default install location for
+# the public release (see vendor/eqlparser/PROVENANCE.md, "Deviations from
+# upstream") — dead code in practice, since EQ_UIFILES_DIR is always set below
+# before this module is imported (app/config.py).
 if sys.platform == 'win32':
-    _EQ_DIR = Path('J:/EQLegends')
+    _EQ_DIR = Path('C:/Users/Public/Daybreak Game Company/Installed Games/EverQuest Legends')
 else:
     _EQ_DIR = Path(
         '/Users/cadmus/Library/Application Support/CrossOver/Bottles/EverQuest'
@@ -68,7 +72,7 @@ CACHE_PATH = Path(os.environ.get('EQ_ICONS_PATH')
 
 # ── hand-verified seeds ───────────────────────────────────────────────────────
 # Ships in code, not in icons.json, so a fresh clone renders real art offline on day one and
-# so `overrides` on disk stays a file Jeff wrote rather than one we half-wrote for him.
+# so `overrides` on disk stays a file you wrote rather than one we half-wrote for you.
 #
 # Both were confirmed by LOOKING at the cell the arithmetic lands on: 507 is a glowing globe
 # and 579 is a scythe. Both sit on cell 7, which divmod(7, 6) maps to (1, 1) under either

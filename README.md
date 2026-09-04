@@ -20,7 +20,7 @@ parsing modules — see `vendor/eqlparser/PROVENANCE.md`.
 ## Requirements
 
 - Python 3.10+ (`pip install -r requirements.txt` — FastAPI, uvicorn, optional Pillow for item icons)
-- EverQuest Legends installed (default `J:\EQLegends`, configurable in `config.json`)
+- EverQuest Legends installed (default `C:\Users\Public\Daybreak Game Company\Installed Games\EverQuest Legends`, configurable in `config.json`)
 - In game: `/log on` (the app reads `Logs\eqlog_<Char>_<server>.txt`)
 - For inventory features: `/outputfile inventory` in game (writes to the install root)
 

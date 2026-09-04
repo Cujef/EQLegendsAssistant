@@ -1,6 +1,7 @@
 /* Tile grid for the Parser page — draggable / resizable / lockable panels on a
    12-column grid with localStorage layout persistence. Port of the proven
-   implementation in J:\_EQLegendsParser\static\app.js (single page, no tabs).
+   implementation in the sibling EQLegendsParser project's static/app.js
+   (single page, no tabs).
 
    Public contract used by pages/parserpage.js:
      Tiles.mount(container, {

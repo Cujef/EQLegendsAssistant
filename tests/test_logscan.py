@@ -18,7 +18,7 @@ def _ext(check):
     from app.logscan.ext_parser import parse
 
     CASES = [
-        # real AA lines from eqlog_Cujef_halas.txt (all three shapes + variants)
+        # real AA lines from a live EQ Legends log (all three shapes + variants)
         ('[Fri Jul 31 19:20:12 2026] You have gained an ability point!  '
          'You now have 12 ability points.',
          {'type': 'aa_gain', 'points': 1, 'balance_after': 12}),

@@ -2,14 +2,24 @@
 
 Warning tool, not a gate: exit 0 unless --strict. selftest.py runs it and prints
 the report so drift is noticed while the upstream parser keeps evolving.
+
+Point EQA_UPSTREAM_PARSER_DIR at your local EQLegendsParser checkout (default:
+a sibling directory next to this repo, ../EQLegendsParser); the check is a
+no-op when that path doesn't exist, e.g. on a machine that only has this repo.
+
+icons.py is excluded: it carries one deliberate, permanent deviation from
+upstream (see vendor/eqlparser/PROVENANCE.md, "Deviations from upstream") and
+would otherwise show as drift forever.
 """
 import hashlib
+import os
 import sys
 from pathlib import Path
 
 VENDOR = Path(__file__).resolve().parent.parent / 'vendor' / 'eqlparser'
-UPSTREAM = Path('J:/_EQLegendsParser')
-FILES = ('parser.py', 'tracker.py', 'icons.py')
+UPSTREAM = Path(os.environ.get('EQA_UPSTREAM_PARSER_DIR')
+                or (Path(__file__).resolve().parent.parent.parent / 'EQLegendsParser'))
+FILES = ('parser.py', 'tracker.py')
 
 
 def _sha(p: Path) -> str:

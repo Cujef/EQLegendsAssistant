@@ -85,7 +85,7 @@ const Setup = (() => {
   function sectionScan(msg) {
     const dirInput = el('input', {
       type: 'text', value: (lastScan && lastScan.game_dir) || '',
-      placeholder: 'e.g. J:\\EQLegends',
+      placeholder: 'e.g. C:\\...\\Daybreak Game Company\\Installed Games\\EverQuest Legends',
     });
     const results = el('div', {});
     const scanBtn = el('button', { class: 'metal-btn' }, 'Scan folder');

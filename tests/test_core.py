@@ -31,7 +31,7 @@ def _vendor(check):
     from vendor.eqlparser.parser import parse_line
 
     CASES = [
-        # (line, expected-subset or None). Real lines from eqlog_Cujef_halas.txt.
+        # (line, expected-subset or None). Real lines from a live EQ Legends log (eqlog_<Char>_<server>.txt).
         ('[Fri Jul 31 18:38:02 2026] You pierce a tormented dead for 11 points of damage.',
          {'type': 'damage', 'attacker': 'player', 'target': 'a tormented dead',
           'amount': 11, 'dmg_type': 'melee', 'verb': 'pierce'}),
