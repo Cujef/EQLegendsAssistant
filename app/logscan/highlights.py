@@ -46,6 +46,12 @@ RE_ZONE_INSTANCE = re.compile(r'\s*(?:-\s*Group)?\s*\d+\s*\([A-Za-z]+\)\s*$')
 def zone_base(name: str) -> str:
     return ' '.join(RE_ZONE_INSTANCE.sub('', str(name or '')).split())
 
+
+def is_pseudo_zone(name: str) -> bool:
+    """"You have entered an area where levitation effects do not function." has
+    the exact shape of a zone line but is a flag on a spot INSIDE a zone."""
+    return str(name or '').lower().startswith('an area ')
+
 # events the fight tracker consumes via process(); kept here so the tailer and
 # any future consumer agree on the split (loot/xp/coin go via add_* instead)
 TRACKED_EVENTS = ('damage', 'miss', 'damage_taken', 'miss_taken', 'cast',
@@ -155,6 +161,8 @@ class Aggregator:
 
     def _feed_zone(self, t: str, ev: dict, ts: float) -> None:
         if t == 'zone':
+            if is_pseudo_zone(ev['zone']):
+                return                                # still in the same zone; not even a clock tick
             self._tick_zone(ts)                       # time until leaving belongs to the OLD zone
             base = zone_base(ev['zone'])
             self._zone = base

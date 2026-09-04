@@ -350,6 +350,10 @@ def _agg_events(check):
 
     # ── zone clock + loot stamping (v1.2) ──
     from app.logscan.highlights import SESSION_GAP, zone_base
+    from app.logscan.highlights import is_pseudo_zone
+    check('zone: "an area where…" lines are flags, not zones',
+          is_pseudo_zone('an area where levitation effects do not function')
+          and is_pseudo_zone('an area where Bind Affinity is allowed') and not is_pseudo_zone('Najena'))
     check('zone: instance suffixes stripped',
           zone_base('Najena 2 (Adaptive)') == 'Najena'
           and zone_base('The Plane of Fear - Group 1 (Awakened)') == 'The Plane of Fear'
@@ -364,6 +368,7 @@ def _agg_events(check):
     t1 = 1_800_300_000.0
     za.feed({'type': 'loot', 'ts': t1, 'item': 'Bone Chips', 'source': 'a skeleton'})       # before any zone
     za.feed({'type': 'zone', 'ts': t1 + 10, 'zone': 'Najena 2 (Adaptive)'})
+    za.feed({'type': 'zone', 'ts': t1 + 40, 'zone': 'an area where levitation effects do not function'})  # ignored
     za.feed({'type': 'kill', 'ts': t1 + 70, 'target': 'a gnoll'})                          # +60 s
     za.feed({'type': 'xp', 'ts': t1 + 70, 'pct': 0.5})                                     # +0 (same second)
     za.feed({'type': 'loot', 'ts': t1 + 100, 'item': 'Rusty Dagger', 'source': 'a gnoll', 'qty': 2})  # +30
