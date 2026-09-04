@@ -116,9 +116,15 @@ const Setup = (() => {
           ? el('span', {}, 'log ', el('b', {}, fmtMB(c.log_size)))
           : el('span', { class: 'warn' }, 'no log file'));
         bits.push(el('span', {}, ' · '));
-        bits.push(c.inventory_path
-          ? el('span', {}, 'inventory ', el('b', {}, 'found'))
-          : el('span', { class: 'faint' }, 'no inventory dump'));
+        const ex = c.exports || [];
+        const kinds = [];
+        if (c.inventory_path || ex.some((e) => e.kind === 'inventory')) kinds.push('inventory');
+        if (ex.some((e) => e.kind === 'faction')) kinds.push('faction');
+        const nrec = ex.filter((e) => e.kind === 'recipes').length;
+        if (nrec) kinds.push(nrec === 1 ? '1 recipe file' : `${nrec} recipe files`);
+        bits.push(kinds.length
+          ? el('span', {}, 'exports: ', el('b', {}, kinds.join(' · ')))
+          : el('span', { class: 'faint' }, 'no /outputfile exports'));
         const btn = el('button', { class: 'metal-btn' + (c.already_added ? '' : ' primary') },
           c.already_added ? 'Use this one' : 'Add character');
         btn.addEventListener('click', async () => {

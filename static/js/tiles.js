@@ -40,6 +40,9 @@ const TILES_CSS = `
 .tile-x { cursor:pointer; color:var(--text-faint); background:none; border:none;
   font:700 11px var(--font-display); padding:0 2px; }
 .tile-x:hover { color:var(--bad); }
+.tile-act { cursor:pointer; color:var(--text-faint); background:none; border:none;
+  font:700 13px var(--font-display); padding:0 4px; line-height:1; }
+.tile-act:hover { color:var(--accent); }
 .tile-body { flex:1; overflow:auto; padding:8px; font-size:12px; min-height:0; }
 .tile-grip { position:absolute; z-index:5; }
 .tile-grip-e  { top:0; right:0; width:7px; height:100%; cursor:ew-resize; }
@@ -125,13 +128,32 @@ function _mountGrid(container, opts) {
       for (const id of layout.order) {
         const t = tileEl(id);
         if (!t || t.classList.contains('tile-closed')) continue;
-        const body = t.querySelector('.tile-body');
-        body.replaceChildren();
-        try { byId[id].build(body, api); } catch (e) { body.textContent = 'tile error: ' + e.message; }
+        runBuild(id, t);
       }
     },
     get locked() { return layout.locked; },
   };
+
+  /* Every build goes through here: the body and any header actions the
+     previous build added are cleared first (rebuilds would otherwise stack
+     ⭳ buttons), and the def gets a TILE-scoped api — addAction() inserts a
+     button before ✕ — that still sees the live `locked` getter via the
+     prototype. .tile-act is deliberately not hidden by the locked layout. */
+  function runBuild(id, tile) {
+    const body = tile.querySelector('.tile-body');
+    const hdr = tile.querySelector('.tile-hdr');
+    body.replaceChildren();
+    for (const b of hdr.querySelectorAll('.tile-act')) b.remove();
+    const tapi = Object.assign(Object.create(api), {
+      addAction(label, title, onClick) {
+        const b = el('button', { class: 'tile-act', title: title || '' }, label);
+        b.addEventListener('click', (ev) => { ev.stopPropagation(); onClick(ev); });
+        hdr.insertBefore(b, hdr.querySelector('.tile-x'));
+        return b;
+      },
+    });
+    try { byId[id].build(body, tapi); } catch (e) { body.textContent = 'tile error: ' + e.message; }
+  }
 
   function updateLockUI() {
     grid.classList.toggle('locked', layout.locked);
@@ -211,7 +233,7 @@ function _mountGrid(container, opts) {
     drag.addEventListener('pointerdown', (e) => startDrag(e, tile, drag));
 
     grid.append(tile);
-    try { def.build(body, api); } catch (e) { body.textContent = 'tile error: ' + e.message; }
+    runBuild(id, tile);
     return tile;
   }
 
@@ -227,9 +249,7 @@ function _mountGrid(container, opts) {
     const t = tileEl(id);
     if (t) {
       t.classList.remove('tile-closed');
-      const body = t.querySelector('.tile-body');
-      body.replaceChildren();
-      try { byId[id].build(body, api); } catch (e) { body.textContent = 'tile error: ' + e.message; }
+      runBuild(id, t);
     }
     save();
     renderPanel();
@@ -343,3 +363,16 @@ function _mountGrid(container, opts) {
   updateLockUI();
   return api;
 }
+
+/* One ⭳ per exportable tile: CSV by default, JSON on shift-click. Downloads
+   go through a temporary <a download> so the browser names the file from the
+   server's Content-Disposition (<Name>_<server>-<view>-<date>.csv). */
+Tiles.addExport = function addExport(api, view) {
+  if (!api || typeof api.addAction !== 'function') return null;
+  return api.addAction('⭳', 'Export CSV — shift-click for JSON', (ev) => {
+    const a = el('a', { href: '/api/export/' + view + App.q({ fmt: ev.shiftKey ? 'json' : 'csv' }), download: '' });
+    document.body.append(a);
+    a.click();
+    a.remove();
+  });
+};

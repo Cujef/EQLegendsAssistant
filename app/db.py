@@ -370,6 +370,55 @@ MIGRATIONS = [
     );
     CREATE INDEX idx_known_recipes_norm ON known_recipes(character_id, name_norm);
     """,
+    # v1.2: auto-picked-up /outputfile exports (what the watcher has seen), and
+    # zone + loot history from the log (backfill revision 3). zone_stats is an
+    # additive-delta table under the same exactly-once contract as the
+    # highlights counters; zone_events/loot_events are plain per-line rows.
+    """
+    CREATE TABLE export_files(
+        character_id INTEGER NOT NULL,
+        path_key TEXT NOT NULL,                      -- os.path.normcase(abspath): one identity per file on Windows
+        path TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK(kind IN ('inventory','faction','recipes')),
+        skill TEXT,
+        mtime REAL, size INTEGER, sha256 TEXT,
+        imported_at REAL,
+        status TEXT NOT NULL CHECK(status IN ('imported','unchanged','error')),
+        error TEXT,
+        PRIMARY KEY(character_id, path_key)
+    );
+    CREATE TABLE zone_stats(
+        character_id INTEGER NOT NULL,
+        zone TEXT NOT NULL,                          -- instance suffix stripped ("Najena", not "Najena 2 (Adaptive)")
+        seconds REAL NOT NULL DEFAULT 0,             -- gaps <= 30 min between your own zone/xp/kill/loot lines
+        kills INTEGER NOT NULL DEFAULT 0,
+        xp_pct REAL NOT NULL DEFAULT 0,
+        loot INTEGER NOT NULL DEFAULT 0,             -- items (depot stack sizes included)
+        visits INTEGER NOT NULL DEFAULT 0,
+        first_ts REAL, last_ts REAL,
+        PRIMARY KEY(character_id, zone)
+    );
+    CREATE TABLE zone_events(
+        id INTEGER PRIMARY KEY,
+        character_id INTEGER NOT NULL,
+        ts REAL NOT NULL,
+        zone TEXT NOT NULL,                          -- raw, e.g. "The Estate of Unrest 1 (Awakened)"
+        zone_base TEXT NOT NULL
+    );
+    CREATE INDEX idx_zone_events_char_ts ON zone_events(character_id, ts);
+    CREATE TABLE loot_events(
+        id INTEGER PRIMARY KEY,
+        character_id INTEGER NOT NULL,
+        ts REAL NOT NULL,
+        item TEXT NOT NULL,
+        item_norm TEXT NOT NULL,
+        source TEXT NOT NULL,                        -- 'Unknown' when the line had no " from "
+        qty INTEGER NOT NULL DEFAULT 1,
+        zone TEXT                                    -- zone_base at the time; NULL before the first zone line
+    );
+    CREATE INDEX idx_loot_char_item ON loot_events(character_id, item_norm);
+    CREATE INDEX idx_loot_char_ts ON loot_events(character_id, ts);
+    """,
 ]
 
 

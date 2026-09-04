@@ -44,7 +44,11 @@
   }
 
   // ── tile: standing changes ──────────────────────────────────────────────
-  function buildStanding(body) { els.standing = body; renderStanding(); }
+  function buildStanding(body, api) {
+    els.standing = body;
+    if (api && api.addAction) Tiles.addExport(api, 'factions');
+    renderStanding();
+  }
   function renderStanding() {
     if (!els.standing || !els.standing.isConnected) return;
     const b = els.standing;

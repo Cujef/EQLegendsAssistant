@@ -30,13 +30,23 @@ Item upgrade merges (336 on the reference log). NO trailing period, and the
 result is not always a +N item — spell-rank merges read "Sprouting Heal II":
   'You have successfully merged two items together to create a new item: Platinum Ring +3'
   'You have successfully merged two items together to create a new item: Sprouting Heal II'
+
+Auto-sold and auto-merged loot (4,656 + 160 on the reference log — the largest
+loot shape in the game, and the vendored parser has no regex for it):
+  "You looted 2 Zombie Skin from a tormented dead's corpse and sold it for 1 gold, 3 silver and 6 copper."
+  "You looted a Rusty Broad Sword +1 from a tormented dead's corpse and sold it for free."
+  "You looted a Throwing Boulder from a hill giant's corpse to create a Throwing Boulder +2"
+Emitted as ordinary `loot` events (item, source, qty) so every consumer — the
+fight tracker's loot list, the zone clock, loot history — sees them, with
+`sold_copper` / `merged_into` added for the counters.
 """
 import re
 from typing import Optional, Set
 
 # RE_TS and _ts are the vendored timestamp matcher and its memo cache; sharing
 # them means both parse paths hit one strptime cache instead of two.
-from vendor.eqlparser.parser import RE_TS, _ts, parse_line
+# _parse_coin turns "1 gold, 3 silver and 6 copper" into copper (None if not coin).
+from vendor.eqlparser.parser import RE_TS, _parse_coin, _ts, parse_line
 
 RE_AA_GAIN = re.compile(
     r'^You have gained an ability point!\s+You now have (\d+) ability points?\.$')
@@ -51,6 +61,11 @@ RE_DEPOT_TAKE = re.compile(r'^You have taken (\d+) (.+?) from your personal depo
 RE_MERGE = re.compile(
     r'^You have successfully merged two items together to create a new item: (.+?)\.?$')
 RE_MERGE_TIER = re.compile(r'\s\+(\d+)$')
+
+RE_LOOT_SOLD = re.compile(
+    r"^You looted (?:(\d+) )?(?:a |an |the )?(.+?) from (.+?)'s corpse and sold it for (.+?)\.?$")
+RE_LOOT_MERGED = re.compile(
+    r"^You looted (?:(\d+) )?(?:a |an |the )?(.+?) from (.+?)'s corpse to create (?:a |an |the )?(.+?)\.?$")
 
 CRAFT_ERRORS = {
     "Sorry, but you don't have everything you need for this recipe in your general inventory.":
@@ -88,6 +103,21 @@ def _craft_error(text: str, ts: float) -> Optional[dict]:
     return {'type': 'craft_error', 'ts': ts, 'reason': reason} if reason else None
 
 
+def _loot_auto(text: str, ts: float) -> Optional[dict]:
+    m = RE_LOOT_SOLD.match(text)
+    if m:
+        price = m.group(4).strip()
+        copper = 0 if price.lower() == 'free' else _parse_coin(price)
+        return {'type': 'loot', 'ts': ts, 'item': m.group(2), 'source': m.group(3),
+                'qty': int(m.group(1) or 1), 'copper': None,
+                'sold_copper': copper if copper is not None else 0}
+    m = RE_LOOT_MERGED.match(text)
+    if m:
+        return {'type': 'loot', 'ts': ts, 'item': m.group(2), 'source': m.group(3),
+                'qty': int(m.group(1) or 1), 'copper': None, 'merged_into': m.group(4)}
+    return None   # "…and stored it in your tradeskill depot" falls through to the vendored regex
+
+
 def _merge(text: str, ts: float) -> Optional[dict]:
     m = RE_MERGE.match(text)
     if not m:
@@ -109,6 +139,8 @@ def parse(line: str, pet_name: Optional[str] = None,
         handler = _depot
     elif 'merged two items' in line:
         handler = _merge
+    elif "'s corpse and sold it" in line or "'s corpse to create" in line:
+        handler = _loot_auto
     elif 'combine' in line or line.endswith('general inventory.'):
         handler = _craft_error
     if handler:

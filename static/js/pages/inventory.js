@@ -90,7 +90,11 @@
   }
 
   // ── tile: items (filters + table) ───────────────────────────────────────
-  function buildItems(body) { els.items = body; renderItems(); }
+  function buildItems(body, api) {
+    els.items = body;
+    if (api && api.addAction) Tiles.addExport(api, 'inventory');
+    renderItems();
+  }
   function renderItems() {
     if (!els.items || !els.items.isConnected) return;
     const b = els.items;
@@ -296,8 +300,68 @@
     });
   }
 
+  // ── tile: loot history (from the log) ───────────────────────────────────
+  let lootData = null, lootQuery = '', lootTimer = null;
+  function buildLoot(body, api) {
+    els.loot = body;
+    if (api && api.addAction) Tiles.addExport(api, 'loot');
+    body.replaceChildren();
+    const search = el('input', { type: 'search', placeholder: 'Where did … drop? Filter by item', value: lootQuery });
+    search.addEventListener('input', () => {
+      lootQuery = search.value;
+      clearTimeout(lootTimer);
+      lootTimer = setTimeout(fetchLoot, 250);      // debounced; the box is built once so focus survives
+    });
+    const table = el('div', {});
+    els.lootTable = table;
+    body.append(el('div', { class: 'row', style: 'align-items:center;margin-bottom:8px' }, search), table);
+    if (lootData) renderLoot(); else fetchLoot();
+  }
+  async function fetchLoot() {
+    if (!App.active) return;
+    try { lootData = await API.get('/api/loot' + App.q({ q: lootQuery })); }
+    catch (e) { lootData = { items: [], recent: [], total_events: 0, error: e.message }; }
+    renderLoot();
+  }
+  function renderLoot() {
+    if (!els.lootTable || !els.lootTable.isConnected) return;
+    const host = els.lootTable;
+    if (!lootData) { host.replaceChildren(el('div', { class: 'empty-note' }, 'Loading…')); return; }
+    if (lootData.error) { host.replaceChildren(el('div', { class: 'empty-note bad' }, lootData.error)); return; }
+    renderTable(host, {
+      id: 'inv.loot',
+      columns: [
+        {
+          key: 'item', label: 'Item',
+          render: (r) => r.in_item_db ? r.item : el('span', { title: 'not in the item database' }, r.item, ' ', el('span', { class: 'faint' }, '?')),
+        },
+        { key: 'count', label: 'Drops', num: true },
+        { key: 'qty', label: 'Qty', num: true, render: (r) => r.qty !== r.count ? fmt(r.qty) : el('span', { class: 'faint' }, '-') },
+        {
+          key: 'sources', label: 'Dropped by', sortVal: (r) => (r.sources[0] && r.sources[0].source) || '',
+          render: (r) => r.sources.length
+            ? r.sources.map((s) => `${s.source}${s.zone ? ' (' + s.zone + ')' : ''} ×${s.n}`).join(', ')
+            : null,
+        },
+        { key: 'first_ts', label: 'First', num: true, render: (r) => r.first_ts ? new Date(r.first_ts * 1000).toLocaleDateString() : null },
+        { key: 'last_ts', label: 'Last', num: true, render: (r) => r.last_ts ? new Date(r.last_ts * 1000).toLocaleDateString() : null },
+      ],
+      rows: lootData.items || [],
+      defaultSort: { key: 'count', dir: -1 },
+      empty: lootQuery ? 'Nothing looted matches that.' : 'No loot lines in the log yet.',
+    });
+    if (lootData.total_events) {
+      host.append(el('div', { class: 'faint', style: 'margin-top:6px;font-size:11px' },
+        `${fmt(lootData.total_events)} loot lines in the log · zone is the one you were in when it dropped`));
+    }
+  }
+
   // ── tile: merge history (from the log) ──────────────────────────────────
-  function buildMerges(body) { els.merges = body; renderMerges(); }
+  function buildMerges(body, api) {
+    els.merges = body;
+    if (api && api.addAction) Tiles.addExport(api, 'merges');
+    renderMerges();
+  }
   function renderMerges() {
     if (!els.merges || !els.merges.isConnected) return;
     const b = els.merges;
@@ -370,6 +434,7 @@
     { id: 'ladder',  title: 'Upgrade Ladder',   span: 6, height: 330, minSpan: 3, build: buildLadder },
     { id: 'lists',   title: 'Keyring Lists',    span: 6, height: 260, minSpan: 3, build: buildLists },
     { id: 'merges',  title: 'Merge History (From The Log)', span: 6, height: 260, minSpan: 3, build: buildMerges },
+    { id: 'loot',    title: 'Loot History (From The Log)',  span: 12, height: 360, minSpan: 4, build: buildLoot },
   ];
 
   function renderAll() {
@@ -384,7 +449,7 @@
 
   async function reload() {
     const cid = App.charId();
-    if (loadedFor !== cid) { view = null; loadedFor = cid; }
+    if (loadedFor !== cid) { view = null; loadedFor = cid; lootData = null; }
     loading = true;
     error = '';
     renderAll();

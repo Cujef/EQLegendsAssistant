@@ -80,13 +80,25 @@ The same dialog takes the game's other two exports:
 
 | In game | File written | What it adds |
 |---|---|---|
-| `/outputfile faction` | `<Name>_<server>-Faction.txt` | absolute standings on the Factions page (the log only ever reports movement), plus an estimate of where you are now |
+| `/outputfile faction` | `<Name>_<server>-<CLASS>-Factions.txt` (e.g. `-PAL-Factions.txt`) | absolute standings on the Factions page (the log only ever reports movement), plus an estimate of where you are now |
 | `/outputfile recipes <skill>` (e.g. `Baking`, or `all`) | `<Name>_<server>-<Skill>-Recipes.txt` | your learned recipes on the Tradeskills page, joined to how often the log saw you combine each |
 
-These two formats follow the EverQuest client's documented output (faction: id,
-name, standing, points to max; recipes: id, name). No EQ Legends sample existed
-when this was written, so the parsers are tolerant and report lines they could
-not place — if one of your files does not import, please open an issue with it.
+**You rarely need the dialog at all:** the app watches the game folder and
+imports a new or changed export within a few seconds of the game writing it.
+The dialog shows what it has picked up, and *Import everything found now* runs
+that pass on demand. A file for a character you have not added yet is never
+imported silently — the setup wizard's scan lists it so you can add the
+character first.
+
+The faction and recipes parsers follow the EverQuest client's output (faction:
+id, name, standing value, points to max; recipes: id, name) and are tolerant
+about headers and delimiters; lines they cannot place are reported, not
+guessed. If one of your files does not import, please open an issue with it.
+
+### Export
+
+Every table tile has a ⭳ button: CSV by default (UTF-8 with BOM, CRLF — opens
+cleanly in Excel), JSON on shift-click, saved as `<Name>_<server>-<view>-<date>`.
 
 ## Layout
 
@@ -100,12 +112,12 @@ Each page remembers its own arrangement and lock state.
 | Page | What it shows |
 |---|---|
 | Overview | Gear stat totals vs caps, AA earned/spent/unspent (from the log), worn haste, best focus/proc/worn effect per family, log highlights (biggest hits, nemesis mobs) |
-| Inventory | The parsed dump: worn/bags/bank/depot, exaltations, open aug sockets, bag & bank space (nested bags included), the +N upgrade ladder with merge history from the log, the trailing keyring lists |
+| Inventory | The parsed dump: worn/bags/bank/depot, exaltations, open aug sockets, bag & bank space (nested bags included), the +N upgrade ladder with merge history from the log, the trailing keyring lists, and a loot history with "where did … drop?" search |
 | Quest Progress | Tracked quests with per-step checklists |
 | Quest Ideas | The synced quest index — filter by class/race/level/completed |
 | Parser | Compact live combat tiles (drag/resize/lock) + import progress |
 | Exaltations | Every effect you own, where it's socketed, where it could move |
-| What to do? | Quests your inventory items unlock + where to hunt at your level |
+| What to do? | Quests your inventory items unlock, where to hunt at your level (ZEM guide), and where you actually leveled: active hours, XP and kills per hour per zone from your log |
 | Tradeskills | Skill levels from log skill-ups; per-recipe combines, failures, success rate and CAP notices; depot materials vs what the dump says you have on hand; learned recipes from `/outputfile recipes`; wiki guide links |
 | Factions | Every faction standing change from the log: net movement, counts, MAX/MIN badges; absolute standings and an estimate of now once `/outputfile faction` is imported |
 | Data Sync | Run/cancel syncs, progress, unparsed-page report |
@@ -126,6 +138,9 @@ Each page remembers its own arrangement and lock state.
 - Faction standing bands (Ally, Warmly, … Ready to Attack) are EverQuest's
   published thresholds, **assumed** for EQ Legends; "Est. now" is the imported
   value plus the log's movement since the import.
+- A zone's **active time** is the sum of gaps of at most 30 minutes between your
+  own zone / XP / kill / loot lines — not wall-clock time in the zone. The ZEM
+  guide on the wiki publishes ratings, not numbers, so that is what is shown.
 
 ## Network behavior
 
@@ -158,11 +173,13 @@ python tools/check_vendor_drift.py   # compare vendor/eqlparser vs upstream (EOL
 python tools/renormalize_keys.py     # after a normalize_name rule change, server stopped
 ```
 
-Upgrading from 1.0.0: the first start migrates `data/assistant.db` forward and
-runs a one-time backfill of tradeskill / faction history from the start of your
-log (the Parser page's Log Status shows BACKFILL, then LIVE). Run
+Upgrading: the first start migrates `data/assistant.db` forward and runs a
+one-time backfill of newly tracked events from the start of your log (the
+Parser page's Log Status shows BACKFILL, then LIVE) — tradeskills and factions
+from 1.1.0, zones and loot from 1.2.0. Coming from 1.0.0, also run
 `tools/renormalize_keys.py` once so backtick-apostrophe item names join the
-item database.
+item database. `tests/test_api.py` needs the optional `httpx` package and
+skips itself (with a note) when it is missing.
 
 Layout: `app/` (FastAPI backend: `server.py`, `db.py` single-writer SQLite,
 `logscan/` log pipeline, `sync/` site crawlers), `static/` (zero-build vanilla

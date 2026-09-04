@@ -17,7 +17,8 @@
 'use strict';
 
 const ImportInventory = (() => {
-  const RE_NAME = /^(\w+)_(\w+)-(?:(Inventory)|(Faction)|(?:([A-Za-z ]+)-)?(Recipes))\.txt$/i;
+  // mirrors gamefiles.RE_OUTPUTFILE: the real faction export is "-<CLASS>-Factions.txt"
+  const RE_NAME = /^(\w+)_(\w+)-(?:(Inventory)|(?:[A-Za-z]+-)?(Factions?)|(?:([A-Za-z ]+)-)?(Recipes))\.txt$/i;
   const SKILL_TOKENS = { jewelcrafting: 'Jewelry Making', poisonmaking: 'Make Poison' };
   let dlg = null, onDone = null, msg = null;
 
@@ -93,6 +94,52 @@ const ImportInventory = (() => {
   }
 
   // ── sections ────────────────────────────────────────────────────────────
+  function sectionWatched() {
+    const list = el('div', { class: 'faint', style: 'font-size:12px' }, 'Loading…');
+    const btn = el('button', { class: 'metal-btn primary' }, 'Import everything found now');
+    const fmtWhen = (ts) => ts ? new Date(ts * 1000).toLocaleString() : '';
+    const renderList = (files) => {
+      list.replaceChildren();
+      if (!files.length) {
+        list.append(el('span', {}, 'Nothing found in the game folder for this character yet.'));
+        return;
+      }
+      for (const f of files) {
+        const kind = f.kind === 'recipes' ? 'recipes' + (f.skill ? ` · ${f.skill}` : '') : f.kind;
+        list.append(el('div', { class: 'su-row', style: 'gap:10px;margin-bottom:3px' },
+          el('span', { class: 'su-chip' + (f.status === 'error' ? ' warn' : f.status === 'imported' ? ' good' : '') }, kind),
+          el('span', { class: 'muted', style: 'font-family:var(--font-mono);font-size:11px' }, f.path.split(/[\\/]/).pop()),
+          el('span', { class: f.status === 'error' ? 'bad' : 'faint' },
+            f.status === 'error' ? 'error: ' + (f.error || '') : (f.imported_at ? 'imported ' + fmtWhen(f.imported_at) : f.status))));
+      }
+    };
+    const load = async () => {
+      if (!App.active) { renderList([]); return; }
+      try { renderList((await API.get('/api/exports' + App.q())).files || []); }
+      catch (e) { list.replaceChildren(el('span', { class: 'bad' }, e.message)); }
+    };
+    btn.addEventListener('click', () => guarded(btn, async () => {
+      const r = await API.post('/api/exports/rescan');
+      const bits = [];
+      if (r.imported.length) bits.push(r.imported.map((x) => `${x.kind}${x.skill ? ' (' + x.skill + ')' : ''} for ${x.character}`).join(', ') + ' imported');
+      if (r.unchanged) bits.push(`${r.unchanged} unchanged`);
+      if (r.errors.length) bits.push(`${r.errors.length} could not be read`);
+      setMsg(r.errors.length ? 'warn' : 'good', bits.length ? bits.join(' · ') + '.' : `Checked ${r.checked} file(s) — nothing new.`);
+      await refreshApp();
+      await load();
+      if (onDone && r.imported.length) onDone(r);
+    }));
+    load();
+    return el('div', { class: 'su-sec' },
+      el('h3', {}, 'Watched — the game folder is checked every few seconds'),
+      el('div', {},
+        el('div', { style: 'margin-bottom:8px' }, list),
+        el('div', { class: 'su-row' }, btn),
+        el('div', { class: 'su-note' },
+          'Files the game writes for a character already added here are imported on their own; '
+          + 'this button just does that pass right now, for every character.')));
+  }
+
   function sectionFile() {
     const file = el('input', { type: 'file', accept: '.txt' });
     const info = el('div', { style: 'margin-top:8px' });
@@ -223,8 +270,11 @@ const ImportInventory = (() => {
         el('code', {}, 'inventory.txt'),
         ' file in ',
         el('code', {}, 'C:\\Users\\Public\\Daybreak Game Company\\Installed Games\\EverQuest Legends'),
-        ' (or wherever EQ Legends is installed).'),
-      sectionFile(), sectionPath(), sectionStored(), msg);
+        ' (or wherever EQ Legends is installed).',
+        el('div', { class: 'su-note', style: 'margin-top:6px' },
+          'The app also watches that folder: once you run the command, the file is imported '
+          + 'within a few seconds — no need to open this dialog.')),
+      sectionWatched(), sectionFile(), sectionPath(), sectionStored(), msg);
     dlg.open();
   }
 

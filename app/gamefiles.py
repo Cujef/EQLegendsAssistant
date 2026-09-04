@@ -19,13 +19,19 @@ Why the faction file matters: the LOG only ever says how much a standing moved.
 The file gives the absolute number, so the Factions page can show where you
 stand and estimate "now" as file value + log movement since the import.
 """
+import os
 import re
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from . import db, inventory, tradeskills
 
+# The game's real faction export is "<Name>_<server>-<CLASS>-Factions.txt"
+# (class token + plural, e.g. -PAL-Factions.txt); the documented "-Faction.txt"
+# shape is accepted too.
 RE_OUTPUTFILE = re.compile(
-    r'^(?P<name>\w+)_(?P<server>\w+)-(?:(?P<inv>Inventory)|(?P<fac>Faction)|'
+    r'^(?P<name>\w+)_(?P<server>\w+)-(?:(?P<inv>Inventory)|'
+    r'(?:(?P<cls>[A-Za-z]+)-)?(?P<fac>Factions?)|'
     r'(?:(?P<skill>[A-Za-z ]+)-)?(?P<rec>Recipes))\.txt$', re.I)
 RE_INT = re.compile(r'^-?\d+$')
 RE_SPLIT = re.compile(r'\t|\s{2,}')   # tab-separated, or aligned with runs of spaces
@@ -79,6 +85,42 @@ def parse_outputfile_name(filename) -> Optional[dict]:
             'skill': skill_from_token(m.group('skill')) if kind == 'recipes' else None}
 
 
+def list_exports(game_dir=None) -> List[dict]:
+    """Every /outputfile export in the game folder: one scandir, entries whose
+    names the game could have written. `game_dir` defaults to the configured
+    install (read at call time so tests can point it elsewhere)."""
+    from . import config
+    d = Path(game_dir) if game_dir else config.GAME_DIR
+    out = []
+    try:
+        with os.scandir(d) as it:
+            for e in it:
+                try:
+                    if not e.is_file():
+                        continue
+                    meta = parse_outputfile_name(e.name)
+                    if not meta:
+                        continue
+                    st = e.stat()
+                except OSError:
+                    continue
+                out.append({**meta, 'path': str(Path(d) / e.name),
+                            'mtime': st.st_mtime, 'size': st.st_size})
+    except OSError:
+        return []
+    return out
+
+
+def discover(name: str, server: str, game_dir=None, entries=None) -> List[dict]:
+    """The exports belonging to one character: [{kind, skill, path, mtime, size}]."""
+    entries = list_exports(game_dir) if entries is None else entries
+    n, s = (name or '').lower(), (server or '').lower()
+    mine = [{k: v for k, v in e.items() if k not in ('name', 'server')}
+            for e in entries if e['name'].lower() == n and e['server'].lower() == s]
+    mine.sort(key=lambda e: (e['kind'], e.get('skill') or ''))
+    return mine
+
+
 def _decode(raw: bytes) -> str:
     return inventory._decode(raw)
 
@@ -120,7 +162,8 @@ def detect_kind(filename: str, text: str) -> Optional[str]:
     head = lines[0]
     if head.startswith('Location\t'):
         return 'inventory'
-    if 'faction' in head.lower():
+    # the real header is "ID  Name  StandingValue  PointsToMax"
+    if 'faction' in head.lower() or 'standing' in head.lower():
         return 'faction'
     if 'recipe' in head.lower():
         return 'recipes'

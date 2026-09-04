@@ -18,6 +18,9 @@ Revisions:
   1  v1.1  craft / craft_capped / depot_* / faction / faction_capped (+ skill,
            which only VOTES for recipe->skill in events-only mode)
   2  v1.1  upgrade ("successfully merged two items…")
+  3  v1.2  zone / xp / kill / loot — the zone clock and loot history. The
+           'experience!' gate is deliberate: "You gain party experience!" is
+           the majority of XP lines.
 """
 import time
 from pathlib import Path
@@ -29,7 +32,7 @@ from .highlights import Aggregator
 
 GUARD_KEY = 'events_backfill_offset'   # bytes covered; its presence alone means rev 1 is done
 REV_KEY = 'events_backfill_rev'        # highest revision applied
-BACKFILL_REV = 2
+BACKFILL_REV = 3
 REVS = {
     1: {'types': frozenset({'craft', 'craft_capped', 'depot_consume', 'depot_deposit',
                             'depot_withdraw', 'faction', 'faction_capped', 'skill'}),
@@ -37,6 +40,8 @@ REVS = {
                   'become better at')},
     2: {'types': frozenset({'upgrade'}),
         'gates': ('merged two items',)},
+    3: {'types': frozenset({'zone', 'xp', 'kill', 'loot'}),
+        'gates': ('You have entered', 'experience!', 'You have slain', 'looted', 'You receive')},
 }
 CHUNK = 4 * 1024 * 1024
 

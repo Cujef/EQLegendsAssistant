@@ -1,3 +1,4 @@
 fastapi
 uvicorn[standard]
 Pillow          # optional — only to convert client DDS icon sheets to PNG
+httpx           # tests only - fastapi.testclient (tests/test_api.py); skipped when absent

@@ -78,6 +78,15 @@ def _ext(check):
          {'type': 'upgrade', 'item': 'Platinum Ring +3', 'base': 'Platinum Ring', 'tier': 3}),
         ('[Sat Aug 01 21:08:05 2026] You have successfully merged two items together to create a new item: Sprouting Heal II',
          {'type': 'upgrade', 'item': 'Sprouting Heal II', 'base': 'Sprouting Heal II', 'tier': None}),
+        # auto-sold / auto-merged loot: the game's most common loot shape
+        ("[Fri Jul 31 18:38:19 2026] You looted 2 Zombie Skin from a tormented dead's corpse and sold it for 1 gold, 3 silver and 6 copper.",
+         {'type': 'loot', 'item': 'Zombie Skin', 'source': 'a tormented dead', 'qty': 2, 'sold_copper': 136}),
+        ("[Fri Jul 31 18:39:44 2026] You looted a Rusty Broad Sword +1 from a tormented dead's corpse and sold it for free.",
+         {'type': 'loot', 'item': 'Rusty Broad Sword +1', 'source': 'a tormented dead', 'qty': 1, 'sold_copper': 0}),
+        ("[Fri Jul 31 18:40:00 2026] You looted a Throwing Boulder from a hill giant's corpse to create a Throwing Boulder +2",
+         {'type': 'loot', 'item': 'Throwing Boulder', 'source': 'a hill giant', 'qty': 1, 'merged_into': 'Throwing Boulder +2'}),
+        ("[Fri Jul 31 18:40:01 2026] You looted 3 Bone Chips from a skeleton's corpse and stored it in your tradeskill depot.",
+         {'type': 'loot', 'item': 'Bone Chips', 'source': 'a skeleton', 'qty': 3}),   # vendored branch, untouched
     ]
     for line, expect in DEPOT:
         ev = parse(line)
@@ -338,6 +347,72 @@ def _agg_events(check):
     check('aggev: only_types narrows an events-only pass',
           len(db.query('SELECT * FROM craft_events WHERE character_id=?', (cid2,))) == 1
           and len(db.query('SELECT * FROM upgrade_events WHERE character_id=?', (cid2,))) == 1)
+
+    # ── zone clock + loot stamping (v1.2) ──
+    from app.logscan.highlights import SESSION_GAP, zone_base
+    check('zone: instance suffixes stripped',
+          zone_base('Najena 2 (Adaptive)') == 'Najena'
+          and zone_base('The Plane of Fear - Group 1 (Awakened)') == 'The Plane of Fear'
+          and zone_base('The Permafrost Caverns - Group 3 (Fused)') == 'The Permafrost Caverns'
+          and zone_base('Paineel 4 (Refined)') == 'Paineel'
+          and zone_base('The Estate of Unrest 1 (Awakened)') == 'The Estate of Unrest'
+          and zone_base('Northern Felwithe') == 'Northern Felwithe')
+    with db.tx() as c:
+        c.execute("INSERT OR IGNORE INTO characters(name, server, created_at) VALUES('AggZone','test',0)")
+    cz = db.query_one("SELECT id FROM characters WHERE name='AggZone'")['id']
+    za = Aggregator(player_name='AggZone')
+    t1 = 1_800_300_000.0
+    za.feed({'type': 'loot', 'ts': t1, 'item': 'Bone Chips', 'source': 'a skeleton'})       # before any zone
+    za.feed({'type': 'zone', 'ts': t1 + 10, 'zone': 'Najena 2 (Adaptive)'})
+    za.feed({'type': 'kill', 'ts': t1 + 70, 'target': 'a gnoll'})                          # +60 s
+    za.feed({'type': 'xp', 'ts': t1 + 70, 'pct': 0.5})                                     # +0 (same second)
+    za.feed({'type': 'loot', 'ts': t1 + 100, 'item': 'Rusty Dagger', 'source': 'a gnoll', 'qty': 2})  # +30
+    za.feed({'type': 'damage', 'ts': t1 + 5000, 'attacker': 'player', 'target': 'x', 'amount': 1,
+             'dmg_type': 'melee', 'spell': None, 'verb': 'hit'})                            # not a clock event
+    za.feed({'type': 'kill', 'ts': t1 + 100 + SESSION_GAP + 1, 'target': 'a rat'})         # gap > 30 min: cut
+    za.feed({'type': 'zone', 'ts': t1 + 100 + SESSION_GAP + 61, 'zone': 'Najena'})          # +60 to Najena (old zone)
+    za.feed({'type': 'zone', 'ts': t1 + 100 + SESSION_GAP + 121, 'zone': 'Paineel 4 (Refined)'})  # +60 to Najena
+    za.feed({'type': 'xp', 'ts': t1 + 100 + SESSION_GAP + 151, 'pct': 1.25})                # +30 to Paineel
+    with db.tx() as c:
+        za.flush(c, cz)
+    zs = {r['zone']: r for r in db.query('SELECT * FROM zone_stats WHERE character_id=?', (cz,))}
+    check('zone: seconds = gaps <= 30 min between clock events, old zone keeps the time until leaving',
+          zs['Najena']['seconds'] == 60 + 30 + 60 + 60 and zs['Paineel']['seconds'] == 30, zs)
+    check('zone: kills/xp/loot attributed to the current zone (the >30 min kill still counts)',
+          zs['Najena']['kills'] == 2 and zs['Najena']['xp_pct'] == 0.5 and zs['Najena']['loot'] == 2
+          and zs['Najena']['visits'] == 2 and zs['Paineel']['xp_pct'] == 1.25 and zs['Paineel']['visits'] == 1, zs)
+    ze = db.query('SELECT zone, zone_base FROM zone_events WHERE character_id=? ORDER BY ts', (cz,))
+    check('zone: visits recorded raw + base', [(r['zone'], r['zone_base']) for r in ze]
+          == [('Najena 2 (Adaptive)', 'Najena'), ('Najena', 'Najena'), ('Paineel 4 (Refined)', 'Paineel')], ze)
+    le = db.query('SELECT item, source, qty, zone FROM loot_events WHERE character_id=? ORDER BY ts', (cz,))
+    check('zone: loot rows stamped with the zone (NULL before the first zone line)',
+          [(r['item'], r['source'], r['qty'], r['zone']) for r in le]
+          == [('Bone Chips', 'a skeleton', 1, None), ('Rusty Dagger', 'a gnoll', 2, 'Najena')], le)
+    clock = db.query_one("SELECT value_num FROM highlights WHERE character_id=? AND key='zone_clock_ts'", (cz,))
+    check('zone: zone_clock_ts highlight = last clock event (not the damage line)',
+          clock and clock['value_num'] == t1 + 100 + SESSION_GAP + 151, clock)
+
+    # seeding: a fresh Aggregator resumes from the committed zone + clock
+    zb = Aggregator(player_name='AggZone')
+    zb.seed_zone('Paineel 4 (Refined)', t1 + 100 + SESSION_GAP + 151)
+    zb.feed({'type': 'kill', 'ts': t1 + 100 + SESSION_GAP + 181, 'target': 'a rat'})       # +30
+    with db.tx() as c:
+        zb.flush(c, cz)
+    row = db.query_one('SELECT * FROM zone_stats WHERE character_id=? AND zone=?', (cz, 'Paineel'))
+    check('zone: seeded clock continues in the seeded zone', row['seconds'] == 60 and row['kills'] == 1, dict(row))
+
+    # events-only (backfill rev 3): the same four types, nothing additive besides them
+    zc = Aggregator(events_only=True, only_types={'zone', 'xp', 'kill', 'loot'})
+    zc.feed({'type': 'zone', 'ts': t1, 'zone': 'Befallen'})
+    zc.feed({'type': 'kill', 'ts': t1 + 10, 'target': 'x'})
+    zc.feed({'type': 'craft', 'ts': t1 + 11, 'item': 'Fish Rolls', 'ok': True})           # not in only_types
+    with db.tx() as c:
+        zc.flush(c, cid2)
+    check('zone: events-only writes zone rows only',
+          db.query_one('SELECT kills, seconds FROM zone_stats WHERE character_id=? AND zone=?',
+                       (cid2, 'Befallen')) == {'kills': 1, 'seconds': 10}
+          and len(db.query('SELECT * FROM craft_events WHERE character_id=?', (cid2,))) == 1
+          and db.query_one("SELECT 1 FROM highlights WHERE character_id=? AND key='total_kills'", (cid2,)) is None)
     check('aggev: events-only writes craft + faction rows',
           len(db.query('SELECT * FROM craft_events WHERE character_id=?', (cid2,))) == 1
           and len(db.query('SELECT * FROM faction_events WHERE character_id=?', (cid2,))) == 1)
@@ -414,7 +489,13 @@ def _pipeline(check):
         'Your faction standing with Frogloks of Guk has been adjusted by -5.',
         'Your faction standing with Knights of Truth could not possibly get any better.',
         'You have successfully merged two items together to create a new item: Platinum Ring +3',
+        # v1.2: a second zone, party XP, depot loot with a quantity
+        'You have entered Dusty Hollow.',
+        'You gain party experience! (1.25%)',
+        "You looted 2 Spider Silk from a spider's corpse and stored it in your tradeskill depot.",
+        "You looted a Spider Leg from a spider's corpse and sold it for 2 silver and 5 copper.",
     ]
+    n_events = len(body)              # index of the last zone-clock line + 1
     while len(body) < 50:
         body.append('You begin casting Minor Healing.')
     n1 = len(body)
@@ -482,8 +563,24 @@ def _pipeline(check):
                                   "AND item='Tumpy Tonic' AND skill='Brewing'", (cid,)),
             'upgrades': db.query_one('SELECT COUNT(*) n FROM upgrade_events WHERE character_id=?',
                                      (cid,))['n'],
+            'zones': db.query_one('SELECT COUNT(*) n FROM zone_events WHERE character_id=?', (cid,))['n'],
+            'loot': db.query_one('SELECT COUNT(*) n, COALESCE(SUM(qty),0) q FROM loot_events '
+                                 'WHERE character_id=?', (cid,)),
+            'zs': {r['zone']: r for r in db.query('SELECT * FROM zone_stats WHERE character_id=?', (cid,))},
         }
     ec = ev_counts()
+    zs = ec['zs']
+    check('pipe: zone visits + loot rows (dash, depot, auto-sold)', ec['zones'] == 2 and ec['loot']['n'] == 3
+          and ec['loot']['q'] == 4, (ec['zones'], dict(ec['loot'])))
+    check('pipe: zone stats per zone', zs['Silly Meadow']['kills'] == 1 and zs['Silly Meadow']['xp_pct'] == 0.51
+          and zs['Silly Meadow']['loot'] == 1 and zs['Dusty Hollow']['xp_pct'] == 1.25
+          and zs['Dusty Hollow']['loot'] == 3 and zs['Dusty Hollow']['kills'] == 0, zs)
+    check('pipe: auto-sell income counted apart from kill coin',
+          hl('total_autosell_copper')['value_num'] == 25 and hl('total_coin_copper')['value_num'] == 530)
+    # lines are 1 s apart: the clock runs from the first zone line (index 1) to the last
+    # clock event (index n_events-1), all gaps well under 30 min
+    check('pipe: zone seconds telescope to last clock event - first zone line',
+          zs['Silly Meadow']['seconds'] + zs['Dusty Hollow']['seconds'] == (n_events - 1) - 1, zs)
     check('pipe: craft rows (2, 1 ok, 1 capped)', ec['craft']['n'] == 2 and ec['craft']['ok'] == 1
           and ec['craft']['capped'] == 1, dict(ec['craft']))
     check('pipe: cap attached to Tumpy Tonic', db.query_one(
@@ -508,7 +605,8 @@ def _pipeline(check):
     # ── backfill: an install whose checkpoint already sits at EOF gets the
     #    event history exactly once ──
     EVENT_TABLES = ('craft_events', 'craft_caps', 'craft_recipe_skill', 'depot_events',
-                    'faction_events', 'faction_caps', 'upgrade_events')
+                    'faction_events', 'faction_caps', 'upgrade_events', 'zone_stats',
+                    'zone_events', 'loot_events')
     with db.tx() as c:
         for table in EVENT_TABLES:
             c.execute(f'DELETE FROM {table} WHERE character_id=?', (cid,))
@@ -524,6 +622,13 @@ def _pipeline(check):
           ec2['craft']['n'] == 2 and ec2['craft']['capped'] == 1 and ec2['depot'] == 2
           and ec2['faction']['n'] == 2 and ec2['fcaps'] == 1 and ec2['upgrades'] == 1
           and ec2['votes'] and ec2['votes']['votes'] == 1, ec2)
+    check('pipe: backfill restored zone/loot rows with identical stats',
+          ec2['zones'] == 2 and ec2['loot']['q'] == 4
+          and ec2['zs']['Silly Meadow']['seconds'] == zs['Silly Meadow']['seconds']
+          and ec2['zs']['Dusty Hollow']['xp_pct'] == 1.25, ec2['zs'])
+    check('pipe: backfill wrote no live-only counters',
+          db.query_one("SELECT value_num FROM highlights WHERE character_id=? AND key='total_kills'",
+                       (cid,))['value_num'] == kills_before)
     check('pipe: backfill touched no additive counters',
           hl('lines_parsed')['value_num'] == lines_before
           and hl('total_kills')['value_num'] == kills_before)
@@ -533,18 +638,34 @@ def _pipeline(check):
     importer.scan_once(dict(char))
     check('pipe: second scan does not backfill again', ev_counts()['craft']['n'] == 2)
 
-    # ── backfill revision 2 on a v1.1 install: only the offset guard exists (rev 1
-    #    ran), so only the NEW event kind is replayed — no duplicate craft rows ──
+    # ── backfill revision 2+3 on a v1.1 install: only the offset guard exists (rev 1
+    #    ran), so only the NEW event kinds are replayed — no duplicate craft rows ──
     with db.tx() as c:
-        c.execute('DELETE FROM upgrade_events WHERE character_id=?', (cid,))
-        c.execute('DELETE FROM highlights WHERE character_id=? AND key=?', (cid, backfill.REV_KEY))
+        for table in ('upgrade_events', 'zone_stats', 'zone_events', 'loot_events'):
+            c.execute(f'DELETE FROM {table} WHERE character_id=?', (cid,))
+        c.execute('DELETE FROM highlights WHERE character_id=? AND key IN (?, ?)',
+                  (cid, backfill.REV_KEY, 'zone_clock_ts'))
     check('pipe: offset guard alone reads as revision 1', backfill.stored_rev(cid) == 1)
     importer.scan_once(dict(char))
     ec3 = ev_counts()
-    check('pipe: rev-2 backfill adds upgrades only',
-          ec3['upgrades'] == 1 and ec3['craft']['n'] == 2 and ec3['faction']['n'] == 2, ec3)
+    check('pipe: rev-2/3 backfill adds upgrades + zone rows only',
+          ec3['upgrades'] == 1 and ec3['zones'] == 2 and ec3['craft']['n'] == 2
+          and ec3['faction']['n'] == 2, ec3)
     check('pipe: revision recorded after the partial backfill',
           guard(backfill.REV_KEY) == backfill.BACKFILL_REV and not backfill.needed(cid))
+
+    # ── backfill revision 3 alone on a v1.1 install that already had rev 2 ──
+    with db.tx() as c:
+        for table in ('zone_stats', 'zone_events', 'loot_events'):
+            c.execute(f'DELETE FROM {table} WHERE character_id=?', (cid,))
+        c.execute('UPDATE highlights SET value_num=2 WHERE character_id=? AND key=?',
+                  (cid, backfill.REV_KEY))
+        c.execute("DELETE FROM highlights WHERE character_id=? AND key='zone_clock_ts'", (cid,))
+    importer.scan_once(dict(char))
+    ec4 = ev_counts()
+    check('pipe: rev-3 backfill adds zone/loot rows only, upgrades untouched',
+          ec4['zones'] == 2 and ec4['loot']['n'] == 3 and ec4['upgrades'] == 1
+          and ec4['zs']['Silly Meadow']['seconds'] == zs['Silly Meadow']['seconds'], ec4)
 
     # ── append 5 lines: only the new bytes are consumed ──
     extra = ['You slash a spider for 9 points of damage.',
@@ -559,6 +680,12 @@ def _pipeline(check):
     r2 = importer.scan_once(dict(char))
     check('pipe: rescan reaches new EOF', r2['offset'] == size2, r2)
     check('pipe: only appended lines consumed', r2['lines'] == 5, r2['lines'])
+    # the new pipeline seeded its zone clock from the DB: the appended kill lands
+    # in Dusty Hollow and the gap since the last clock event (< 30 min) counts
+    zs2 = ev_counts()['zs']
+    check('pipe: resumed pipeline attributes the new kill to the seeded zone',
+          zs2['Dusty Hollow']['kills'] == 1
+          and zs2['Dusty Hollow']['seconds'] > zs['Dusty Hollow']['seconds'], zs2['Dusty Hollow'])
     check('pipe: counters incremented once',
           hl('lines_parsed')['value_num'] == n1 + 5
           and hl('total_kills')['value_num'] == 2)

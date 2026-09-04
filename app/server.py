@@ -73,6 +73,8 @@ def _startup():
     # Later milestones start their workers here (tailer, etc.).
     from .logscan import tailer  # noqa: WPS433 - deferred so M0-M2 run without it
     tailer.start()
+    from . import exports_watch   # auto-pickup of /outputfile exports (v1.2)
+    exports_watch.start()
 
 
 # ── shell + static ────────────────────────────────────────────────────────────
@@ -393,6 +395,56 @@ def api_factions(char: int = None):
     from . import factions
     c = _char_or_404(char)
     return factions.view(c['id'])
+
+
+@app.get('/api/zones')
+def api_zones(char: int = None):
+    from . import zones
+    c = _char_or_404(char)
+    return zones.view(c['id'])
+
+
+@app.get('/api/loot')
+def api_loot(char: int = None, q: str = ''):
+    from . import zones
+    c = _char_or_404(char)
+    return zones.loot(c['id'], q)
+
+
+@app.get('/api/exports')
+def api_exports(char: int = None):
+    """What the exports watcher has seen for this character."""
+    from . import exports_watch
+    c = _char_or_404(char)
+    return {'files': exports_watch.files_for(c['id']),
+            'watcher': state.snapshot_extras()['exports']}
+
+
+@app.post('/api/exports/rescan')
+def api_exports_rescan():
+    """One synchronous watcher pass over every character — the dialog's
+    'Import everything found now' button."""
+    from . import exports_watch
+    return exports_watch.run_once()
+
+
+@app.get('/api/export/{view}')
+def api_export(view: str, fmt: str = 'csv', char: int = None):
+    """Download one page table as CSV (Excel-ready) or JSON."""
+    from fastapi.responses import JSONResponse, Response
+    from . import export
+    c = _char_or_404(char)
+    if fmt not in ('csv', 'json'):
+        raise HTTPException(422, 'fmt must be csv or json')
+    try:
+        columns, data = export.rows(view, c['id'])
+    except KeyError:
+        raise HTTPException(404, f'no such export view: {view}')
+    headers = {'Content-Disposition': f'attachment; filename="{export.filename(c, view, fmt)}"'}
+    if fmt == 'json':
+        return JSONResponse(data, headers=headers)
+    return Response(content=export.to_csv(columns, data),
+                    media_type='text/csv; charset=utf-8', headers=headers)
 
 
 # ── sync ─────────────────────────────────────────────────────────────────────

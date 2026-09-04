@@ -285,6 +285,86 @@ def run(check):
     # ── inventory view: PARSE_REV 4 linkage on a freshly imported dump ──
     _inventory_view(check, db)
     _gamefiles(check, db)
+    _zones_and_loot(check, db)
+
+
+def _zones_and_loot(check, db):
+    """zones.view: guide matching + ratings + per-hour rules; zones.loot grouping."""
+    import json
+    from app import zones
+
+    check('zones: key normaliser', zones.zone_key('The Lavastorm Mountains') == 'lavastorm mountains'
+          and zones.zone_key('Plane of Sky *') == 'plane of sky'
+          and zones.zone_key("Kael`s Fort") == 'kaels fort')
+    with db.tx() as c:
+        c.execute("INSERT OR REPLACE INTO guides(slug, title, kind, parsed_json, parsed_ok) "
+                  "VALUES('zem_list', 'ZEM', 'zem', ?, 1)", (json.dumps({'rows': [
+                      {'region': 'Antonica', 'zone': 'Lavastorm Mountains', 'level_min': 20,
+                       'level_max': 40, 'zem': None,
+                       'ratings': {'1': 'inefficient', '20': 'efficient', '35': 'recommended'}},
+                      {'region': 'Planes', 'zone': 'Plane of Sky *', 'level_min': 46, 'level_max': 60,
+                       'zem': 125, 'ratings': {}},
+                      {'region': 'Faydwer', 'zone': 'Crushbone', 'level_min': 5, 'level_max': 15,
+                       'zem': None, 'ratings': {'1': 'efficient'}},
+                      {'region': 'Faydwer', 'zone': 'Crushbone Keep', 'level_min': 5, 'level_max': 15,
+                       'zem': None, 'ratings': {}},
+                  ]}),))
+        c.execute('DELETE FROM zone_stats WHERE character_id=99')
+        c.executemany('INSERT INTO zone_stats(character_id, zone, seconds, kills, xp_pct, loot, visits, '
+                      'first_ts, last_ts) VALUES(99,?,?,?,?,?,?,?,?)', [
+                          ('The Lavastorm Mountains', 3600, 30, 6.0, 4, 2, 1000, 5000),
+                          ('Plane of Sky', 1800, 5, 1.5, 0, 1, 6000, 7800),
+                          ('Crushbone', 200, 2, 0.1, 1, 1, 100, 300),     # under 0.1 h
+                          ('Nowhere Special', 900, 1, 0.0, 0, 1, 50, 950),
+                      ])
+        c.execute('DELETE FROM zone_events WHERE character_id=99')
+        c.executemany('INSERT INTO zone_events(character_id, ts, zone, zone_base) VALUES(99,?,?,?)', [
+            (1000, 'The Lavastorm Mountains 2 (Adaptive)', 'The Lavastorm Mountains'),
+            (6000, 'Plane of Sky', 'Plane of Sky')])
+        c.execute('DELETE FROM loot_events WHERE character_id=99')
+        c.executemany('INSERT INTO loot_events(character_id, ts, item, item_norm, source, qty, zone) '
+                      'VALUES(99,?,?,?,?,?,?)', [
+                          (1001, 'Glowing Shard', 'glowing shard', 'a lava basilisk', 1, 'The Lavastorm Mountains'),
+                          (1002, 'Glowing Shard', 'glowing shard', 'a lava basilisk', 1, 'The Lavastorm Mountains'),
+                          (1003, 'Glowing Shard', 'glowing shard', 'a fire elemental', 1, 'The Lavastorm Mountains'),
+                          (900, 'Bone Chips', 'bone chips', 'Unknown', 5, None),
+                      ])
+        # level 30 for the rating bracket (the seed gives 99 a higher level; this suite
+        # runs last in this file, so replacing it is safe)
+        c.execute('DELETE FROM level_history WHERE character_id=99')
+        c.execute('INSERT INTO level_history(character_id, level, ts) VALUES(99, 30, 1)')
+    v = zones.view(99)
+    z = {x['zone']: x for x in v['zones']}
+    check('zones: guide match through "The " prefix, rating for the level bracket',
+          z['The Lavastorm Mountains']['guide'] and z['The Lavastorm Mountains']['guide']['rating'] == 'efficient'
+          and z['The Lavastorm Mountains']['guide']['level_min'] == 20, z['The Lavastorm Mountains']['guide'])
+    check('zones: guide match through the " *" suffix, numeric zem when present',
+          z['Plane of Sky']['guide'] and z['Plane of Sky']['guide']['zem'] == 125)
+    check('zones: ambiguous prefix (Crushbone vs Crushbone Keep) still matches exactly',
+          z['Crushbone']['guide'] and z['Crushbone']['guide']['zone'] == 'Crushbone')
+    check('zones: no guide -> None', z['Nowhere Special']['guide'] is None)
+    check('zones: per-hour math and the 0.1 h floor',
+          z['The Lavastorm Mountains']['hours'] == 1.0 and z['The Lavastorm Mountains']['kills_per_hour'] == 30.0
+          and z['The Lavastorm Mountains']['xp_per_hour'] == 6.0
+          and z['Plane of Sky']['kills_per_hour'] == 10.0 and z['Crushbone']['kills_per_hour'] is None)
+    check('zones: sorted by seconds, recent visits + current zone',
+          v['zones'][0]['zone'] == 'The Lavastorm Mountains' and v['current_zone'] == 'Plane of Sky'
+          and v['recent_visits'][0]['zone'] == 'Plane of Sky' and v['level'] == 30)
+    check('zones: totals', v['totals']['kills'] == 38 and v['totals']['hours'] == 1.8
+          and v['totals']['visits'] == 5, v['totals'])
+
+    lo = zones.loot(99)
+    it = {x['item_norm']: x for x in lo['items']}
+    check('loot: grouped with top sources incl. zone', it['glowing shard']['count'] == 3
+          and it['glowing shard']['sources'][0] == {'source': 'a lava basilisk',
+                                                    'zone': 'The Lavastorm Mountains', 'n': 2}
+          and it['glowing shard']['in_item_db'] is True, it['glowing shard'])
+    check('loot: qty and unknown zone tolerated', it['bone chips']['qty'] == 5
+          and it['bone chips']['sources'][0]['zone'] is None and it['bone chips']['in_item_db'] is False)
+    check('loot: search filter', [x['item_norm'] for x in zones.loot(99, 'bone')['items']] == ['bone chips']
+          and zones.loot(99, 'bone')['total_events'] == 4)
+    check('loot: unlimited variant used by the export', len(zones.loot(99, limit=None)['items']) == 2
+          and zones.loot(99, limit=None)['items'][0]['sources'])
 
 
 def _gamefiles(check, db):
@@ -305,6 +385,18 @@ def _gamefiles(check, db):
           and p('Fizzwick_halas-all-Recipes.txt')['skill'] == 'all'
           and p('fizzwick_halas-baking-recipes.TXT')['skill'] == 'Baking')
     check('gf: not an export', p('eqlog_Fizzwick_halas.txt') is None and p('notes.txt') is None)
+    check('gf: the real faction export name (-<CLASS>-Factions.txt)',
+          p('Fizzwick_halas-PAL-Factions.txt') == {'name': 'Fizzwick', 'server': 'halas',
+                                                    'kind': 'faction', 'skill': None}
+          and p('Fizzwick_halas-Factions.txt')['kind'] == 'faction')
+    REAL_FAC = ('ID\tName\tStandingValue\tPointsToMax\r\n65\tBrownies of Faydwer\t0\t2000\r\n'
+                '138\tClockworks of Ak`Anon\t0\t2000\r\n')
+    check('gf: the real faction header is sniffed by content',
+          gamefiles.detect_kind('picked.txt', REAL_FAC) == 'faction')
+    pf_real = gamefiles.parse_faction(REAL_FAC)
+    check('gf: the real faction body parses', len(pf_real['rows']) == 2
+          and pf_real['rows'][1] == {'faction_id': 138, 'faction': 'Clockworks of Ak`Anon',
+                                     'value': 0, 'to_max': 2000} and not pf_real['skipped'], pf_real)
     check('gf: owner helper covers every kind',
           characters.parse_outputfile_owner('X_y-Faction.txt') == ('X', 'y')
           and characters.parse_outputfile_owner('X_y-Baking-Recipes.txt') == ('X', 'y'))

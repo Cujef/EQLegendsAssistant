@@ -11,6 +11,69 @@
   const els = {};             // tile body elements, set by each build
   let data = null;            // GET /api/whattodo
   let err = null;
+  let zonesData = null;       // GET /api/zones
+  let zonesErr = null;
+
+  const dateCell = (ts) => ts ? new Date(ts * 1000).toLocaleDateString() : null;
+
+  // ── tile: where you actually leveled (from the log) ────────────────────
+  function buildLeveled(body, api) {
+    els.leveled = body;
+    if (api && api.addAction) Tiles.addExport(api, 'zones');
+    renderLeveled();
+  }
+  function renderLeveled() {
+    if (!els.leveled || !els.leveled.isConnected) return;
+    const b = els.leveled;
+    b.replaceChildren();
+    if (zonesErr) { b.append(el('div', { class: 'empty-note bad' }, zonesErr)); return; }
+    if (!zonesData) { b.append(el('div', { class: 'empty-note' }, 'Loading…')); return; }
+    const t = zonesData.totals || {};
+    if (t.zones) {
+      b.append(el('div', { class: 'muted', style: 'font-size:12px;margin-bottom:6px' },
+        `${t.zones} zones · ${fmt(t.hours)} active hours · ${fmt(t.kills)} kills · ${fmt(t.xp_pct)}% XP`
+        + (zonesData.current_zone ? ` · now in ${zonesData.current_zone}` : '')));
+    }
+    const host = el('div', {});
+    b.append(host);
+    renderTable(host, {
+      id: 'wtd.leveled',
+      columns: [
+        {
+          key: 'zone', label: 'Zone',
+          render: (r) => r.guide && r.guide.level_min
+            ? el('span', { title: `guide levels ${r.guide.level_min}-${r.guide.level_max ?? '?'}` }, r.zone)
+            : r.zone,
+        },
+        { key: 'hours', label: 'Active hrs', num: true, render: (r) => r.hours.toFixed(1) },
+        { key: 'xp_pct', label: 'XP %', num: true, render: (r) => r.xp_pct ? r.xp_pct.toFixed(1) : el('span', { class: 'faint' }, '-') },
+        {
+          key: 'xp_per_hour', label: 'XP % / hr', num: true,
+          render: (r) => r.xp_per_hour === null ? el('span', { class: 'faint', title: 'under 6 minutes of activity' }, '-') : r.xp_per_hour.toFixed(1),
+        },
+        { key: 'kills', label: 'Kills', num: true },
+        {
+          key: 'kills_per_hour', label: 'Kills / hr', num: true,
+          render: (r) => r.kills_per_hour === null ? el('span', { class: 'faint' }, '-') : r.kills_per_hour.toFixed(1),
+        },
+        {
+          key: 'guide', label: 'Guide', sortVal: (r) => (r.guide && (r.guide.rating || r.guide.zem)) || '',
+          render: (r) => !r.guide ? el('span', { class: 'faint', title: 'no matching zone in the synced ZEM guide' }, '-')
+            : r.guide.zem !== null && r.guide.zem !== undefined ? String(r.guide.zem)
+            : r.guide.rating ? el('span', { title: 'rating for your level bracket, from the ZEM guide' }, r.guide.rating)
+            : el('span', { class: 'faint' }, 'no rating'),
+        },
+        { key: 'last_ts', label: 'Last', num: true, render: (r) => dateCell(r.last_ts) },
+      ],
+      rows: zonesData.zones || [],
+      defaultSort: { key: 'xp_per_hour', dir: -1 },
+      empty: 'No zone lines in the log yet — every "You have entered" is recorded from now on '
+        + '(and your existing log is read once for them).',
+    });
+    b.append(el('div', { class: 'faint', style: 'margin-top:6px;font-size:11px;line-height:1.5' },
+      'Active time = gaps of at most 30 minutes between your own zone / kill / XP / loot lines. '
+      + 'Guide ratings come from the synced ZEM guide for your level bracket (it publishes no numbers).'));
+  }
 
   // ── tile: quests your items unlock ──────────────────────────────────────
   function buildQuests(body) { els.quests = body; renderQuests(); }
@@ -99,11 +162,15 @@
     catch (e) { data = null; err = e.message; }
     renderQuests();
     renderLeveling();
+    try { zonesData = await API.get('/api/zones' + App.q()); zonesErr = null; }
+    catch (e) { zonesData = null; zonesErr = e.message; }
+    renderLeveled();
   }
 
   const DEFS = [
     { id: 'quests',   title: 'Quests Your Items Unlock', span: 7, height: 480, minSpan: 3, build: buildQuests },
     { id: 'leveling', title: 'Where to Hunt',            span: 5, height: 480, minSpan: 3, build: buildLeveling },
+    { id: 'leveled',  title: 'Where You Actually Leveled (From The Log)', span: 12, height: 420, minSpan: 4, build: buildLeveled },
   ];
 
   Pages.register({
@@ -111,7 +178,7 @@
     title: 'What to do?',
     icon: '❓',
     render(container) {
-      data = null; err = null;
+      data = null; err = null; zonesData = null; zonesErr = null;
       container.append(el('h1', { class: 'page-title' }, 'What to do?'));
       const host = el('div', {});
       container.append(host);

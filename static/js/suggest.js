@@ -87,7 +87,8 @@ const Suggest = (() => {
         ok: !!inv,
         title: `Import ${who}'s inventory`,
         status: inv ? 'imported ' + new Date(inv * 1000).toLocaleString()
-                    : 'not imported yet — gear, sockets, bags and exaltations stay empty until you do',
+                    : 'not imported yet — type /outputfile inventory in game and the app picks the file up '
+                      + 'by itself, or import one by hand',
         action: 'Import Inventory…',
         run: () => ImportInventory.open({}),
       },

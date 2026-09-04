@@ -99,6 +99,7 @@ def scan(directory=None) -> dict:
     Each candidate reports whether its log and inventory dump were actually
     found, so the setup UI can tell the user what is missing before they commit.
     """
+    from . import gamefiles   # local: gamefiles imports tradeskills/inventory, never this module
     game_dir, logs_dir = resolve_dirs(directory or GAME_DIR)
     pairs = _read_characters_ini(game_dir)
     seen = {(n.lower(), s.lower()) for n, s in pairs}
@@ -106,6 +107,13 @@ def scan(directory=None) -> dict:
         if (n.lower(), s.lower()) not in seen:
             pairs.append((n, s))
             seen.add((n.lower(), s.lower()))
+    # every /outputfile export in the game folder (inventory / faction / recipes);
+    # an alt with only a dump still shows up, so the wizard can add it
+    entries = gamefiles.list_exports(game_dir)
+    for e in entries:
+        if (e['name'].lower(), e['server'].lower()) not in seen:
+            pairs.append((e['name'], e['server']))
+            seen.add((e['name'].lower(), e['server'].lower()))
     known = {(r['name'].lower(), r['server'].lower()) for r in list_all()}
     out = []
     for name, server in pairs:
@@ -120,6 +128,7 @@ def scan(directory=None) -> dict:
         out.append({
             'name': name, 'server': server,
             'log_path': lp, 'log_size': size, 'inventory_path': ip,
+            'exports': gamefiles.discover(name, server, entries=entries),
             'already_added': (name.lower(), server.lower()) in known,
         })
     return {
@@ -162,7 +171,8 @@ _CHAR_TABLES = ('manual_stats', 'quest_progress', 'quest_step_progress', 'skill_
                 'level_history', 'aa_ledger', 'deaths', 'highlights', 'fights',
                 'log_source', 'craft_events', 'craft_caps', 'craft_recipe_skill',
                 'depot_events', 'faction_events', 'faction_caps', 'upgrade_events',
-                'faction_standings', 'known_recipes')
+                'faction_standings', 'known_recipes', 'export_files', 'zone_stats',
+                'zone_events', 'loot_events')
 
 
 def remove(char_id: int) -> None:
@@ -211,6 +221,9 @@ def readiness(active: Optional[dict]) -> Optional[dict]:
         'log_path_set': bool(active.get('log_path')),
         'log_lines_parsed': int(lines[0]) if lines and lines[0] else 0,
         'items_in_db': int(items or 0),
+        # static on purpose: the suggestion box re-renders whenever this object
+        # changes, so the watcher's timestamps live in state.exports instead
+        'auto_import': {'enabled': True},
     }
 
 

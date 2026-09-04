@@ -30,7 +30,7 @@ def _filename_and_readiness(check):
     r = characters.readiness(row)
     check('readiness: fresh character', r['inventory_imported_at'] is None
           and r['log_path_set'] is False and r['log_lines_parsed'] == 0
-          and isinstance(r['items_in_db'], int), r)
+          and isinstance(r['items_in_db'], int) and r['auto_import'] == {'enabled': True}, r)
     inventory.import_bytes(row['id'], b'Location\tName\tID\tCount\tSlots\nHead\tCap\t1\t1\t10\n',
                            source_path='x.txt')
     with db.tx() as c:
@@ -62,9 +62,10 @@ def _char_tables(check):
     missing = [t for t in keyed if t not in characters._CHAR_TABLES
                and t != 'inventory_snapshots']
     check('char tables: removal list covers every character-keyed table', not missing, missing)
-    check('char tables: new v1.1 tables present',
+    check('char tables: new v1.1/v1.2 tables present',
           {'craft_events', 'craft_caps', 'craft_recipe_skill', 'depot_events', 'faction_events',
-           'faction_caps', 'upgrade_events'} <= set(keyed), keyed)
+           'faction_caps', 'upgrade_events', 'faction_standings', 'known_recipes',
+           'export_files', 'zone_stats', 'zone_events', 'loot_events'} <= set(keyed), keyed)
 
     # and remove() really empties them
     row = characters.add('Wipe', 'srv', None, None, activate=False)
@@ -152,21 +153,37 @@ def _scan(check):
                                                   encoding='utf-8')
     # a log with no ini entry must still be discovered
     (root / 'Logs' / 'eqlog_Solo_vox.txt').write_text('y', encoding='utf-8')
+    # the other exports, plus an alt known only from a dump
+    (root / 'Foo_halas-PAL-Factions.txt').write_text('ID\tName\tStandingValue\tPointsToMax\n',
+                                                     encoding='utf-8')
+    (root / 'Foo_halas-Baking-Recipes.txt').write_text('1\tFish Rolls\n', encoding='utf-8')
+    (root / 'Foo_halas-Jewelcrafting-Recipes.txt').write_text('2\tRing\n', encoding='utf-8')
+    (root / 'Alt_halas-Inventory.txt').write_text('Location\tName\tID\tCount\tSlots\n',
+                                                  encoding='utf-8')
 
     res = characters.scan(root)
     by = {c['name']: c for c in res['candidates']}
-    check('scan: finds ini + log-only characters', set(by) == {'Foo', 'Bar', 'Solo'}, list(by))
+    check('scan: finds ini + log-only + export-only characters',
+          set(by) == {'Foo', 'Bar', 'Solo', 'Alt'}, list(by))
     check('scan: log path + size', by['Foo']['log_path'] and by['Foo']['log_size'] == 100)
     check('scan: inventory found', bool(by['Foo']['inventory_path']))
     check('scan: missing log reported as None', by['Bar']['log_path'] is None)
     check('scan: no duplicate for ini+log character',
           sum(1 for c in res['candidates'] if c['name'] == 'Foo') == 1)
     check('scan: dirs reported', res['game_dir_exists'] and res['logs_dir_exists'])
+    kinds = [(e['kind'], e['skill']) for e in by['Foo']['exports']]
+    check('scan: exports listed per candidate (sorted by kind, skill)',
+          kinds == [('faction', None), ('inventory', None), ('recipes', 'Baking'),
+                    ('recipes', 'Jewelry Making')], kinds)
+    check('scan: export-only alt has no log but an inventory export',
+          by['Alt']['log_path'] is None and by['Alt']['inventory_path']
+          and [e['kind'] for e in by['Alt']['exports']] == ['inventory'])
+    check('scan: candidate without exports reports an empty list', by['Bar']['exports'] == [])
 
     # pointing at the Logs folder itself must work as well as the install root
     res2 = characters.scan(root / 'Logs')
     check('scan: accepts the Logs folder',
-          {c['name'] for c in res2['candidates']} == {'Foo', 'Bar', 'Solo'})
+          {c['name'] for c in res2['candidates']} == {'Foo', 'Bar', 'Solo', 'Alt'})
     check('scan: resolves game dir from Logs', res2['game_dir'] == str(root))
 
     missing = characters.scan(root / 'nope')

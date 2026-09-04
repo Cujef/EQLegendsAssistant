@@ -156,7 +156,11 @@ tr.pp-sel td { background:var(--sel-bg); }
   }
 
   // ── tile: fight history ─────────────────────────────────────────────────
-  function buildHistory(body) { els.history = body; renderHistory(); }
+  function buildHistory(body, api) {
+    els.history = body;
+    if (api && api.addAction) Tiles.addExport(api, 'fights');
+    renderHistory();
+  }
   function historyRows() {
     const l = live();
     const snaps = l.fights || [];
@@ -254,6 +258,7 @@ tr.pp-sel td { background:var(--sel-bg); }
       items.push({ ts: x.ts, ico: '✗', text: `Combine refused: ${why}`, cls: 'warn' });
     }
     for (const x of s.upgrades || []) items.push({ ts: x.ts, ico: '▲', text: `Merged into ${x.item}`, cls: 'good' });
+    for (const x of s.zones || []) items.push({ ts: x.ts, ico: '⇢', text: `Entered ${x.zone}` });
     for (const x of s.faction || []) {
       items.push(x.capped
         ? { ts: x.ts, ico: '⚖', text: `${x.faction}: already at ${x.capped === 'better' ? 'MAX' : 'MIN'}` }
@@ -288,14 +293,24 @@ tr.pp-sel td { background:var(--sel-bg); }
           el('div', { class: 'bar-fill', style: `width:${pct}%` }),
           el('div', { class: 'bar-label' }, pct.toFixed(1) + '%')),
         el('span', { class: 'num muted' }, `${fmtMB(t.offset || 0)} / ${fmtMB(t.size || 0)}`)));
+    } else if (t.status === 'backfill') {
+      const pct = t.size ? Math.min(100, 100 * t.offset / t.size) : 0;
+      b.append(el('div', { class: 'pp-status-line' },
+        el('span', { class: 'warn', title: 'reading your existing log once for newly tracked events' }, 'BACKFILL'),
+        el('div', { class: 'bar-track' },
+          el('div', { class: 'bar-fill', style: `width:${pct}%` }),
+          el('div', { class: 'bar-label' }, pct.toFixed(1) + '%')),
+        el('span', { class: 'num muted' }, `${fmtMB(t.offset || 0)} / ${fmtMB(t.size || 0)}`)));
     } else if (t.status === 'live') {
       const age = t.line_ts ? Math.max(0, Date.now() / 1000 - t.line_ts) : null;
+      const zone = (live().session || {}).zone;
       b.append(el('div', { class: 'pp-status-line' },
         el('span', {}, el('span', { class: 'pp-live-dot' }), 'LIVE'),
         el('span', { class: 'muted' },
           age === null ? 'no lines yet'
             : age < 90 ? `last line ${Math.round(age)}s ago`
             : `last line ${fmtTime(t.line_ts)}`),
+        zone ? el('span', { class: 'muted' }, '⇢ ' + zone) : null,
         el('span', { class: 'num faint' }, fmtMB(t.offset || 0) + ' read')));
     } else {
       b.append(el('div', { class: 'pp-status-line faint' },

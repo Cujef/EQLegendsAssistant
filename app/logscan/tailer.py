@@ -55,7 +55,17 @@ def _blank_session() -> dict:
     return {'dmg_dealt': 0, 'dmg_taken': 0, 'kills': 0, 'deaths': 0,
             'xp_pct': 0.0, 'casts': 0, 'fizzles': 0,
             'loot': [], 'skill_ups': [], 'aa': [], 'deaths_recent': [], 'levels': [],
-            'crafts': [], 'faction': [], 'craft_errors': [], 'upgrades': []}
+            'crafts': [], 'faction': [], 'craft_errors': [], 'upgrades': [],
+            'zone': None, 'zones': []}
+
+
+def _zone_seed(cid: int) -> tuple:
+    """(zone_base, zone_clock_ts) as committed — what the consumed bytes imply."""
+    z = db.query_one('SELECT zone_base FROM zone_events WHERE character_id=? '
+                     'ORDER BY ts DESC, id DESC LIMIT 1', (cid,))
+    t = db.query_one("SELECT value_num FROM highlights WHERE character_id=? "
+                     "AND key='zone_clock_ts'", (cid,))
+    return (z['zone_base'] if z else None, t['value_num'] if t else None)
 
 
 class Pipeline:
@@ -268,6 +278,9 @@ class Pipeline:
         elif t == 'upgrade':
             s['upgrades'] = (s['upgrades'] + [{'ts': ev['ts'], 'item': ev['item'],
                                                'tier': ev.get('tier')}])[-10:]
+        elif t == 'zone':
+            s['zone'] = ev['zone']
+            s['zones'] = (s['zones'] + [{'ts': ev['ts'], 'zone': ev['zone']}])[-5:]
 
     # ── snapshot ─────────────────────────────────────────────────────────────
     def _push_live(self, status: str):
@@ -345,6 +358,11 @@ class Pipeline:
             backfill.run(self.cid, self.path, self.offset)
         except OSError as e:
             print(f'[tail] backfill skipped: {e!r}', file=sys.stderr)
+        # seed the zone clock AFTER the backfill, which may have just written the
+        # rows this reads (seeding in __init__ would be stale)
+        self.agg.seed_zone(*_zone_seed(self.cid))
+        if self.agg._zone:
+            self.session['zone'] = self.agg._zone
         state.set_import(status='running', pct=self._pct(size), offset=self.offset,
                          size=size, lines=self.lines, started_at=started,
                          reset=self.reset, error=None)

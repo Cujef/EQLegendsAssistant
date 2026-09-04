@@ -90,7 +90,11 @@
   }
 
   // ── tile: recipes ───────────────────────────────────────────────────────
-  function buildRecipes(body) { els.recipes = body; renderRecipes(); }
+  function buildRecipes(body, api) {
+    els.recipes = body;
+    if (api && api.addAction) Tiles.addExport(api, 'recipes');
+    renderRecipes();
+  }
   function renderRecipes() {
     if (!els.recipes || !els.recipes.isConnected) return;
     const b = els.recipes;
@@ -134,7 +138,11 @@
   }
 
   // ── tile: materials ─────────────────────────────────────────────────────
-  function buildMaterials(body) { els.materials = body; renderMaterials(); }
+  function buildMaterials(body, api) {
+    els.materials = body;
+    if (api && api.addAction) Tiles.addExport(api, 'materials');
+    renderMaterials();
+  }
   function renderMaterials() {
     if (!els.materials || !els.materials.isConnected) return;
     const b = els.materials;
@@ -167,7 +175,11 @@
   }
 
   // ── tile: known recipes (from /outputfile recipes) ──────────────────────
-  function buildKnown(body) { els.known = body; renderKnown(); }
+  function buildKnown(body, api) {
+    els.known = body;
+    if (api && api.addAction) Tiles.addExport(api, 'known_recipes');
+    renderKnown();
+  }
   function renderKnown() {
     if (!els.known || !els.known.isConnected) return;
     const b = els.known;
