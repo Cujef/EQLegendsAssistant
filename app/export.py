@@ -11,12 +11,12 @@ import io
 import time
 from typing import Callable, Dict, List, Tuple
 
-from . import db, factions, inventory, tradeskills, zones
+from . import db, factions, inventory, sessions, tradeskills, zones
 
 Columns = List[Tuple[str, str]]
 
-TS_KEYS = ('ts', 'start', 'first_ts', 'last_ts', 'last_used_ts', 'imported_at',
-           'last_merge_ts')
+TS_KEYS = ('ts', 'start', 'started_at', 'first_ts', 'last_ts', 'last_used_ts',
+           'imported_at', 'last_merge_ts')
 
 
 def _ts(v):
@@ -92,6 +92,20 @@ VIEWS: Dict[str, Tuple[Columns, Callable[[int], list]]] = {
               ('top_source', 'Most from'), ('top_zone', 'In zone'), ('top_n', 'Times'),
               ('first_ts', 'First'), ('last_ts', 'Last'), ('in_item_db', 'In item DB')],
              _loot),
+    'sessions': ([('started_at', 'Started'), ('last_ts', 'Last line'),
+                  ('hours', 'Active hours'), ('xp_pct', 'XP %'), ('xp_per_hour', 'XP % per hour'),
+                  ('kills', 'Kills'), ('kills_per_hour', 'Kills per hour'), ('deaths', 'Deaths'),
+                  ('income_copper', 'Income (copper)'), ('coin_copper', 'Coin'),
+                  ('autosell_copper', 'Auto-sold'), ('vendor_copper', 'Merchant'),
+                  ('dmg_dealt', 'Damage dealt'), ('dmg_taken', 'Damage taken'),
+                  ('healed', 'Healing received'), ('accuracy', 'Accuracy %'),
+                  ('crit_rate', 'Crit %'), ('loot', 'Loot'), ('crafts_ok', 'Combines made'),
+                  ('crafts_fail', 'Combines failed'), ('faction_hits', 'Faction hits'),
+                  ('skill_ups', 'Skill-ups'), ('aa_gained', 'AA gained'),
+                  ('levels', 'Levels'), ('level_end', 'Level at end'),
+                  ('zones', 'Zone changes'), ('first_zone', 'First zone'),
+                  ('last_zone', 'Last zone')],
+                 lambda cid: sessions.history(cid, limit=100000)),
     'zones': ([('zone', 'Zone'), ('hours', 'Active hours'), ('xp_pct', 'XP %'),
                ('xp_per_hour', 'XP % per hour'), ('kills', 'Kills'),
                ('kills_per_hour', 'Kills per hour'), ('loot', 'Loot'), ('visits', 'Visits'),

@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-05
+
+Your play sessions become a first-class thing the app remembers, and two log
+shapes it could not read turn out to have been costing it real numbers.
+
+### Added
+
+- **Current Session on the Parser page.** A session is a run of play with no gap
+  over 30 minutes — the same clock that has always produced the app's session
+  count and playtime, so the two agree by construction. The tile shows the
+  session clock and zone, XP gained and per hour, coin looted (kill coin,
+  auto-sold loot and merchant sales, separately and together), kills and per
+  hour, deaths, damage dealt and taken, healing received, melee accuracy and
+  crit rate, loot, combines, faction hits, skill-ups, AA and levels. A **Session
+  History** tile lists every past session, and both export to CSV or JSON.
+- Sessions are **stored, not held in memory**: closing the app mid-hunt no
+  longer zeroes tonight's numbers, and a pipeline restart resumes the open
+  session instead of silently starting from zero. `GET /api/sessions`.
+- **Backfill revision 4** rebuilds your whole session history from the log on
+  first start — about 25 seconds for a 144 MB log, with a progress bar that now
+  actually appears (see below).
+- Overview's Log Highlights gains total income broken down by source, the
+  corrected loot count, sessions played, and playtime in hours rather than
+  `727006 s`. Fight History marks multi-mob fights, which are 41% of them and
+  showed only the first mob's name.
+
+### Fixed
+
+- **XP had been reading zero since 3 September.** The game switched to
+  "You gain party experience (with a bonus)! (0.780%)" in a patch, and the
+  vendored parser's regex anchors on `experience!`, so every XP line after that
+  date was dropped — taking XP per hour, zone XP and per-fight XP with it. The
+  bonus form is parsed now, and revision 4 replays it over your history.
+- **Incoming damage-over-time was never counted.** The parser only understood
+  DoT ticks from *your* spells, so 4,126 ticks landing on you — 136,502 hit
+  points on the reference log — never reached damage taken. Ticks on other
+  people stay unrecorded on purpose: counting them would credit strangers'
+  fights to your meters.
+- Merchant sales (508 of them, 8.78 million copper) were parsed and then
+  discarded; they are counted now.
+- **The BACKFILL progress bar never rendered.** The Log Status tile read a field
+  the server does not send, so both the first import of a large log and every
+  backfill since have been invisible stalls. It reads the right one now.
+
+### Changed
+
+- Shared page helpers moved to `static/js/util.js`; several were duplicated
+  byte-for-byte across three files each.
+- One WebSocket snapshot is now computed per second for all clients rather than
+  per connected tab, the item count is cached, and the tradeskills view issues
+  one query for its guides instead of twelve.
+- Removed dead code: a write-only global in the tailer, an unused escape helper,
+  an unused import, a shadowed re-import.
+
 ## [1.2.0] - 2026-09-04
 
 The game folder is watched, the log's zones and loot become history you can
@@ -203,7 +257,8 @@ databases, and never writes to the game.
   on neither community site, `+N` upgrade stat scaling is in no item database,
   and exaltation transfer rules are assumed until confirmed.
 
-[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Cujef/EQLegendsAssistant/releases/tag/v1.0.0

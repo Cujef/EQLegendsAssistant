@@ -46,7 +46,7 @@ from typing import Optional, Set
 # RE_TS and _ts are the vendored timestamp matcher and its memo cache; sharing
 # them means both parse paths hit one strptime cache instead of two.
 # _parse_coin turns "1 gold, 3 silver and 6 copper" into copper (None if not coin).
-from vendor.eqlparser.parser import RE_TS, _parse_coin, _ts, parse_line
+from vendor.eqlparser.parser import _NO_FLAGS, RE_TS, _parse_coin, _ts, parse_line
 
 RE_AA_GAIN = re.compile(
     r'^You have gained an ability point!\s+You now have (\d+) ability points?\.$')
@@ -61,6 +61,29 @@ RE_DEPOT_TAKE = re.compile(r'^You have taken (\d+) (.+?) from your personal depo
 RE_MERGE = re.compile(
     r'^You have successfully merged two items together to create a new item: (.+?)\.?$')
 RE_MERGE_TIER = re.compile(r'\s\+(\d+)$')
+
+# XP the vendored RE_XP misses: it anchors on "experience!", so the bonus form
+# never matched. This is not a rounding error — the game switched to the bonus
+# wording in a patch, and on the reference log the LAST regular XP line is
+# 2026-09-03 23:38 while all 524 lines after it are the bonus form. Every XP
+# figure in the app (xp_pct, zone_stats, Fight.xp, XP per hour) had been reading
+# zero since that day.
+RE_XP_BONUS = re.compile(
+    r'^You gain (?:party )?experience \(with a bonus\)!(?: \(([\d.]+)%\))?$')
+
+# DoT ticks landing on YOU: 4,126 lines worth 136,502 HP that never reached
+# damage_taken, because the vendored parser has only the "<mob> has taken N
+# damage from YOUR <spell>" form. The caster is optional — 10 of these read
+# "You have taken 40 damage from Stinging Swarm." with no " by <caster>".
+#
+# Anchored on "You have taken" on purpose. The third-party form ("A crocodile
+# has taken 1 damage from Disease Cloud by Kirgon", 29k lines) is deliberately
+# NOT parsed: none of those name the player, and emitting them as damage would
+# credit strangers' raid fights to your meters — the same trap the vendored
+# parser documents for RE_OTHER_MELEE. Group DPS, if ever wanted, has to be
+# gated on group_members the way that regex is.
+RE_DOT_TAKEN = re.compile(
+    r'^You have taken (\d+) damage from (.+?)(?: by (.+?))?\.$')
 
 RE_LOOT_SOLD = re.compile(
     r"^You looted (?:(\d+) )?(?:a |an |the )?(.+?) from (.+?)'s corpse and sold it for (.+?)\.?$")
@@ -118,6 +141,33 @@ def _loot_auto(text: str, ts: float) -> Optional[dict]:
     return None   # "…and stored it in your tradeskill depot" falls through to the vendored regex
 
 
+def _xp_bonus(text: str, ts: float) -> Optional[dict]:
+    """The bonus form the vendored RE_XP cannot see. Emitted as an ordinary `xp`
+    event so every existing consumer — the fight tracker, the zone clock, the
+    session clock — picks it up with no branch of its own."""
+    m = RE_XP_BONUS.match(text)
+    if not m:
+        return None
+    try:
+        pct = float(m.group(1))
+    except (TypeError, ValueError):
+        pct = 0.0
+    return {'type': 'xp', 'ts': ts, 'pct': pct, 'bonus': True}
+
+
+def _dot_taken(text: str, ts: float) -> Optional[dict]:
+    """A DoT tick landing on you. Carries the vendored flag keys so the fight
+    tracker can consume it like any other damage_taken."""
+    m = RE_DOT_TAKEN.match(text)
+    if not m:
+        return None
+    spell, caster = m.group(2), m.group(3)
+    return {'type': 'damage_taken', 'ts': ts, 'victim': 'player',
+            'source': caster or spell, 'amount': int(m.group(1)),
+            'dmg_type': 'dot', 'spell': spell, 'verb': 'dot',
+            **_NO_FLAGS}
+
+
 def _merge(text: str, ts: float) -> Optional[dict]:
     m = RE_MERGE.match(text)
     if not m:
@@ -143,6 +193,10 @@ def parse(line: str, pet_name: Optional[str] = None,
         handler = _loot_auto
     elif 'combine' in line or line.endswith('general inventory.'):
         handler = _craft_error
+    elif 'with a bonus)!' in line:
+        handler = _xp_bonus
+    elif ' damage from ' in line:      # 'personal depot' is matched above, so the
+        handler = _dot_taken           # "You have taken N Kiola Nut" lines never land here
     if handler:
         m = RE_TS.match(line)
         if m:

@@ -89,10 +89,6 @@ function el(tag, attrs, ...children) {
   }
   return n;
 }
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (m) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-}
 function fmt(n) {
   if (n === null || n === undefined) return '—';
   return Number(n).toLocaleString();

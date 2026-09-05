@@ -5,6 +5,8 @@ Serves the static shell, the JSON API, and a 1 Hz full-snapshot WebSocket
 """
 import asyncio
 import json
+import threading
+import time
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -397,6 +399,13 @@ def api_factions(char: int = None):
     return factions.view(c['id'])
 
 
+@app.get('/api/sessions')
+def api_sessions(char: int = None, limit: int = 50):
+    from . import sessions
+    c = _char_or_404(char)
+    return sessions.view(c['id'], limit)
+
+
 @app.get('/api/zones')
 def api_zones(char: int = None):
     from . import zones
@@ -431,7 +440,7 @@ def api_exports_rescan():
 @app.get('/api/export/{view}')
 def api_export(view: str, fmt: str = 'csv', char: int = None):
     """Download one page table as CSV (Excel-ready) or JSON."""
-    from fastapi.responses import JSONResponse, Response
+    from fastapi.responses import Response   # JSONResponse is imported at module level
     from . import export
     c = _char_or_404(char)
     if fmt not in ('csv', 'json'):
@@ -470,15 +479,35 @@ def api_sync_status():
 
 
 # ── websocket: 1 Hz full snapshot ────────────────────────────────────────────
+_snap_cache = {'at': 0.0, 'payload': ''}
+_snap_lock = threading.Lock()
+
+
 def _snapshot() -> dict:
     active = characters.get()
     snap = {'type': 'state',
             'characters': characters.list_all(),
             'active': active,
-            'needs_setup': characters.needs_setup(),
+            # needs_setup() would re-read the active character we already hold
+            'needs_setup': characters.needs_setup(active),
             'readiness': characters.readiness(active)}
     snap.update(state.snapshot_extras())
     return snap
+
+
+def _snapshot_json() -> str:
+    """One serialized snapshot per second for ALL clients.
+
+    The loop below is per connection, so without this a second browser tab
+    doubled the query load for a payload that is identical in both. Recomputed
+    only once the cached one is older than the tick."""
+    now = time.time()
+    with _snap_lock:
+        if now - _snap_cache['at'] < 0.9 and _snap_cache['payload']:
+            return _snap_cache['payload']
+        payload = json.dumps(_snapshot())
+        _snap_cache.update({'at': now, 'payload': payload})
+        return payload
 
 
 @app.websocket('/ws')
@@ -487,7 +516,7 @@ async def ws(sock: WebSocket):
     try:
         while True:
             try:
-                payload = await asyncio.to_thread(lambda: json.dumps(_snapshot()))
+                payload = await asyncio.to_thread(_snapshot_json)
             except Exception:
                 # a bad frame must cost one tick, not the socket — and loudly:
                 # the parser project once swallowed exactly this into silence

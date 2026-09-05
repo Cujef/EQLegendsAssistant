@@ -138,11 +138,16 @@ def view(character_id: int) -> dict:
     for r in recipes:
         by_skill.setdefault(r['skill'], []).append(r)
 
+    # one query for all twelve guides: this loop used to open a connection per
+    # tradeskill and pull a full parsed_json blob each time
+    slugs = [slug for _, _, slug in TRADESKILLS]
+    ph = ','.join('?' * len(slugs))
+    guides = {g['slug']: g for g in db.query(
+        f'SELECT slug, title, parsed_json, parsed_ok FROM guides WHERE slug IN ({ph})', slugs)}
     out = []
     for skill, page_title, slug in TRADESKILLS:
         row = levels.get(skill)
-        guide = db.query_one('SELECT slug, title, parsed_json, parsed_ok FROM guides '
-                             'WHERE slug=?', (slug,))
+        guide = guides.get(slug)
         craftables = []
         if guide and guide['parsed_ok'] and guide['parsed_json']:
             try:

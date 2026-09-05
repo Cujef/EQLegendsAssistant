@@ -18,7 +18,6 @@ pipeline on the new log. Tests call Pipeline(char).scan_to_eof() synchronously.
 import copy
 import hashlib
 import json
-import os
 import sys
 import threading
 import time
@@ -40,7 +39,6 @@ SNAP_FIGHTS = 20         # completed fights in the snapshot (hard cap — this r
 
 _lock = threading.Lock()
 _thread: Optional[threading.Thread] = None
-current: Optional['Pipeline'] = None   # for importer.py introspection
 
 
 def _fingerprint(path: Path) -> Optional[str]:
@@ -57,6 +55,14 @@ def _blank_session() -> dict:
             'loot': [], 'skill_ups': [], 'aa': [], 'deaths_recent': [], 'levels': [],
             'crafts': [], 'faction': [], 'craft_errors': [], 'upgrades': [],
             'zone': None, 'zones': []}
+
+
+def _session_seed(cid: int) -> tuple:
+    """(started_at, last_ts) of the open session — the row whose last_ts is the
+    newest. A restart resumes it instead of opening a phantom second session."""
+    r = db.query_one('SELECT started_at, last_ts FROM sessions WHERE character_id=? '
+                     'ORDER BY last_ts DESC LIMIT 1', (cid,))
+    return (r['started_at'], r['last_ts']) if r else (None, None)
 
 
 def _zone_seed(cid: int) -> tuple:
@@ -361,6 +367,7 @@ class Pipeline:
         # seed the zone clock AFTER the backfill, which may have just written the
         # rows this reads (seeding in __init__ would be stale)
         self.agg.seed_zone(*_zone_seed(self.cid))
+        self.agg.seed_session(*_session_seed(self.cid))
         if self.agg._zone:
             self.session['zone'] = self.agg._zone
         state.set_import(status='running', pct=self._pct(size), offset=self.offset,
@@ -461,7 +468,6 @@ def start() -> None:
 
 
 def _main():
-    global current
     while True:
         try:
             char = characters.get()
@@ -470,14 +476,11 @@ def _main():
         lp = char.get('log_path') if char else None
         if lp and Path(lp).is_file():
             pipe = Pipeline(char)
-            current = pipe
             try:
                 pipe.run()          # returns on character change
             except Exception as e:
                 print(f'[tail] {e!r} — pipeline restarting', file=sys.stderr)
                 time.sleep(2)
-            finally:
-                current = None
         else:
             with state.lock:
                 state.live.clear()

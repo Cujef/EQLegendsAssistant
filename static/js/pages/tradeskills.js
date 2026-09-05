@@ -30,8 +30,6 @@
       error || 'Loading…'));
     return true;
   }
-
-  const dateCell = (ts) => ts ? new Date(ts * 1000).toLocaleDateString() : null;
   function rateCell(r) {
     if (r.rate === null || r.rate === undefined) return null;
     const cls = r.rate >= 90 ? 'good' : r.rate < 50 ? 'bad' : '';

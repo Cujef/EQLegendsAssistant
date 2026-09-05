@@ -419,6 +419,45 @@ MIGRATIONS = [
     CREATE INDEX idx_loot_char_item ON loot_events(character_id, item_norm);
     CREATE INDEX idx_loot_char_ts ON loot_events(character_id, ts);
     """,
+    # v1.3: play sessions. One row per run of play, split by a gap over
+    # SESSION_GAP (30 min) — the same clock that already produces
+    # highlights.total_sessions and playtime_seconds, so the row count and the
+    # seconds must agree with those two. Additive upserts, written in the same
+    # transaction as the log checkpoint (exactly-once, like zone_stats).
+    """
+    CREATE TABLE sessions(
+        character_id INTEGER NOT NULL,
+        started_at REAL NOT NULL,                    -- ts of this session's first event
+        last_ts REAL NOT NULL,                       -- ts of its most recent event
+        seconds REAL NOT NULL DEFAULT 0,             -- summed gaps <= SESSION_GAP
+        xp_pct REAL NOT NULL DEFAULT 0,
+        coin_copper INTEGER NOT NULL DEFAULT 0,      -- coin off corpses
+        autosell_copper INTEGER NOT NULL DEFAULT 0,  -- loot auto-sold on the corpse
+        vendor_copper INTEGER NOT NULL DEFAULT 0,    -- merchant sales
+        kills INTEGER NOT NULL DEFAULT 0,
+        deaths INTEGER NOT NULL DEFAULT 0,
+        dmg_dealt INTEGER NOT NULL DEFAULT 0,
+        dmg_taken INTEGER NOT NULL DEFAULT 0,
+        healed INTEGER NOT NULL DEFAULT 0,           -- healing received by you
+        hits INTEGER NOT NULL DEFAULT 0,             -- your landed swings (accuracy numerator)
+        misses INTEGER NOT NULL DEFAULT 0,           -- your missed swings
+        crits INTEGER NOT NULL DEFAULT 0,
+        casts INTEGER NOT NULL DEFAULT 0,
+        fizzles INTEGER NOT NULL DEFAULT 0,
+        loot INTEGER NOT NULL DEFAULT 0,             -- items (stack sizes included)
+        crafts_ok INTEGER NOT NULL DEFAULT 0,
+        crafts_fail INTEGER NOT NULL DEFAULT 0,
+        faction_hits INTEGER NOT NULL DEFAULT 0,
+        skill_ups INTEGER NOT NULL DEFAULT 0,
+        aa_gained INTEGER NOT NULL DEFAULT 0,
+        levels INTEGER NOT NULL DEFAULT 0,
+        level_end INTEGER,                           -- last level seen in this session
+        zones INTEGER NOT NULL DEFAULT 0,            -- zone changes
+        first_zone TEXT, last_zone TEXT,
+        PRIMARY KEY(character_id, started_at)
+    );
+    CREATE INDEX idx_sessions_char_last ON sessions(character_id, last_ts);
+    """,
 ]
 
 

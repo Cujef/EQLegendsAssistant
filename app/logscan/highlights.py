@@ -65,7 +65,7 @@ EVENT_TYPES = ('craft', 'craft_capped', 'craft_error', 'depot_consume', 'depot_d
 
 class Aggregator:
     def __init__(self, player_name: str = '', last_ts: Optional[float] = None,
-                 events_only: bool = False, only_types=None):
+                 events_only: bool = False, only_types=None, sessions: Optional[bool] = None):
         # last_ts seeds the playtime clock from the stored log_last_ts highlight,
         # so resuming mid-session does not count a phantom extra session
         self.player_name = (player_name or '').lower()
@@ -76,6 +76,10 @@ class Aggregator:
         # (a later backfill revision must not re-insert an earlier one's rows).
         self.events_only = events_only
         self.only_types = frozenset(only_types) if only_types else frozenset(EVENT_TYPES)
+        # session rows: always on the live path; in events-only mode only when the
+        # backfill revision asked for them (and then the clock must see EVERY
+        # event, so that revision runs ungated)
+        self.sessions = (not events_only) if sessions is None else bool(sessions)
         # correlation state — survives _reset_batch on purpose (a cap notice and
         # its combine, or a skill-up and its combine, may straddle a flush)
         self._last_craft = None         # (item, ts)
@@ -84,7 +88,20 @@ class Aggregator:
         self.last_craft_capped = False  # for the tailer's session feed
         self._zone = None               # current zone (base name), seeded by seed_zone()
         self._zone_last_ts = None       # last zone-clock event
+        # play session: the SAME clock that produces total_sessions and
+        # playtime_seconds below, so `sessions` row count and summed seconds
+        # must agree with those two highlights. Seeded by seed_session().
+        self._session_start = None
         self._reset_batch()
+
+    def seed_session(self, started_at: Optional[float], last_ts: Optional[float]) -> None:
+        """Resume the open session after a restart. `last_ts` is the same value
+        that seeds the playtime clock (log_last_ts), so the gap that decides
+        'same session or new one' is measured from the last event actually
+        committed — not from wall-clock now."""
+        self._session_start = started_at
+        if last_ts is not None:
+            self._last_ts = last_ts
 
     def seed_zone(self, zone: Optional[str], last_ts: Optional[float]) -> None:
         """Resume the zone clock from what the DB says was committed: the last
@@ -114,6 +131,7 @@ class Aggregator:
         self.zone_visits = []  # (ts, raw zone, zone_base)
         self.loot = []         # (ts, item, item_norm, source, qty, zone_base|None)
         self.zone_clock_ts = None
+        self.session_deltas = {}   # started_at -> additive per-session counters
 
     # ── intake ────────────────────────────────────────────────────────────────
     def add_lines(self, n: int):
@@ -158,6 +176,80 @@ class Aggregator:
                 self._zone_touch(d, ts)
         self._zone_last_ts = ts
         self.zone_clock_ts = ts if self.zone_clock_ts is None else max(self.zone_clock_ts, ts)
+
+    # ── play session ──────────────────────────────────────────────────────────
+    def _feed_session(self, t: str, ev: dict, ts: float, elapsed: float) -> None:
+        """Accumulate this event into the current session's row. `elapsed` is the
+        gap already judged to be inside the session by the playtime clock, so the
+        two can never disagree."""
+        d = self.session_deltas.get(self._session_start)
+        if d is None:
+            d = self.session_deltas[self._session_start] = {
+                'seconds': 0.0, 'xp_pct': 0.0, 'coin_copper': 0, 'autosell_copper': 0,
+                'vendor_copper': 0, 'kills': 0, 'deaths': 0, 'dmg_dealt': 0,
+                'dmg_taken': 0, 'healed': 0, 'hits': 0, 'misses': 0, 'crits': 0,
+                'casts': 0, 'fizzles': 0, 'loot': 0, 'crafts_ok': 0, 'crafts_fail': 0,
+                'faction_hits': 0, 'skill_ups': 0, 'aa_gained': 0, 'levels': 0,
+                'zones': 0, 'level_end': None, 'first_zone': None, 'last_zone': None,
+                'last_ts': ts}
+        d['seconds'] += elapsed
+        d['last_ts'] = max(d['last_ts'], ts)
+
+        if t == 'xp':
+            d['xp_pct'] += float(ev.get('pct') or 0.0)
+        elif t == 'coin':
+            d['coin_copper'] += int(ev.get('copper') or 0)
+        elif t == 'vendor_sale':
+            d['vendor_copper'] += int(ev.get('copper') or 0)
+        elif t == 'kill':
+            d['kills'] += 1
+        elif t == 'player_death':
+            d['deaths'] += 1
+        elif t == 'damage':
+            if ev.get('attacker') == 'player':
+                d['dmg_dealt'] += int(ev.get('amount') or 0)
+                d['hits'] += 1
+                if ev.get('is_crit'):
+                    d['crits'] += 1
+        elif t == 'miss':
+            if ev.get('attacker') == 'player':
+                d['misses'] += 1
+        elif t == 'damage_taken':
+            if ev.get('victim', 'player') == 'player':
+                d['dmg_taken'] += int(ev.get('amount') or 0)
+        elif t == 'heal':
+            tgt = (ev.get('target') or '').lower()
+            if tgt in ('you', 'yourself', 'player') or \
+                    (self.player_name and tgt == self.player_name):
+                d['healed'] += int(ev.get('amount') or 0)
+        elif t == 'cast':
+            if ev.get('caster') == 'player':
+                d['casts'] += 1
+        elif t == 'fizzle':
+            d['fizzles'] += 1
+        elif t == 'loot':
+            d['loot'] += int(ev.get('qty') or 1)
+            if ev.get('sold_copper'):
+                d['autosell_copper'] += int(ev['sold_copper'])
+        elif t == 'craft':
+            d['crafts_ok' if ev.get('ok') else 'crafts_fail'] += 1
+        elif t == 'faction':
+            d['faction_hits'] += 1
+        elif t == 'skill':
+            d['skill_ups'] += 1
+        elif t == 'aa_gain':
+            d['aa_gained'] += int(ev.get('points') or 1)
+        elif t == 'level_up':
+            d['levels'] += 1
+            d['level_end'] = ev.get('level')
+        elif t == 'zone':
+            if is_pseudo_zone(ev.get('zone')):
+                return                      # a flag inside the zone, not a zone change
+            base = zone_base(ev['zone'])
+            d['zones'] += 1
+            if d['first_zone'] is None:
+                d['first_zone'] = base
+            d['last_zone'] = base
 
     def _feed_zone(self, t: str, ev: dict, ts: float) -> None:
         if t == 'zone':
@@ -237,6 +329,36 @@ class Aggregator:
     def feed(self, ev: dict):
         ts = ev['ts']
         t = ev['type']
+
+        # The playtime / session clock runs in BOTH modes: a backfill that wants
+        # session rows must make the same gap decisions the live path made, or the
+        # two would disagree about where a session starts. Only the highlight
+        # counters are live-only — a backfill must never re-add what is already
+        # counted. So the `sessions` row count equals total_sessions and its
+        # summed seconds equal playtime_seconds.
+        live = not self.events_only
+        elapsed = 0.0
+        if self._last_ts is None:
+            if live:
+                self._bump('total_sessions')
+            self._session_start = ts
+        else:
+            gap = ts - self._last_ts
+            if 0 < gap <= SESSION_GAP:
+                if live:
+                    self.counters['playtime_seconds'] = \
+                        self.counters.get('playtime_seconds', 0) + gap
+                elapsed = gap
+            elif gap > SESSION_GAP:
+                if live:
+                    self._bump('total_sessions')
+                self._session_start = ts
+        if self._session_start is None:      # seeded mid-session with no stored start
+            self._session_start = ts
+        self._last_ts = ts
+        if self.sessions:
+            self._feed_session(t, ev, ts, elapsed)
+
         if self.events_only:
             if t in self.only_types:
                 if t in ZONE_TYPES:
@@ -244,17 +366,6 @@ class Aggregator:
                 self._feed_events(t, ev, ts)
             return
 
-        # playtime: sum gaps between consecutive events, session break past 30 min
-        if self._last_ts is None:
-            self._bump('total_sessions')
-        else:
-            gap = ts - self._last_ts
-            if 0 < gap <= SESSION_GAP:
-                self.counters['playtime_seconds'] = \
-                    self.counters.get('playtime_seconds', 0) + gap
-            elif gap > SESSION_GAP:
-                self._bump('total_sessions')
-        self._last_ts = ts
         if self.first_ts is None or ts < self.first_ts:
             self.first_ts = ts
         if self.last_ts is None or ts > self.last_ts:
@@ -315,6 +426,8 @@ class Aggregator:
                 self._bump('total_autosell_copper', ev['sold_copper'])
         elif t == 'coin':
             self._bump('total_coin_copper', ev.get('copper') or 0)
+        elif t == 'vendor_sale':           # merchant income, kept apart from kill coin
+            self._bump('total_vendor_copper', ev.get('copper') or 0)
 
     # ── flush ─────────────────────────────────────────────────────────────────
     def flush(self, conn, character_id: int):
@@ -407,6 +520,46 @@ class Aggregator:
                 'last_ts = MAX(COALESCE(last_ts, 0), excluded.last_ts)',
                 (cid, zone, d['seconds'], d['kills'], d['xp_pct'], d['loot'], d['visits'],
                  d['first_ts'], d['last_ts']))
+        # play sessions — additive, same exactly-once contract as zone_stats.
+        # first_zone/level_end use COALESCE so the earliest zone and the latest
+        # level survive a flush that carries neither.
+        for started_at, d in self.session_deltas.items():
+            if started_at is None:
+                continue
+            conn.execute(
+                'INSERT INTO sessions(character_id, started_at, last_ts, seconds, xp_pct, '
+                'coin_copper, autosell_copper, vendor_copper, kills, deaths, dmg_dealt, '
+                'dmg_taken, healed, hits, misses, crits, casts, fizzles, loot, crafts_ok, '
+                'crafts_fail, faction_hits, skill_ups, aa_gained, levels, level_end, zones, '
+                'first_zone, last_zone) '
+                'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) '
+                'ON CONFLICT(character_id, started_at) DO UPDATE SET '
+                'last_ts = MAX(last_ts, excluded.last_ts), '
+                'seconds = seconds + excluded.seconds, xp_pct = xp_pct + excluded.xp_pct, '
+                'coin_copper = coin_copper + excluded.coin_copper, '
+                'autosell_copper = autosell_copper + excluded.autosell_copper, '
+                'vendor_copper = vendor_copper + excluded.vendor_copper, '
+                'kills = kills + excluded.kills, deaths = deaths + excluded.deaths, '
+                'dmg_dealt = dmg_dealt + excluded.dmg_dealt, '
+                'dmg_taken = dmg_taken + excluded.dmg_taken, '
+                'healed = healed + excluded.healed, hits = hits + excluded.hits, '
+                'misses = misses + excluded.misses, crits = crits + excluded.crits, '
+                'casts = casts + excluded.casts, fizzles = fizzles + excluded.fizzles, '
+                'loot = loot + excluded.loot, crafts_ok = crafts_ok + excluded.crafts_ok, '
+                'crafts_fail = crafts_fail + excluded.crafts_fail, '
+                'faction_hits = faction_hits + excluded.faction_hits, '
+                'skill_ups = skill_ups + excluded.skill_ups, '
+                'aa_gained = aa_gained + excluded.aa_gained, levels = levels + excluded.levels, '
+                'level_end = COALESCE(excluded.level_end, level_end), '
+                'zones = zones + excluded.zones, '
+                'first_zone = COALESCE(first_zone, excluded.first_zone), '
+                'last_zone = COALESCE(excluded.last_zone, last_zone)',
+                (cid, started_at, d['last_ts'], d['seconds'], d['xp_pct'], d['coin_copper'],
+                 d['autosell_copper'], d['vendor_copper'], d['kills'], d['deaths'],
+                 d['dmg_dealt'], d['dmg_taken'], d['healed'], d['hits'], d['misses'],
+                 d['crits'], d['casts'], d['fizzles'], d['loot'], d['crafts_ok'],
+                 d['crafts_fail'], d['faction_hits'], d['skill_ups'], d['aa_gained'],
+                 d['levels'], d['level_end'], d['zones'], d['first_zone'], d['last_zone']))
         if self.zone_clock_ts is not None:
             conn.execute(
                 'INSERT INTO highlights(character_id, key, value_num, ts) VALUES(?,?,?,?) '

@@ -82,13 +82,6 @@
     return true;
   }
 
-  function statRow(label, value, cls) {
-    return el('div', { style: 'display:flex;gap:10px;justify-content:space-between;' +
-      'padding:3px 0;border-bottom:1px solid var(--edge)' },
-      el('span', { class: 'muted' }, label),
-      el('span', { class: 'num' + (cls ? ' ' + cls : '') }, value));
-  }
-
   // ── tile: items (filters + table) ───────────────────────────────────────
   function buildItems(body, api) {
     els.items = body;

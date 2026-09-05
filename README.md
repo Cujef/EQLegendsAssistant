@@ -115,7 +115,7 @@ Each page remembers its own arrangement and lock state.
 | Inventory | The parsed dump: worn/bags/bank/depot, exaltations, open aug sockets, bag & bank space (nested bags included), the +N upgrade ladder with merge history from the log, the trailing keyring lists, and a loot history with "where did … drop?" search |
 | Quest Progress | Tracked quests with per-step checklists |
 | Quest Ideas | The synced quest index — filter by class/race/level/completed |
-| Parser | Compact live combat tiles (drag/resize/lock) + import progress |
+| Parser | Current session (XP, coin, kills, damage, accuracy and more, with per-hour rates), session history, compact live combat tiles (drag/resize/lock), import and backfill progress |
 | Exaltations | Every effect you own, where it's socketed, where it could move |
 | What to do? | Quests your inventory items unlock, where to hunt at your level (ZEM guide), and where you actually leveled: active hours, XP and kills per hour per zone from your log |
 | Tradeskills | Skill levels from log skill-ups; per-recipe combines, failures, success rate and CAP notices; depot materials vs what the dump says you have on hand; learned recipes from `/outputfile recipes`; wiki guide links |
@@ -141,6 +141,10 @@ Each page remembers its own arrangement and lock state.
 - A zone's **active time** is the sum of gaps of at most 30 minutes between your
   own zone / XP / kill / loot lines — not wall-clock time in the zone. The ZEM
   guide on the wiki publishes ratings, not numbers, so that is what is shown.
+- A **session** is a run of play with no gap over 30 minutes between lines in
+  your log, and its clock counts those gaps rather than wall-clock time with the
+  client open. Sessions survive restarting the app. Per-hour rates are withheld
+  below six minutes of activity, where they are noise rather than information.
 
 ## Network behavior
 
@@ -176,7 +180,8 @@ python tools/renormalize_keys.py     # after a normalize_name rule change, serve
 Upgrading: the first start migrates `data/assistant.db` forward and runs a
 one-time backfill of newly tracked events from the start of your log (the
 Parser page's Log Status shows BACKFILL, then LIVE) — tradeskills and factions
-from 1.1.0, zones and loot from 1.2.0. Coming from 1.0.0, also run
+from 1.1.0, zones and loot from 1.2.0, and your session history from 1.3.0
+(roughly 25 seconds for a 144 MB log, since sessions have to see every line). Coming from 1.0.0, also run
 `tools/renormalize_keys.py` once so backtick-apostrophe item names join the
 item database. `tests/test_api.py` needs the optional `httpx` package and
 skips itself (with a note) when it is missing.

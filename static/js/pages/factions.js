@@ -29,8 +29,6 @@
       error || 'Loading…'));
     return true;
   }
-  const dateCell = (ts) => ts ? new Date(ts * 1000).toLocaleDateString() : null;
-  const timeCell = (ts) => ts ? new Date(ts * 1000).toLocaleString() : null;
   function signed(n) {
     if (n === null || n === undefined) return null;
     const cls = n > 0 ? 'good' : n < 0 ? 'bad' : 'faint';
@@ -126,12 +124,6 @@
   }
 
   // ── tile: summary ───────────────────────────────────────────────────────
-  function statRow(label, value, cls) {
-    return el('div', { style: 'display:flex;gap:10px;justify-content:space-between;' +
-      'padding:3px 0;border-bottom:1px solid var(--edge)' },
-      el('span', { class: 'muted' }, label),
-      el('span', { class: 'num' + (cls ? ' ' + cls : '') }, value));
-  }
   function buildSummary(body) { els.summary = body; renderSummary(); }
   function renderSummary() {
     if (!els.summary || !els.summary.isConnected) return;

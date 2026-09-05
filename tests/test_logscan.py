@@ -10,7 +10,128 @@ def run(check):
     _ext(check)
     _agg(check)
     _agg_events(check)
+    _sessions(check)
     _pipeline(check)
+
+
+# ── play sessions ─────────────────────────────────────────────────────────────
+def _sessions(check):
+    """The session clock is the SAME clock as total_sessions / playtime_seconds,
+    so the invariants here are equalities, not approximations."""
+    from app import db
+    from app.logscan.highlights import Aggregator, SESSION_GAP
+
+    db.init()
+    with db.tx() as c:
+        c.execute("INSERT OR IGNORE INTO characters(name, server, created_at) "
+                  "VALUES('SessTest','test',0)")
+    cid = db.query_one("SELECT id FROM characters WHERE name='SessTest'")['id']
+    t0 = 1_800_400_000.0
+
+    def rows():
+        return db.query('SELECT * FROM sessions WHERE character_id=? ORDER BY started_at', (cid,))
+
+    def hl(key):
+        r = db.query_one('SELECT value_num FROM highlights WHERE character_id=? AND key=?',
+                         (cid, key))
+        return r['value_num'] if r else None
+
+    agg = Aggregator(player_name='SessTest')
+    agg.feed({'type': 'zone', 'ts': t0, 'zone': 'Befallen'})
+    agg.feed({'type': 'kill', 'ts': t0 + 60, 'target': 'a skeleton'})          # +60 s
+    agg.feed({'type': 'xp', 'ts': t0 + 60, 'pct': 1.5})
+    agg.feed({'type': 'coin', 'ts': t0 + 90, 'copper': 1234})                  # +30 s
+    agg.feed({'type': 'loot', 'ts': t0 + 90, 'item': 'Bone Chips', 'source': 'a skeleton',
+              'qty': 3, 'sold_copper': 55})
+    agg.feed({'type': 'damage', 'ts': t0 + 100, 'attacker': 'player', 'target': 'x',
+              'amount': 250, 'dmg_type': 'melee', 'spell': None, 'verb': 'slash',
+              'is_crit': True})                                                # +10 s
+    agg.feed({'type': 'miss', 'ts': t0 + 101, 'attacker': 'player', 'target': 'x',
+              'verb': 'slash', 'outcome': 'miss'})
+    agg.feed({'type': 'damage_taken', 'ts': t0 + 102, 'victim': 'player', 'source': 'x',
+              'amount': 40, 'dmg_type': 'dot', 'spell': 'Rabies', 'verb': 'dot'})
+    agg.feed({'type': 'heal', 'ts': t0 + 103, 'healer': 'Cleric', 'target': 'you',
+              'amount': 300, 'spell': 'Light'})
+    agg.feed({'type': 'player_death', 'ts': t0 + 104, 'killer': 'x'})
+    agg.feed({'type': 'vendor_sale', 'ts': t0 + 105, 'amount': '2 gold', 'vendor': 'Innkeep',
+              'item': 'Ration', 'copper': 200})
+    agg.feed({'type': 'skill', 'ts': t0 + 106, 'skill': 'Baking', 'level': 40})
+    agg.feed({'type': 'aa_gain', 'ts': t0 + 107, 'points': 1, 'balance_after': 5})
+    agg.feed({'type': 'level_up', 'ts': t0 + 108, 'level': 42})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    r = rows()
+    check('sess: one session so far', len(r) == 1 and r[0]['started_at'] == t0, len(r))
+    s = r[0]
+    check('sess: seconds are the summed gaps, not the span',
+          s['seconds'] == 108 and s['last_ts'] == t0 + 108, dict(s))
+    check('sess: xp / coin / autosell / vendor', s['xp_pct'] == 1.5 and s['coin_copper'] == 1234
+          and s['autosell_copper'] == 55 and s['vendor_copper'] == 200, dict(s))
+    check('sess: combat counters', s['kills'] == 1 and s['deaths'] == 1 and s['dmg_dealt'] == 250
+          and s['dmg_taken'] == 40 and s['healed'] == 300 and s['hits'] == 1
+          and s['misses'] == 1 and s['crits'] == 1, dict(s))
+    check('sess: progress counters', s['loot'] == 3 and s['skill_ups'] == 1
+          and s['aa_gained'] == 1 and s['levels'] == 1 and s['level_end'] == 42
+          and s['zones'] == 1 and s['first_zone'] == 'Befallen', dict(s))
+    check('sess: row count equals total_sessions', len(r) == hl('total_sessions'))
+    check('sess: summed seconds equal playtime_seconds',
+          round(sum(x['seconds'] for x in r), 3) == round(hl('playtime_seconds'), 3),
+          (sum(x['seconds'] for x in r), hl('playtime_seconds')))
+
+    # a gap over SESSION_GAP opens a new row; the old one keeps its numbers
+    agg.feed({'type': 'kill', 'ts': t0 + 108 + SESSION_GAP + 1, 'target': 'a rat'})
+    agg.feed({'type': 'kill', 'ts': t0 + 108 + SESSION_GAP + 31, 'target': 'a rat'})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    r = rows()
+    check('sess: a gap over 30 minutes starts a new session', len(r) == 2
+          and r[1]['started_at'] == t0 + 108 + SESSION_GAP + 1, [x['started_at'] for x in r])
+    check('sess: the earlier session is untouched', r[0]['seconds'] == 108 and r[0]['kills'] == 1)
+    check('sess: the new session counts only its own', r[1]['kills'] == 2 and r[1]['seconds'] == 30)
+    check('sess: the gap itself is not counted as playtime',
+          round(sum(x['seconds'] for x in r), 3) == round(hl('playtime_seconds'), 3))
+    check('sess: two rows, two sessions', len(r) == hl('total_sessions'))
+
+    # a gap just under the threshold stays in the same session
+    agg.feed({'type': 'kill', 'ts': t0 + 108 + SESSION_GAP + 31 + SESSION_GAP - 1,
+              'target': 'a rat'})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    check('sess: a gap just under 30 minutes stays in the session', len(rows()) == 2)
+
+    # restart survival: a fresh Aggregator seeded from the DB continues the row
+    last = rows()[-1]
+    agg2 = Aggregator(player_name='SessTest')
+    agg2.seed_session(last['started_at'], last['last_ts'])
+    agg2.feed({'type': 'kill', 'ts': last['last_ts'] + 10, 'target': 'a rat'})
+    with db.tx() as c:
+        agg2.flush(c, cid)
+    r = rows()
+    check('sess: a restart resumes the open session instead of opening a new one',
+          len(r) == 2 and r[1]['kills'] == 4, [(x['started_at'], x['kills']) for x in r])
+    check('sess: the resumed gap is counted once',
+          r[1]['seconds'] == last['seconds'] + 10, (r[1]['seconds'], last['seconds']))
+
+    # events-only mode (the backfill) builds sessions but writes no lifetime counters
+    with db.tx() as c:
+        c.execute("INSERT OR IGNORE INTO characters(name, server, created_at) "
+                  "VALUES('SessBf','test',0)")
+    cid2 = db.query_one("SELECT id FROM characters WHERE name='SessBf'")['id']
+    bf = Aggregator(events_only=True, only_types={'zone', 'xp', 'kill', 'loot'}, sessions=True)
+    bf.feed({'type': 'kill', 'ts': t0, 'target': 'a rat'})
+    bf.feed({'type': 'xp', 'ts': t0 + 5, 'pct': 2.0})
+    bf.feed({'type': 'damage', 'ts': t0 + 6, 'attacker': 'player', 'target': 'x', 'amount': 9,
+             'dmg_type': 'melee', 'spell': None, 'verb': 'slash'})   # clock only, not a rebuilt type
+    with db.tx() as c:
+        bf.flush(c, cid2)
+    br = db.query('SELECT * FROM sessions WHERE character_id=?', (cid2,))
+    check('sess: events-only builds the session row', len(br) == 1 and br[0]['kills'] == 1
+          and br[0]['xp_pct'] == 2.0 and br[0]['seconds'] == 6, br)
+    check('sess: events-only adds NO lifetime counters',
+          db.query_one("SELECT 1 FROM highlights WHERE character_id=? AND key IN "
+                       "('total_sessions','playtime_seconds','total_kills')", (cid2,)) is None)
+    check('sess: events-only still sees every event for the clock (damage advanced it)',
+          br[0]['seconds'] == 6 and br[0]['dmg_dealt'] == 9, dict(br[0]))
 
 
 # ── ext_parser ────────────────────────────────────────────────────────────────
@@ -98,6 +219,41 @@ def _ext(check):
           ev is None or ev.get('type') != 'craft_error', ev)
     ev = parse('[Sat Aug 01 21:00:09 2026] Request to merge items canceled, both items remain unmodified.')
     check('ext: cancelled merge is not an upgrade', ev is None or ev.get('type') != 'upgrade', ev)
+
+    # v1.3: the two shapes the vendored parser cannot see.
+    # XP is not a rounding error — the game switched to the bonus wording in a
+    # patch, so on the reference log EVERY xp line after 2026-09-03 is this form.
+    XP_DOT = [
+        ('[Fri Sep 04 20:18:20 2026] You gain party experience (with a bonus)! (0.780%)',
+         {'type': 'xp', 'pct': 0.78}),
+        ('[Fri Sep 04 20:18:20 2026] You gain experience (with a bonus)! (1.25%)',
+         {'type': 'xp', 'pct': 1.25}),
+        ('[Fri Sep 04 20:18:20 2026] You gain experience (with a bonus)!',
+         {'type': 'xp', 'pct': 0.0}),
+        ('[Fri Jul 31 19:40:37 2026] You have taken 1 damage from Rabies by a lurking mummy.',
+         {'type': 'damage_taken', 'victim': 'player', 'amount': 1, 'dmg_type': 'dot',
+          'spell': 'Rabies', 'source': 'a lurking mummy'}),
+        # 10 of the 4,126 carry no " by <caster>": the spell stands in as the source
+        ('[Sat Aug 01 23:33:17 2026] You have taken 40 damage from Stinging Swarm.',
+         {'type': 'damage_taken', 'amount': 40, 'spell': 'Stinging Swarm',
+          'source': 'Stinging Swarm'}),
+    ]
+    for line, expect in XP_DOT:
+        ev = parse(line)
+        ok = ev is not None and all(ev.get(k) == v for k, v in expect.items())
+        check(f'ext: {line[27:78]!r}', ok, f'got {ev}')
+    ev = parse('[Fri Sep 04 20:18:20 2026] You gain experience! (0.51%)')
+    check('ext: the regular XP form still parses (no regression on the vendored path)',
+          ev and ev['type'] == 'xp' and ev['pct'] == 0.51, ev)
+    ev = parse('[Fri Jul 31 19:40:37 2026] A crocodile has taken 1 damage from Disease Cloud by Kirgon.')
+    check('ext: a third party\'s DoT tick is NOT recorded as damage taken',
+          ev is None or ev.get('type') != 'damage_taken', ev)
+    ev = parse('[Sat Aug 01 21:00:01 2026] You have taken 100 Kiola Nut from your personal depot.')
+    check('ext: "You have taken N <item>" is still a depot withdrawal, not damage',
+          ev and ev['type'] == 'depot_withdraw' and ev['qty'] == 100, ev)
+    ev = parse('[Fri Jul 31 19:40:37 2026] You have taken 1 damage from Rabies by a lurking mummy.')
+    check('ext: DoT damage carries the flag keys the fight tracker reads',
+          all(k in ev for k in ('is_crit', 'is_riposte')), sorted(ev))
 
 
 # ── Aggregator ────────────────────────────────────────────────────────────────
@@ -668,6 +824,28 @@ def _pipeline(check):
         c.execute("DELETE FROM highlights WHERE character_id=? AND key='zone_clock_ts'", (cid,))
     importer.scan_once(dict(char))
     ec4 = ev_counts()
+    # ── revision 4: sessions, ungated, and it must not duplicate earlier rows ──
+    def sess_rows():
+        return db.query('SELECT * FROM sessions WHERE character_id=?', (cid,))
+    check('pipe: rev 4 built session rows', len(sess_rows()) >= 1, len(sess_rows()))
+    before = ev_counts()
+    with db.tx() as c:
+        c.execute('DELETE FROM sessions WHERE character_id=?', (cid,))
+        c.execute('UPDATE highlights SET value_num=3 WHERE character_id=? AND key=?',
+                  (cid, backfill.REV_KEY))
+    importer.scan_once(dict(char))
+    after = ev_counts()
+    check('pipe: a rev-4 replay rebuilds sessions without duplicating history',
+          len(sess_rows()) >= 1 and after['craft']['n'] == before['craft']['n']
+          and after['faction']['n'] == before['faction']['n']
+          and after['upgrades'] == before['upgrades'], (before, after))
+    check('pipe: session rows agree with total_sessions',
+          len(sess_rows()) == hl('total_sessions')['value_num'],
+          (len(sess_rows()), hl('total_sessions')['value_num']))
+    check('pipe: session seconds agree with playtime_seconds',
+          round(sum(r['seconds'] for r in sess_rows()), 3)
+          == round(hl('playtime_seconds')['value_num'], 3),
+          (sum(r['seconds'] for r in sess_rows()), hl('playtime_seconds')['value_num']))
     check('pipe: rev-3 backfill adds zone/loot rows only, upgrades untouched',
           ec4['zones'] == 2 and ec4['loot']['n'] == 3 and ec4['upgrades'] == 1
           and ec4['zs']['Silly Meadow']['seconds'] == zs['Silly Meadow']['seconds'], ec4)

@@ -13,6 +13,7 @@ Paths derived per character (verified against the real install):
 """
 import configparser
 import re
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -172,7 +173,7 @@ _CHAR_TABLES = ('manual_stats', 'quest_progress', 'quest_step_progress', 'skill_
                 'log_source', 'craft_events', 'craft_caps', 'craft_recipe_skill',
                 'depot_events', 'faction_events', 'faction_caps', 'upgrade_events',
                 'faction_standings', 'known_recipes', 'export_files', 'zone_stats',
-                'zone_events', 'loot_events')
+                'zone_events', 'loot_events', 'sessions')
 
 
 def remove(char_id: int) -> None:
@@ -192,13 +193,31 @@ def remove(char_id: int) -> None:
             select(nxt['id'])
 
 
-def needs_setup() -> bool:
+def needs_setup(active: Optional[dict] = None) -> bool:
     """True when the app has nothing to work with yet — no characters at all, or
-    an active character with neither a log nor an inventory dump."""
-    active = get()
+    an active character with neither a log nor an inventory dump. Pass `active`
+    when the caller already holds it (the 1 Hz snapshot does)."""
+    active = active if active is not None else get()
     if not active:
         return True
     return not (active['log_path'] or active['inventory_path'])
+
+
+_items_cache = {'at': 0.0, 'n': 0}
+ITEMS_TTL = 30.0        # the sync engine is the only writer; a stale count is harmless
+
+
+def invalidate_items_count() -> None:
+    _items_cache['at'] = 0.0
+
+
+def _items_count(conn) -> int:
+    """COUNT(*) over the item DB, memoized. It rode the 1 Hz snapshot for a
+    number that only a Data Sync can change."""
+    now = time.time()
+    if now - _items_cache['at'] > ITEMS_TTL:
+        _items_cache.update({'at': now, 'n': conn.execute('SELECT COUNT(*) FROM items').fetchone()[0]})
+    return _items_cache['n']
 
 
 def readiness(active: Optional[dict]) -> Optional[dict]:
@@ -213,7 +232,7 @@ def readiness(active: Optional[dict]) -> Optional[dict]:
                            'WHERE character_id=?', (cid,)).fetchone()[0]
         lines = conn.execute("SELECT value_num FROM highlights WHERE character_id=? "
                              "AND key='lines_parsed'", (cid,)).fetchone()
-        items = conn.execute('SELECT COUNT(*) FROM items').fetchone()[0]
+        items = _items_count(conn)
     finally:
         conn.close()
     return {

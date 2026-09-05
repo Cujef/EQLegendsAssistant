@@ -14,8 +14,6 @@
   let zonesData = null;       // GET /api/zones
   let zonesErr = null;
 
-  const dateCell = (ts) => ts ? new Date(ts * 1000).toLocaleDateString() : null;
-
   // ── tile: where you actually leveled (from the log) ────────────────────
   function buildLeveled(body, api) {
     els.leveled = body;

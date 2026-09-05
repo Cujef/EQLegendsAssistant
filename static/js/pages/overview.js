@@ -191,6 +191,15 @@
         el('span', { class: 'muted' }, label + ': '),
         h ? el('b', {}, fmt(h.value_num) + (suffix || '') + ctx(k)) : el('span', { class: 'faint' }, '—'));
     };
+    // coin is stored in copper and read as platinum/gold; raw seconds are
+    // unreadable at 200 hours, so both get a formatter rather than a suffix
+    const num = (k) => (H[k] ? H[k].value_num : null);
+    const money = (label, k) => el('div', { style: 'padding:2px 0' },
+      el('span', { class: 'muted' }, label + ': '),
+      H[k] ? el('b', { title: fmt(num(k)) + ' copper' }, fmtCoin(num(k)))
+           : el('span', { class: 'faint' }, '—'));
+    const income = (num('total_coin_copper') || 0) + (num('total_autosell_copper') || 0)
+      + (num('total_vendor_copper') || 0);
     b.append(
       li('Highest melee hit', 'max_melee_hit'),
       li('Highest melee crit', 'max_melee_crit'),
@@ -200,7 +209,19 @@
       li('Total kills', 'total_kills'),
       li('Total crits', 'total_crits'),
       li('Total deaths', 'total_deaths'),
-      li('Playtime', 'playtime_seconds', ' s'));
+      li('Items looted', 'total_loot'),
+      el('div', { style: 'padding:2px 0' },
+        el('span', { class: 'muted' }, 'Total income: '),
+        income ? el('b', { title: 'coin off corpses + auto-sold loot + merchant sales' },
+                    fmtCoin(income)) : el('span', { class: 'faint' }, '—')),
+      money('  · off corpses', 'total_coin_copper'),
+      money('  · auto-sold', 'total_autosell_copper'),
+      money('  · merchants', 'total_vendor_copper'),
+      li('Sessions played', 'total_sessions'),
+      el('div', { style: 'padding:2px 0' },
+        el('span', { class: 'muted' }, 'Playtime: '),
+        H.playtime_seconds ? el('b', {}, fmtHours(num('playtime_seconds')))
+                           : el('span', { class: 'faint' }, '—')));
   }
 
   // ── tile: nemesis (died most to) ────────────────────────────────────────

@@ -72,15 +72,24 @@ def _upsert(cid: int, key: str, f: dict, sha: Optional[str], status: str,
          now if status == 'imported' else None, status, error))
 
 
-def process_file(cid: int, f: dict, now: Optional[float] = None) -> Optional[dict]:
+def known_files(cid: int) -> dict:
+    """{path_key: row} — one query per pass instead of one per candidate file.
+    The steady state is "nothing changed", so this is the hot path."""
+    return {r['path_key']: r for r in db.query(
+        'SELECT path_key, mtime, size, sha256 FROM export_files WHERE character_id=?', (cid,))}
+
+
+def process_file(cid: int, f: dict, now: Optional[float] = None,
+                 known: Optional[dict] = None) -> Optional[dict]:
     """Look at one export for one character. Returns an event dict when
     something happened (imported / unchanged-but-rewritten / error), else None."""
     now = now or time.time()
     if f.get('mtime') is not None and now - f['mtime'] < SETTLE_SECONDS:
         return None                                   # still being written
     key = path_key(f['path'])
-    row = db.query_one('SELECT mtime, size, sha256 FROM export_files '
-                       'WHERE character_id=? AND path_key=?', (cid, key))
+    row = known.get(key) if known is not None else db.query_one(
+        'SELECT mtime, size, sha256 FROM export_files '
+        'WHERE character_id=? AND path_key=?', (cid, key))
     if row and row['mtime'] == f.get('mtime') and row['size'] == f.get('size'):
         return None                                   # seen exactly this file already
     base = {'ts': now, 'character_id': cid, 'kind': f['kind'], 'skill': f.get('skill'),

@@ -104,6 +104,34 @@ def run(check):
     check('api: unknown export view -> 404', client.get('/api/export/nope' + q).status_code == 404)
     check('api: bad export fmt -> 422', client.get('/api/export/zones' + q + '&fmt=xml').status_code == 422)
 
+    # sessions
+    with db.tx() as c:
+        c.executemany('INSERT INTO sessions(character_id, started_at, last_ts, seconds, xp_pct, '
+                      'coin_copper, autosell_copper, vendor_copper, kills, deaths, dmg_dealt, '
+                      'hits, misses, crits, loot, level_end, last_zone) '
+                      'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [
+                          (cid, 1000, 8200, 7200, 12.5, 500, 100, 50, 40, 1, 90000,
+                           900, 100, 45, 30, 52, 'Najena'),
+                          (cid, 20000, 20100, 100, 0.5, 0, 0, 0, 1, 0, 10, 1, 0, 0, 0, 52, 'Paineel')])
+    r = client.get('/api/sessions' + q)
+    j = r.json()
+    cur = j['current']
+    check('api: sessions view shape', r.status_code == 200 and len(j['recent']) == 2
+          and j['totals']['sessions'] == 2 and 'session' in j['notes'], j.get('totals'))
+    check('api: current session is the most recent, with derived rates',
+          cur['started_at'] == 20000 and cur['hours'] == 0.03, cur)
+    older = [s for s in j['recent'] if s['started_at'] == 1000][0]
+    check('api: derived rates on a 2 h session', older['hours'] == 2.0
+          and older['xp_per_hour'] == 6.2 and older['kills_per_hour'] == 20.0
+          and older['accuracy'] == 90.0 and older['crit_rate'] == 5.0
+          and older['income_copper'] == 650, older)
+    check('api: per-hour rates are withheld on a very short session',
+          cur['xp_per_hour'] is None and cur['kills_per_hour'] is None, cur)
+    r = client.get('/api/export/sessions' + q + '&fmt=csv')
+    body = r.content.decode('utf-8').lstrip('﻿')
+    check('api: sessions export', r.status_code == 200 and body.split('\r\n')[0].startswith('Started,')
+          and body.count('\r\n') == 3, body[:90])
+
     # zones + loot
     r = client.get('/api/zones' + q)
     z = {x['zone']: x for x in r.json()['zones']}
