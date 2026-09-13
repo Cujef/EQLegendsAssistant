@@ -18,7 +18,7 @@
 
 const ImportInventory = (() => {
   // mirrors gamefiles.RE_OUTPUTFILE: the real faction export is "-<CLASS>-Factions.txt"
-  const RE_NAME = /^(\w+)_(\w+)-(?:(Inventory)|(?:[A-Za-z]+-)?(Factions?)|(?:([A-Za-z ]+)-)?(Recipes))\.txt$/i;
+  const RE_NAME = /^(\w+)_(\w+)-(?:(Inventory)|(?:[A-Za-z]+-)?(Factions?)|(?:([A-Za-z ]+)-)?(Recipes)|(Achievements))\.txt$/i;
   const SKILL_TOKENS = { jewelcrafting: 'Jewelry Making', poisonmaking: 'Make Poison' };
   let dlg = null, onDone = null, msg = null;
 
@@ -28,7 +28,7 @@ const ImportInventory = (() => {
     const base = String(filename || '').split(/[\\/]/).pop();
     const m = RE_NAME.exec(base);
     if (!m) return null;
-    const kind = m[3] ? 'inventory' : m[4] ? 'faction' : 'recipes';
+    const kind = m[3] ? 'inventory' : m[4] ? 'faction' : m[7] ? 'achievements' : 'recipes';
     let skill = null;
     if (kind === 'recipes' && m[5]) {
       const t = m[5].trim();
@@ -48,6 +48,7 @@ const ImportInventory = (() => {
   function describe(r) {
     if (r.kind === 'faction') return `${r.rows} faction standings`;
     if (r.kind === 'recipes') return `${r.rows} ${r.skill && r.skill !== 'unknown' ? r.skill + ' ' : ''}recipes`;
+    if (r.kind === 'achievements') return `${r.rows} achievements (${r.complete} complete)`;
     return `${r.items} items (${r.exaltations} exaltations)`;
   }
 
@@ -205,8 +206,12 @@ const ImportInventory = (() => {
           ' (absolute standings for the Factions page) and ',
           el('code', {}, '/outputfile recipes <skill>'), ' → ',
           el('code', {}, '<Name>_<server>-<Skill>-Recipes.txt'),
-          ' (your learned recipes for the Tradeskills page). Files are read once and stored '
-          + 'in this app; your game files are never written to.')));
+          ' (your learned recipes for the Tradeskills page), and ',
+          el('code', {}, '/outputfile achievements'), ' → ',
+          el('code', {}, '<Name>_<server>-Achievements.txt'),
+          ' (every achievement with its complete / incomplete flag, for the Achievements and '
+          + 'Sky Quests pages). Files are read once and stored in this app; your game files are '
+          + 'never written to.')));
   }
 
   function sectionPath() {

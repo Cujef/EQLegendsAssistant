@@ -1,0 +1,5247 @@
+{
+ "achievements": [
+  {
+   "desc": "Completing this achievement will allow you to select Barbarian as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-barbarian",
+   "name": "Race Unlock - Barbarian",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Barbarian.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Rogues of the White Rose",
+     "text": "Get maximum faction with Rogues of the White Rose"
+    },
+    {
+     "link": "Wolves of the North",
+     "text": "Get maximum faction with Wolves of the North"
+    },
+    {
+     "link": "Merchants of Halas",
+     "text": "Get maximum faction with Merchants of Halas"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Barbarian"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Dark Elf as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-dark-elf",
+   "name": "Race Unlock - Dark Elf",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Dark Elf.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Dreadguard Inner",
+     "text": "Get maximum faction with Dreadguard Inner"
+    },
+    {
+     "link": "Dreadguard Outer",
+     "text": "Get maximum faction with Dreadguard Outer"
+    },
+    {
+     "link": "Dark Bargainers",
+     "text": "Get maximum faction with Dark Bargainers"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Dark Elf"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Dwarf as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-dwarf",
+   "name": "Race Unlock - Dwarf",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Dwarf.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Kazon Stormhammer",
+     "text": "Get maximum faction with Kazon Stormhammer."
+    },
+    {
+     "link": "Merchants of Kaladim",
+     "text": "Get maximum faction with Merchants of Kaladim."
+    },
+    {
+     "link": "Storm Guard",
+     "text": "Get maximum faction with Storm Guard."
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Dwarf"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Erudite as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-erudite",
+   "name": "Race Unlock - Erudite",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as an Erudite.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Deepwater Knights",
+     "text": "Get maximum faction with Deepwater Knights."
+    },
+    {
+     "link": "Heretics",
+     "text": "Get maximum faction with Heretics."
+    },
+    {
+     "link": "High Council of Erudin",
+     "text": "Get maximum faction with High Council of Erudin."
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Erudite"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Froglok as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-froglok",
+   "name": "Race Unlock - Froglok",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Froglok.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Protectors of Guk",
+     "text": "Get maximum faction with Protectors of Guk."
+    },
+    {
+     "link": "Guktan Elders",
+     "text": "Get maximum faction with Guktan Elders."
+    },
+    {
+     "link": "Guktan Suppliers",
+     "text": "Get maximum faction with Guktan Suppliers."
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Froglok"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Gnome as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-gnome",
+   "name": "Race Unlock - Gnome",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Gnome.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "King of Ak'Anon",
+     "text": "Get maximum faction with King of Ak'Anon"
+    },
+    {
+     "link": "Gem Choppers",
+     "text": "Get maximum faction with Gem Choppers"
+    },
+    {
+     "link": "Eldritch Collective",
+     "text": "Get maximum faction with Eldritch Collective"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Gnome"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Half Elf as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-half-elf",
+   "name": "Race Unlock - Half Elf",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Half Elf.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Human",
+     "text": "This achievement will autocomplete when you unlock Human or Wood Elf as a race."
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Half Elf"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Halfling as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-halfling",
+   "name": "Race Unlock - Halfling",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Halfling.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Guardians of the Vale",
+     "text": "Get maximum faction with Guardians of the Vale"
+    },
+    {
+     "link": "Merchants of Rivervale",
+     "text": "Get maximum faction with Merchants of Rivervale"
+    },
+    {
+     "link": "Priests of Mischief",
+     "text": "Get maximum faction with Priests of Mischief"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Halfling"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select High Elf as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-high-elf",
+   "name": "Race Unlock - High Elf",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a High Elf.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Keepers of the Art",
+     "text": "Get maximum faction with Keepers of the Art"
+    },
+    {
+     "link": "Merchants of Felwithe",
+     "text": "Get maximum faction with Merchants of Felwithe"
+    },
+    {
+     "link": "Clerics of Tunare",
+     "text": "Get maximum faction with Clerics of Tunare"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "High Elf"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Human as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-human-freeport",
+   "name": "Race Unlock - Human (Freeport)",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Human.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Coalition of Tradesfolk",
+     "text": "Get maximum faction with Coalition of Tradesfolk"
+    },
+    {
+     "link": "Freeport Militia",
+     "text": "Get maximum faction with Freeport Militia"
+    },
+    {
+     "link": "Knights of Truth",
+     "text": "Get maximum faction with Knights of Truth"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Human (Freeport)"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Human as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-human-qeynos",
+   "name": "Race Unlock - Human (Qeynos)",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Human.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Merchants of Qeynos",
+     "text": "Get maximum faction with Merchants of Qeynos"
+    },
+    {
+     "link": "Guards of Qeynos",
+     "text": "Get maximum faction with Guards of Qeynos"
+    },
+    {
+     "link": "Corrupt Qeynos Guard",
+     "text": "Get maximum faction with Corrupt Qeynos Guard"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Human (Qeynos)"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Iksar as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-iksar",
+   "name": "Race Unlock - Iksar",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as an Iksar.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Sebilisian Expedition",
+     "text": "Get maximum faction with Sebilisian Expedition"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Iksar"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Kerran as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-kerran",
+   "name": "Race Unlock - Kerran",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Kerran.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Aid the Kerrans of Kerra Isle",
+     "text": "Complete the Aid the Kerrans of Kerra Isle Task"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Kerran"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Ogre as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-ogre",
+   "name": "Race Unlock - Ogre",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as an Ogre.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Oggok Guards",
+     "text": "Get maximum faction with Oggok Guards"
+    },
+    {
+     "link": "Clurg",
+     "text": "Get maximum faction with Clurg"
+    },
+    {
+     "link": "Merchants of Ogguk",
+     "text": "Get maximum faction with Merchants of Oggok"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Ogre"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Troll as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-troll",
+   "name": "Race Unlock - Troll",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Troll.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Da Bashers",
+     "text": "Get maximum faction with Da Bashers"
+    },
+    {
+     "link": "Grobb Merchants",
+     "text": "Get maximum faction with Grobb Merchants"
+    },
+    {
+     "link": "Dark Ones",
+     "text": "Get maximum faction with Dark Ones"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Troll"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Wood Elf as a Race in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "race-unlock-wood-elf",
+   "name": "Race Unlock - Wood Elf",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Wood Elf.",
+    "This achievement can be bypassed using a Race Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Emerald Warriors",
+     "text": "Get maximum faction with Emerald Warriors"
+    },
+    {
+     "link": "Soldiers of Tunare",
+     "text": "Get maximum faction with Soldiers of Tunare"
+    },
+    {
+     "link": "Kelethin Merchants",
+     "text": "Get maximum faction with Kelethin Merchants"
+    }
+   ],
+   "sub": "Races",
+   "unlock": {
+    "kind": "race",
+    "name": "Wood Elf"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Bard as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-bard",
+   "name": "Class Unlock - Bard",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Bard.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Mask of Song",
+     "text": "Obtain Mask of Song"
+    },
+    {
+     "link": "Ervaj's Flute of Flight",
+     "text": "Obtain Ervaj's Flute of Flight"
+    },
+    {
+     "link": "Amulet of the Fae",
+     "text": "Obtain Amulet of the Fae"
+    },
+    {
+     "link": "Spear of Harmony",
+     "text": "Obtain Spear of Harmony"
+    },
+    {
+     "link": "Denon's Horn of Disaster",
+     "text": "Obtain Denon's Horn of Disaster"
+    },
+    {
+     "link": "Mantle of the Songweaver",
+     "text": "Obtain Mantle of the Songweaver"
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Bard"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Beastlord as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-beastlord",
+   "name": "Class Unlock - Beastlord",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Beastlord.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Windhowl",
+     "text": "Obtain Windhowl and Spirit Render"
+    },
+    {
+     "link": "Diaphonous Waistband",
+     "text": "Obtain Diaphonous Waistband"
+    },
+    {
+     "link": "Spiroc Beak Earcuff",
+     "text": "Obtain Spiroc Beak Earcuff"
+    },
+    {
+     "link": "Griffin-Hide Armguards",
+     "text": "Obtain Griffin-Hide Armguards"
+    },
+    {
+     "link": "Azarack Skin Wristwraps",
+     "text": "Obtain Azarack Skin Wristwraps"
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Beastlord"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Berserker as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-berserker",
+   "name": "Class Unlock - Berserker",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Berserker.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Skycleaver",
+     "text": "Obtain Skycleaver"
+    },
+    {
+     "link": "Cudgel of the Fool",
+     "text": "Obtain Cudgel of the Fool"
+    },
+    {
+     "link": "Sash of Ferocity",
+     "text": "Obtain Sash of Ferocity"
+    },
+    {
+     "link": "Molten Coil",
+     "text": "Obtain Molten Coil"
+    },
+    {
+     "link": "Shroud of the Sky",
+     "text": "Obtain Shroud of the Sky"
+    },
+    {
+     "link": "Blood-Drawn Runes",
+     "text": "Obtain Blood-Drawn Runes"
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Berserker"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Cleric as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-cleric",
+   "name": "Class Unlock - Cleric",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Cleric.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Necklace of Resolution",
+     "text": "Obtain Necklace of Resolution."
+    },
+    {
+     "link": "Truewind Earring",
+     "text": "Obtain Truewind Earring."
+    },
+    {
+     "link": "Aegis of the Wind",
+     "text": "Obtain Aegis of the Wind."
+    },
+    {
+     "link": "Pauldrons of Piety",
+     "text": "Obtain Pauldrons of Piety."
+    },
+    {
+     "link": "Theurgist's Star",
+     "text": "Obtain Theurgist's Star."
+    },
+    {
+     "link": "Baton of the Sky",
+     "text": "Obtain Baton of the Sky."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Cleric"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Druid as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-druid",
+   "name": "Class Unlock - Druid",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Druid.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Nature Walker's Mantle",
+     "text": "Obtain Nature Walker's Mantle."
+    },
+    {
+     "link": "Drake-Hide Mask",
+     "text": "Obtain Drake-Hide Mask."
+    },
+    {
+     "link": "Shillelagh",
+     "text": "Obtain Shillelagh."
+    },
+    {
+     "link": "Espri",
+     "text": "Obtain Espri."
+    },
+    {
+     "link": "Honeycomb Belt",
+     "text": "Obtain Honeycomb Belt."
+    },
+    {
+     "link": "Banisher Focus",
+     "text": "Spiroc Banisher Focus."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Druid"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Enchanter as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-enchanter",
+   "name": "Class Unlock - Enchanter",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as an Enchanter.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Ivory Mask",
+     "text": "Obtain Ivory Mask."
+    },
+    {
+     "link": "Wind Walker's Mantle",
+     "text": "Obtain Wind Walker's Mantle."
+    },
+    {
+     "link": "Sphinx Hair Cord",
+     "text": "Obtain Sphinx Hair Cord."
+    },
+    {
+     "link": "Necklace of Whispering Winds",
+     "text": "Obtain Necklace of Whispering Winds."
+    },
+    {
+     "link": "Earring of Displacement",
+     "text": "Obtain Earring of Displacement."
+    },
+    {
+     "link": "Rod of the Protecting Winds",
+     "text": "Obtain Rod of the Protecting Winds."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Enchanter"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Magician as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-magician",
+   "name": "Class Unlock - Magician",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Magician.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Bracelet of Clarification",
+     "text": "Obtain Bracelet of Clarification."
+    },
+    {
+     "link": "Mask of Empowerment",
+     "text": "Obtain Mask of Empowerment."
+    },
+    {
+     "link": "Drake-Hide Amice",
+     "text": "Obtain Drake-Hide Amice."
+    },
+    {
+     "link": "Staff of Elemental Mastery: Air",
+     "text": "Obtain Staff of Elemental Mastery: Air."
+    },
+    {
+     "link": "Staff of the Magister",
+     "text": "Obtain Staff of the Magister."
+    },
+    {
+     "link": "Duennan Shielding Ring",
+     "text": "Obtain Duennan Shielding Ring."
+    },
+    {
+     "link": "Gold White Pendant",
+     "text": "Obtain Gold White Pendant."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Magician"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Monk as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-monk",
+   "name": "Class Unlock - Monk",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Monk.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Sandals of Alacrity",
+     "text": "Obtain Sandals of Alacrity."
+    },
+    {
+     "link": "Ton Po's Eye Patch",
+     "text": "Obtain Ton Po's Eye Patch."
+    },
+    {
+     "link": "Ton Po's Shoulder Wraps",
+     "text": "Obtain Ton Po's Shoulder Wraps."
+    },
+    {
+     "link": "Golden Sash of Tranquility",
+     "text": "Obtain Golden Sash of Tranquility."
+    },
+    {
+     "link": "Back Straps of Mastery",
+     "text": "Obtain Back Straps of Mastery."
+    },
+    {
+     "link": "Wu's Fist of Mastery",
+     "text": "Obtain Wu's Fist of Mastery."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Monk"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Necromancer as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-necromancer",
+   "name": "Class Unlock - Necromancer",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Necromancer.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Cloak of Spiroc Feathers",
+     "text": "Obtain Cloak of Spiroc Feathers."
+    },
+    {
+     "link": "Bloodsoaked Raiment",
+     "text": "Obtain Bloodsoaked Raiment."
+    },
+    {
+     "link": "Gorgon Head Staff",
+     "text": "Obtain Gorgon Head Staff."
+    },
+    {
+     "link": "Sphinx Heart Amulet",
+     "text": "Obtain Sphinx Heart Amulet."
+    },
+    {
+     "link": "Bloody Griffon-Hide Wrist Guard",
+     "text": "Obtain Bloody Griffon-Hide Wrist Guard."
+    },
+    {
+     "link": "Band of Wailing Winds",
+     "text": "Obtain Band of Wailing Winds."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Necromancer"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Paladin as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-paladin",
+   "name": "Class Unlock - Paladin",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Paladin.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Girdle of Faith",
+     "text": "Obtain Girdle of Faith."
+    },
+    {
+     "link": "Truvinan",
+     "text": "Obtain Truvinan."
+    },
+    {
+     "link": "Aldryn, Blade of the Ocean",
+     "text": "Obtain Aldryn, Blade of the Ocean."
+    },
+    {
+     "link": "Thelvorn, Blade of Light",
+     "text": "Obtain Thelvorn, Blade of Light."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Paladin"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Ranger as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-ranger",
+   "name": "Class Unlock - Ranger",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Ranger.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Earthshaker's Mantle",
+     "text": "Obtain Earthshaker's Mantle."
+    },
+    {
+     "link": "Windstriker",
+     "text": "Obtain Windstriker."
+    },
+    {
+     "link": "Griffon Talon Necklace",
+     "text": "Obtain Griffon Talon Necklace."
+    },
+    {
+     "link": "Thunderforged Earring",
+     "text": "Obtain Thunderforged Earring."
+    },
+    {
+     "link": "Dark Cloak of the Sky",
+     "text": "Obtain Dark Cloak of the Sky."
+    },
+    {
+     "link": "Arydryidriyorn",
+     "text": "Obtain Arydryidriyorn."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Ranger"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Rogue as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-rogue",
+   "name": "Class Unlock - Rogue",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Rogue.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Griffon Wing Spauldors",
+     "text": "Obtain Griffon Wing Spauldors."
+    },
+    {
+     "link": "Renard's Belt of Quickness",
+     "text": "Obtain Renard's Belt of Quickness."
+    },
+    {
+     "link": "Wispy Choker of Vigor",
+     "text": "Obtain Wispy Choker of Vigor."
+    },
+    {
+     "link": "Crystal Mask",
+     "text": "Obtain Crystal Mask."
+    },
+    {
+     "link": "Shimmering Bracer of Protection",
+     "text": "Obtain Shimmering Bracer of Protection."
+    },
+    {
+     "link": "Thornstinger",
+     "text": "Obtain Thornstinger."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Rogue"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Shadow Knight as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-shadow-knight",
+   "name": "Class Unlock - Shadow Knight",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Shadow Knight.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Pegasus-Hide Belt",
+     "text": "Obtain Pegasus-Hide Belt."
+    },
+    {
+     "link": "Blood Sky Face Plate",
+     "text": "Obtain Blood Sky Face Plate."
+    },
+    {
+     "link": "Obtenebrate Mithril Guard",
+     "text": "Obtain Obtenebrate Mithril Guard."
+    },
+    {
+     "link": "Pearlescent Pauldrons",
+     "text": "Obtain Pearlescent Pauldrons."
+    },
+    {
+     "link": "Amulet of the Sphinx Eye",
+     "text": "Obtain Amulet of the Sphinx Eye."
+    },
+    {
+     "link": "Crimson Ring of the Djinni",
+     "text": "Obtain Crimson Ring of the Djinni."
+    },
+    {
+     "link": "Khyldorn the Blood Drinker",
+     "text": "Obtain Khyldorn the Blood Drinker."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Shadow Knight"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Shaman as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-shaman",
+   "name": "Class Unlock - Shaman",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Shaman.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Garduk",
+     "text": "Obtain Garduk."
+    },
+    {
+     "link": "Amulet of the Fang",
+     "text": "Obtain Amulet of the Fang."
+    },
+    {
+     "link": "Bracelet of the Spirits",
+     "text": "Obtain Bracelet of the Spirits."
+    },
+    {
+     "link": "Fairy-Hide Mantle",
+     "text": "Obtain Fairy-Hide Mantle."
+    },
+    {
+     "link": "Warhammer of the Wind",
+     "text": "Obtain Warhammer of the Wind."
+    },
+    {
+     "link": "Vermilion Sky Ring",
+     "text": "Obtain Vermilion Sky Ring."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Shaman"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Warrior as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-warrior",
+   "name": "Class Unlock - Warrior",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Warrior.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Runed Wind Amulet",
+     "text": "Obtain Runed Wind Amulet"
+    },
+    {
+     "link": "Dagas",
+     "text": "Obtain Dagas"
+    },
+    {
+     "link": "Fangol",
+     "text": "Obtain Fangol"
+    },
+    {
+     "link": "Pauldrons of the Blue Sky",
+     "text": "Obtain Pauldrons of the Blue Sky"
+    },
+    {
+     "link": "Azure Ruby Ring",
+     "text": "Obtain Azure Ruby Ring"
+    },
+    {
+     "link": "Belt of the Four Winds",
+     "text": "Obtain Belt of the Four Winds"
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Warrior"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Wizard as a Class in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "class-unlock-wizard",
+   "name": "Class Unlock - Wizard",
+   "notes": [
+    "This achievement will be autocompleted if your character was created as a Wizard.",
+    "This achievement can be bypassed using a Class Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Al`Kabor's Cap of Binding",
+     "text": "Obtain Al`Kabor's Cap of Binding."
+    },
+    {
+     "link": "Augmentor's Mask",
+     "text": "Obtain Augmentor's Mask."
+    },
+    {
+     "link": "Raiment of Thunder",
+     "text": "Obtain Raiment of Thunder."
+    },
+    {
+     "link": "Nargon's Staff",
+     "text": "Obtain Nargon's Staff."
+    },
+    {
+     "link": "Solidate Mithril Ring",
+     "text": "Obtain Solidate Mithril Ring."
+    },
+    {
+     "link": "Amulet of the Void",
+     "text": "Obtain Amulet of the Void."
+    }
+   ],
+   "sub": "Classes",
+   "unlock": {
+    "kind": "class",
+    "name": "Wizard"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Agnostic as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-agnostic",
+   "name": "Deity Unlock - Agnostic",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Agnostic.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": "Renouncing Your Faith",
+     "text": "Complete the 'Renouncing Your Faith' task for a mysterious Emissary."
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Agnostic"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Bertoxxulous as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-bertoxxulous",
+   "name": "Deity Unlock - Bertoxxulous",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Bertoxxulous.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Bertoxxulous"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Brell Serilis as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-brell-serilis",
+   "name": "Deity Unlock - Brell Serilis",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Brell Serilis.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Brell Serilis"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Bristlebane as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-bristlebane",
+   "name": "Deity Unlock - Bristlebane",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Bristlebane.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Bristlebane"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Cazic Thule as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-cazic-thule",
+   "name": "Deity Unlock - Cazic Thule",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Cazic Thule.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Cazic Thule"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Erollisi Marr as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-erollisi-marr",
+   "name": "Deity Unlock - Erollisi Marr",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Erollisi Marr.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Erollisi Marr"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Innoruuk as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-innoruuk",
+   "name": "Deity Unlock - Innoruuk",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Innoruuk.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Innoruuk"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Karana as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-karana",
+   "name": "Deity Unlock - Karana",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Karana.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Karana"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Mithaniel Marr as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-mithaniel-marr",
+   "name": "Deity Unlock - Mithaniel Marr",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Mithaniel Marr.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Mithaniel Marr"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Prexus as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-prexus",
+   "name": "Deity Unlock - Prexus",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Prexus.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Prexus"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Quellious as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-quellious",
+   "name": "Deity Unlock - Quellious",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Quellious.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Quellious"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Rallos Zek as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-rallos-zek",
+   "name": "Deity Unlock - Rallos Zek",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Rallos Zek.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Rallos Zek"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Rodcet Nife as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-rodcet-nife",
+   "name": "Deity Unlock - Rodcet Nife",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Rodcet Nife.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Rodcet Nife"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Solusek Ro as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-solusek-ro",
+   "name": "Deity Unlock - Solusek Ro",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Solusek Ro.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Solusek Ro"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Tribunal as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-tribunal",
+   "name": "Deity Unlock - Tribunal",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Tribunal.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Tribunal"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Tunare as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-tunare",
+   "name": "Deity Unlock - Tunare",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Tunare.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Tunare"
+   }
+  },
+  {
+   "desc": "Completing this achievement will allow you to select Veeshan as a Deity in Loadouts.",
+   "group": "Untapped Potential",
+   "key": "deity-unlock-veeshan",
+   "name": "Deity Unlock - Veeshan",
+   "notes": [
+    "This achievement will autocomplete if you chose to confirm your Deity as Veeshan.",
+    "This achievement can be bypassed using a Deity Unlock Token."
+   ],
+   "points": 5,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    },
+    {
+     "link": null,
+     "text": "Requirement placeholder"
+    }
+   ],
+   "sub": "Deity",
+   "unlock": {
+    "kind": "deity",
+    "name": "Veeshan"
+   }
+  },
+  {
+   "desc": "Spend 5 Alternate Advancement Points.",
+   "group": "General",
+   "key": "5-alternate-advancement-points",
+   "name": "5 Alternate Advancement Points",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Spend 5 Alternate Advancement Points."
+    }
+   ],
+   "sub": "Advancement",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bone-crafted-key",
+   "name": "Bone Crafted Key",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Bone Crafted Key"
+    }
+   ],
+   "sub": "Keys",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "hole-key",
+   "name": "Hole Key",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Islands of Sky Keys"
+    }
+   ],
+   "sub": "Keys",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "islands-of-sky-keys",
+   "name": "Islands of Sky Keys",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Key of Swords"
+    },
+    {
+     "link": null,
+     "text": "Key of the Misplaced"
+    },
+    {
+     "link": null,
+     "text": "Key of Misfortune"
+    },
+    {
+     "link": null,
+     "text": "Key of Beasts"
+    },
+    {
+     "link": null,
+     "text": "Avian Key"
+    },
+    {
+     "link": null,
+     "text": "Key of the Swarm"
+    },
+    {
+     "link": null,
+     "text": "Key of Scale"
+    },
+    {
+     "link": null,
+     "text": "Veeshan's Key"
+    }
+   ],
+   "sub": "Keys",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "efreeti-s-key",
+   "name": "Efreeti's Key",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Efreeti's Key"
+    }
+   ],
+   "sub": "Keys",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-5",
+   "name": "Level 5",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 5"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-10",
+   "name": "Level 10",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 10"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-15",
+   "name": "Level 15",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 15"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-20",
+   "name": "Level 20",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 20"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-25",
+   "name": "Level 25",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 25"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-30",
+   "name": "Level 30",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 30"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-35",
+   "name": "Level 35",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 35"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-40",
+   "name": "Level 40",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 40"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-45",
+   "name": "Level 45",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 45"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "level-50",
+   "name": "Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach Level 50"
+    }
+   ],
+   "sub": "Level",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bard-s-casting-proficiency-level-50",
+   "name": "Bard’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bard-s-combat-proficiency-level-50",
+   "name": "Bard’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dual Wield at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bard-s-instrument-proficiency-level-50",
+   "name": "Bard’s Instrument Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Brass Instruments at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Percussion Instruments at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Singing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Stringed Instruments at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Wind Instruments at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bard-s-specialized-proficiency-level-50",
+   "name": "Bard’s Specialized Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Safe Fall at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sneak at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bard-s-utility-proficiency-level-50",
+   "name": "Bard’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm Traps at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Forage at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hide at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Intimidation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Pick Lock at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "(Optional) Reach the maximum skill in Sense Traps at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Tracking at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "bard-s-weapon-proficiency-level-50",
+   "name": "Bard’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "beastlord-s-casting-proficiency-level-50",
+   "name": "Beastlord’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channeling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "beastlord-s-combat-proficiency-level-50",
+   "name": "Beastlord’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Block at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dual Wield at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "beastlord-s-utility-proficiency-level-50",
+   "name": "Beastlord’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "beastlord-s-weapon-proficiency-level-50",
+   "name": "Beastlord’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "berserker-s-combat-proficiency-level-50",
+   "name": "Berserker’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "berserker-s-specialized-proficiency-level-50",
+   "name": "Berserker’s Specialized Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Frenzy at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "berserker-s-utility-proficiency-level-50",
+   "name": "Berserker’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Intimidation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "berserker-s-weapon-proficiency-level-50",
+   "name": "Berserker’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "cleric-s-casting-proficiency-level-50",
+   "name": "Cleric’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "cleric-s-combat-proficiency-level-50",
+   "name": "Cleric’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "cleric-s-utility-proficiency-level-50",
+   "name": "Cleric’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "cleric-s-weapon-proficiency-level-50",
+   "name": "Cleric’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bash at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "druid-s-casting-proficiency-level-50",
+   "name": "Druid’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "druid-s-combat-proficiency-level-50",
+   "name": "Druid’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "druid-s-utility-proficiency-level-50",
+   "name": "Druid’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Forage at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Tracking at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "druid-s-weapon-proficiency-level-50",
+   "name": "Druid’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "enchanter-s-casting-proficiency-level-50",
+   "name": "Enchanter’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channellilng at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "enchanter-s-combat-proficiency-level-50",
+   "name": "Enchanter’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "enchanter-s-utility-proficiency-level-50",
+   "name": "Enchanter’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "enchanter-s-weapon-proficiency-level-50",
+   "name": "Enchanter’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "magician-s-casting-proficiency-level-50",
+   "name": "Magician’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "magician-s-combat-proficiency-level-50",
+   "name": "Magician’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "magician-s-utility-proficiency-level-50",
+   "name": "Magician’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "magician-s-weapon-proficiency-level-50",
+   "name": "Magician’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercng at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "monk-s-combat-proficiency-level-50",
+   "name": "Monk’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Block at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dual Wield at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "monk-s-specialized-proficiency-level-50",
+   "name": "Monk’s Specialized Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dragon Punch at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Eagle Strike at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Feign Death at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Flying Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Mend at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Round Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Safe Fall at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sneak at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Tiger Claw at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "monk-s-utility-proficiency-level-50",
+   "name": "Monk’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Intimidation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "monk-s-weapon-proficiency-level-50",
+   "name": "Monk’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "necromancer-s-casting-proficiency-level-50",
+   "name": "Necromancer’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "necromancer-s-combat-proficiency-level-50",
+   "name": "Necromancer’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "necromancer-s-utility-proficiency-level-50",
+   "name": "Necromancer’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "necromancer-s-weapon-proficiency-level-50",
+   "name": "Necromancer’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "paladin-s-casting-proficiency-level-50",
+   "name": "Paladin’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "paladin-s-combat-proficiency-level-50",
+   "name": "Paladin’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "paladin-s-utility-proficiency-level-50",
+   "name": "Paladin’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Taunt at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "paladin-s-weapon-proficiency-level-50",
+   "name": "Paladin’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Archery at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bash at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "ranger-s-casting-proficiency-level-50",
+   "name": "Ranger’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "ranger-s-combat-proficiency-level-50",
+   "name": "Ranger’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dual Wield at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "ranger-s-specialized-proficiency-level-50",
+   "name": "Ranger’s Specialized Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sneak at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "ranger-s-utility-proficiency-level-50",
+   "name": "Ranger’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Forage at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hide at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Taunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Tracking at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "ranger-s-weapon-proficiency-level-50",
+   "name": "Ranger’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Archery at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "rogue-s-combat-proficiency-level-50",
+   "name": "Rogue’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dual Wield at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "rogue-s-specialized-proficiency-level-50",
+   "name": "Rogue’s Specialized Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Apply Poison at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Backstab at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Pick Pockets at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Safe Fall at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sneak at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "rogue-s-utility-proficiency-level-50",
+   "name": "Rogue’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm Traps at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hide at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Intimidation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Pick Lock at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "(Optional) Reach the maximum skill in Sense Traps at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "rogue-s-weapon-proficiency-level-50",
+   "name": "Rogue’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Archery at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shadow-knight-s-casting-proficiency-level-50",
+   "name": "Shadow Knight’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shadow-knight-s-combat-proficiency-level-50",
+   "name": "Shadow Knight’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shadow-knight-s-utility-proficiency-level-50",
+   "name": "Shadow Knight’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hide at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Taunt at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shadow-knight-s-weapon-proficiency-level-50",
+   "name": "Shadow Knight’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Archery at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bash at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shaman-s-casting-proficiency-level-50",
+   "name": "Shaman’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shaman-s-combat-proficiency-level-50",
+   "name": "Shaman’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shaman-s-utility-proficiency-level-50",
+   "name": "Shaman’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Forage at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "shaman-s-weapon-proficiency-level-50",
+   "name": "Shaman’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "warrior-s-combat-proficiency-level-50",
+   "name": "Warrior’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Double Attack at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dual Wield at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Parry at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Riposte at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Triple Attack at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "warrior-s-utility-proficiency-level-50",
+   "name": "Warrior’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Disarm at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Taunt at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "warrior-s-weapon-proficiency-level-50",
+   "name": "Warrior’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Slashing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Archery at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bash at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Kick at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "wizard-s-casting-proficiency-level-50",
+   "name": "Wizard’s Casting Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Abjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alteration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Channelling at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Conjuration at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Divination at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Evocation at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Meditate at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "wizard-s-combat-proficiency-level-50",
+   "name": "Wizard’s Combat Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Defense at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Dodge at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Offense at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "wizard-s-utility-proficiency-level-50",
+   "name": "Wizard’s Utility Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Alcohol Tolerance at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Begging at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Bind Wound at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Sense Heading at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Swimming at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "General",
+   "key": "wizard-s-weapon-proficiency-level-50",
+   "name": "Wizard’s Weapon Proficiency, Level 50",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 1H Piercing at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in 2H Blunt at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Hand To Hand at level 50."
+    },
+    {
+     "link": null,
+     "text": "Reach the maximum skill in Throwing at level 50."
+    }
+   ],
+   "sub": "Skills",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "baking-50",
+   "name": "Baking (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Baking"
+    }
+   ],
+   "sub": "Baking",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "baking-100",
+   "name": "Baking (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Baking"
+    }
+   ],
+   "sub": "Baking",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "baking-150",
+   "name": "Baking (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Baking"
+    }
+   ],
+   "sub": "Baking",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "baking-200",
+   "name": "Baking (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Baking"
+    }
+   ],
+   "sub": "Baking",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "baking-250",
+   "name": "Baking (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Baking"
+    }
+   ],
+   "sub": "Baking",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "baking-300",
+   "name": "Baking (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Baking"
+    }
+   ],
+   "sub": "Baking",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "smithing-50",
+   "name": "Smithing (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Smithing"
+    }
+   ],
+   "sub": "Blacksmithing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "smithing-100",
+   "name": "Smithing (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Smithing"
+    }
+   ],
+   "sub": "Blacksmithing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "smithing-150",
+   "name": "Smithing (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Smithing"
+    }
+   ],
+   "sub": "Blacksmithing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "smithing-200",
+   "name": "Smithing (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Smithing"
+    }
+   ],
+   "sub": "Blacksmithing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "smithing-250",
+   "name": "Smithing (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Smithing"
+    }
+   ],
+   "sub": "Blacksmithing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "smithing-300",
+   "name": "Smithing (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Smithing"
+    }
+   ],
+   "sub": "Blacksmithing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "brewing-50",
+   "name": "Brewing (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Brewing"
+    }
+   ],
+   "sub": "Brewing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "brewing-100",
+   "name": "Brewing (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Brewing"
+    }
+   ],
+   "sub": "Brewing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "brewing-150",
+   "name": "Brewing (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Brewing"
+    }
+   ],
+   "sub": "Brewing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "brewing-200",
+   "name": "Brewing (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Brewing"
+    }
+   ],
+   "sub": "Brewing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "brewing-250",
+   "name": "Brewing (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Brewing"
+    }
+   ],
+   "sub": "Brewing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "brewing-300",
+   "name": "Brewing (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Brewing"
+    }
+   ],
+   "sub": "Brewing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fishing-50",
+   "name": "Fishing (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Fishing"
+    }
+   ],
+   "sub": "Fishing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fishing-100",
+   "name": "Fishing (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Fishing"
+    }
+   ],
+   "sub": "Fishing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fishing-150",
+   "name": "Fishing (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Fishing"
+    }
+   ],
+   "sub": "Fishing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fishing-200",
+   "name": "Fishing (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Fishing"
+    }
+   ],
+   "sub": "Fishing",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fletching-50",
+   "name": "Fletching (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Fletching"
+    }
+   ],
+   "sub": "Fletching",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fletching-100",
+   "name": "Fletching (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Fletching"
+    }
+   ],
+   "sub": "Fletching",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fletching-150",
+   "name": "Fletching (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Fletching"
+    }
+   ],
+   "sub": "Fletching",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fletching-200",
+   "name": "Fletching (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Fletching"
+    }
+   ],
+   "sub": "Fletching",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fletching-250",
+   "name": "Fletching (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Fletching"
+    }
+   ],
+   "sub": "Fletching",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "fletching-300",
+   "name": "Fletching (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Fletching"
+    }
+   ],
+   "sub": "Fletching",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "jewelcrafting-50",
+   "name": "Jewelcrafting (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Jewelcrafting"
+    }
+   ],
+   "sub": "Jewelcrafting",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "jewelcrafting-100",
+   "name": "Jewelcrafting (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Jewelcrafting"
+    }
+   ],
+   "sub": "Jewelcrafting",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "jewelcrafting-150",
+   "name": "Jewelcrafting (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Jewelcrafting"
+    }
+   ],
+   "sub": "Jewelcrafting",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "jewelcrafting-200",
+   "name": "Jewelcrafting (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Jewelcrafting"
+    }
+   ],
+   "sub": "Jewelcrafting",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "jewelcrafting-250",
+   "name": "Jewelcrafting (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Jewelcrafting"
+    }
+   ],
+   "sub": "Jewelcrafting",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "jewelcrafting-300",
+   "name": "Jewelcrafting (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Jewelcrafting"
+    }
+   ],
+   "sub": "Jewelcrafting",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "pottery-50",
+   "name": "Pottery (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Pottery"
+    }
+   ],
+   "sub": "Pottery",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "pottery-100",
+   "name": "Pottery (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Pottery"
+    }
+   ],
+   "sub": "Pottery",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "pottery-150",
+   "name": "Pottery (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Pottery"
+    }
+   ],
+   "sub": "Pottery",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "pottery-200",
+   "name": "Pottery (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Pottery"
+    }
+   ],
+   "sub": "Pottery",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "pottery-250",
+   "name": "Pottery (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Pottery"
+    }
+   ],
+   "sub": "Pottery",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "pottery-300",
+   "name": "Pottery (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Pottery"
+    }
+   ],
+   "sub": "Pottery",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tailoring-50",
+   "name": "Tailoring (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Tailoring"
+    }
+   ],
+   "sub": "Tailoring",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tailoring-100",
+   "name": "Tailoring (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Tailoring"
+    }
+   ],
+   "sub": "Tailoring",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tailoring-150",
+   "name": "Tailoring (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Tailoring"
+    }
+   ],
+   "sub": "Tailoring",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tailoring-200",
+   "name": "Tailoring (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Tailoring"
+    }
+   ],
+   "sub": "Tailoring",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tailoring-250",
+   "name": "Tailoring (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Tailoring"
+    }
+   ],
+   "sub": "Tailoring",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tailoring-300",
+   "name": "Tailoring (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Tailoring"
+    }
+   ],
+   "sub": "Tailoring",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tinkering-50",
+   "name": "Tinkering (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Tinkering"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tinkering-100",
+   "name": "Tinkering (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Tinkering"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tinkering-150",
+   "name": "Tinkering (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Tinkering"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tinkering-200",
+   "name": "Tinkering (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Tinkering"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tinkering-250",
+   "name": "Tinkering (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Tinkering"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "tinkering-300",
+   "name": "Tinkering (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Tinkering"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "alchemy-50",
+   "name": "Alchemy (50)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 50 skill in Alchemy"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "alchemy-100",
+   "name": "Alchemy (100)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 100 skill in Alchemy"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "alchemy-150",
+   "name": "Alchemy (150)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 150 skill in Alchemy"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "alchemy-200",
+   "name": "Alchemy (200)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 200 skill in Alchemy"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "alchemy-250",
+   "name": "Alchemy (250)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 250 skill in Alchemy"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  },
+  {
+   "desc": "",
+   "group": "Tradeskill",
+   "key": "alchemy-300",
+   "name": "Alchemy (300)",
+   "notes": [],
+   "points": 10,
+   "reqs": [
+    {
+     "link": null,
+     "text": "Reach 300 skill in Alchemy"
+    }
+   ],
+   "sub": "Special",
+   "unlock": null
+  }
+ ],
+ "count": 188,
+ "fetched_at": null,
+ "generated_at": 1789270758.8069763,
+ "revid": null,
+ "source_url": "https://eqlwiki.com/Category:Achievements"
+}

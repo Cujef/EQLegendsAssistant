@@ -27,6 +27,24 @@ def _decode(row: dict) -> dict:
     return row
 
 
+def _apply_achievements(character_id: int, rows: List[dict]) -> List[dict]:
+    """A quest whose achievement the log shows earned is complete, whatever
+    quest_progress says — the game's own word beats a forgotten tick. Rows
+    gain `source`: 'achievement' when that decided it, else 'manual'/None."""
+    from .achievements import quest_completions
+    done = quest_completions(character_id)
+    for r in rows:
+        hit = done.get(r['id'])
+        if hit:
+            r['status'] = 'completed'
+            r['source'] = 'achievement'
+            r['achievement'] = hit['achievement']
+            r['completed_at'] = r.get('completed_at') or hit['ts']
+        else:
+            r['source'] = 'manual' if r.get('status') else None
+    return rows
+
+
 def list_quests(character_id: int, cls: str = '', race: str = '',
                 level_min: Optional[int] = None, level_max: Optional[int] = None,
                 zone: str = '', q: str = '', hide_completed: bool = False) -> List[dict]:
@@ -39,8 +57,7 @@ def list_quests(character_id: int, cls: str = '', race: str = '',
         'ON qp.quest_id=qu.id AND qp.character_id=? ORDER BY qu.name', (character_id,))
     out = []
     ql = q.lower()
-    for r in rows:
-        r = _decode(r)
+    for r in _apply_achievements(character_id, [_decode(r) for r in rows]):
         if hide_completed and r.get('status') == 'completed':
             continue
         if cls and r['classes'] and cls not in r['classes'] and 'All' not in r['classes']:
@@ -71,7 +88,21 @@ def progress_view(character_id: int) -> dict:
         'FROM quest_progress qp JOIN quests qu ON qu.id=qp.quest_id '
         "WHERE qp.character_id=? AND qp.status IN ('tracked','completed') "
         'ORDER BY qp.status, qu.name', (character_id,))
-    return {'quests': [_decode(r) for r in tracked]}
+    rows = _apply_achievements(character_id, [_decode(r) for r in tracked])
+    # quests the log proved complete but nobody ever tracked belong here too
+    from .achievements import quest_completions
+    have = {r['id'] for r in rows}
+    extra = [qid for qid in quest_completions(character_id) if qid not in have]
+    if extra:
+        more = db.query(
+            'SELECT qu.id, qu.name, qu.wiki_url, qu.start_zone, qu.quest_giver, '
+            'qu.level_min, qu.level_max, qu.classes_json, qu.races_json, qu.categories_json, '
+            'qu.parsed_ok, NULL AS status, NULL AS added_at, NULL AS completed_at, '
+            '(SELECT COUNT(*) FROM quest_steps s WHERE s.quest_id=qu.id) AS steps, '
+            '0 AS steps_done FROM quests qu '
+            f"WHERE qu.id IN ({','.join('?' * len(extra))}) ORDER BY qu.name", extra)
+        rows += _apply_achievements(character_id, [_decode(r) for r in more])
+    return {'quests': rows}
 
 
 def quest_detail(character_id: int, quest_id: int) -> Optional[dict]:
@@ -87,7 +118,8 @@ def quest_detail(character_id: int, quest_id: int) -> Optional[dict]:
     prog = db.query_one(
         'SELECT status, added_at, completed_at FROM quest_progress '
         'WHERE character_id=? AND quest_id=?', (character_id, quest_id))
-    q.update({'steps': steps, 'progress': prog})
+    q.update({'steps': steps, 'progress': prog, 'status': prog['status'] if prog else None})
+    _apply_achievements(character_id, [q])
     return q
 
 

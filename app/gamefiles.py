@@ -1,9 +1,10 @@
-"""The other two /outputfile exports the Assistant can read: faction standings
-and learned recipes — plus kind detection so one Import dialog takes any of the
-three files.
+"""The other /outputfile exports the Assistant can read: faction standings,
+learned recipes and achievements — plus kind detection so one Import dialog
+takes any of the files.
 
-    /outputfile faction            -> <Name>_<server>-Faction.txt
+    /outputfile faction            -> <Name>_<server>-<CLASS>-Factions.txt
     /outputfile recipes <skill>    -> <Name>_<server>-<Skill>-Recipes.txt
+    /outputfile achievements       -> <Name>_<server>-Achievements.txt   (verified sample)
     /outputfile inventory          -> <Name>_<server>-Inventory.txt   (app/inventory.py)
 
 HONESTY: no EQ Legends sample of the first two existed when this was written.
@@ -30,9 +31,15 @@ from . import db, inventory, tradeskills
 # (class token + plural, e.g. -PAL-Factions.txt); the documented "-Faction.txt"
 # shape is accepted too.
 RE_OUTPUTFILE = re.compile(
-    r'^(?P<name>\w+)_(?P<server>\w+)-(?:(?P<inv>Inventory)|'
+    r'^(?P<name>\w+)_(?P<server>\w+)-(?:(?P<inv>Inventory)|(?P<ach>Achievements)|'
     r'(?:(?P<cls>[A-Za-z]+)-)?(?P<fac>Factions?)|'
     r'(?:(?P<skill>[A-Za-z ]+)-)?(?P<rec>Recipes))\.txt$', re.I)
+# /outputfile achievements (verified against a real Cujef_halas-Achievements.txt,
+# 1,834 lines): category headers "Group: Sub" with no tab, then one line per
+# achievement "C|I<TAB>Name" and its requirements "C|I<TAB><TAB>text" — some
+# with a fourth "1399/10000" progress field. 494 achievements, 26 categories.
+RE_ACH_CATEGORY = re.compile(r'^([^\t:]+):\s*([^\t]+)$')
+RE_ACH_STATUS = re.compile(r'^[CI]$', re.I)
 RE_INT = re.compile(r'^-?\d+$')
 RE_SPLIT = re.compile(r'\t|\s{2,}')   # tab-separated, or aligned with runs of spaces
 
@@ -80,7 +87,8 @@ def parse_outputfile_name(filename) -> Optional[dict]:
     m = RE_OUTPUTFILE.match(base)
     if not m:
         return None
-    kind = 'inventory' if m.group('inv') else 'faction' if m.group('fac') else 'recipes'
+    kind = ('inventory' if m.group('inv') else 'achievements' if m.group('ach')
+            else 'faction' if m.group('fac') else 'recipes')
     return {'name': m.group('name'), 'server': m.group('server'), 'kind': kind,
             'skill': skill_from_token(m.group('skill')) if kind == 'recipes' else None}
 
@@ -162,6 +170,8 @@ def detect_kind(filename: str, text: str) -> Optional[str]:
     head = lines[0]
     if head.startswith('Location\t'):
         return 'inventory'
+    if RE_ACH_CATEGORY.match(head) and len(lines) > 1 and RE_ACH_STATUS.match(lines[1].split('\t')[0]):
+        return 'achievements'
     # the real header is "ID  Name  StandingValue  PointsToMax"
     if 'faction' in head.lower() or 'standing' in head.lower():
         return 'faction'
@@ -271,6 +281,91 @@ def known_recipes(character_id: int) -> List[dict]:
                     'WHERE character_id=? ORDER BY skill, name', (character_id,))
 
 
+# ── achievements ──────────────────────────────────────────────────────────────
+def parse_achievements_export(text: str) -> dict:
+    """{'categories': [...], 'achievements': [{name, complete, group, sub,
+    reqs: [{text, complete, progress}]}], 'skipped': [...]} — file order.
+    Tolerant: tabs only (the game writes tabs), CRLF or LF, BOM, a requirement
+    before any achievement is skipped and reported."""
+    cats, achs, skipped = [], [], []
+    group = sub = None
+    cur = None
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip('\r')
+        if not line.strip():
+            continue
+        if '\t' not in line:
+            m = RE_ACH_CATEGORY.match(line.strip())
+            if m:
+                group, sub = m.group(1).strip(), m.group(2).strip()
+                cats.append(f'{group}: {sub}')
+                cur = None
+            else:
+                skipped.append(line.strip())
+            continue
+        parts = line.split('\t')
+        status = parts[0].strip()
+        if not RE_ACH_STATUS.match(status):
+            skipped.append(line.strip())
+            continue
+        complete = status.upper() == 'C'
+        if len(parts) >= 3 and parts[1] == '':
+            if cur is None:
+                skipped.append(line.strip())
+                continue
+            cur['reqs'].append({'text': parts[2].strip(), 'complete': complete,
+                                'progress': parts[3].strip() if len(parts) > 3 and parts[3].strip() else None})
+        elif len(parts) >= 2 and parts[1].strip():
+            cur = {'name': parts[1].strip(), 'complete': complete, 'group': group, 'sub': sub,
+                   'reqs': []}
+            achs.append(cur)
+        else:
+            skipped.append(line.strip())
+    if not achs:
+        raise ValueError('not an achievements export (no "C|I<TAB>name" rows found)')
+    return {'categories': cats, 'achievements': achs, 'skipped': skipped}
+
+
+def import_achievements(character_id: int, raw: bytes, source_path: str = '') -> dict:
+    """Replace this character's achievement states with the file's. The same
+    name can appear under two categories (Islands of Sky Keys is under both
+    Keys lists): the first occurrence wins, the flag is the same either way."""
+    import json
+    parsed = parse_achievements_export(_decode(raw))
+    now = db.now()
+    rows, seen = [], set()
+    for a in parsed['achievements']:
+        norm = inventory.normalize_name(a['name'])
+        if norm in seen:
+            continue
+        seen.add(norm)
+        rows.append((character_id, a['name'], norm, a['group'], a['sub'], 1 if a['complete'] else 0,
+                     json.dumps(a['reqs']), now, source_path))
+    with db.tx() as c:
+        c.execute('DELETE FROM achievement_states WHERE character_id=?', (character_id,))
+        c.executemany(
+            'INSERT INTO achievement_states(character_id, name, name_norm, group_name, sub, '
+            'complete, reqs_json, imported_at, source_path) VALUES(?,?,?,?,?,?,?,?,?)', rows)
+    return {'kind': 'achievements', 'rows': len(rows),
+            'complete': sum(1 for a in parsed['achievements'] if a['complete']),
+            'categories': len(parsed['categories']), 'skipped': parsed['skipped'][:5],
+            'skipped_count': len(parsed['skipped']), 'imported_at': now}
+
+
+def achievement_states(character_id: int) -> List[dict]:
+    import json
+    out = []
+    for r in db.query('SELECT name, name_norm, group_name, sub, complete, reqs_json, imported_at, '
+                      'source_path FROM achievement_states WHERE character_id=?', (character_id,)):
+        r = dict(r)
+        try:
+            r['reqs'] = json.loads(r.pop('reqs_json') or '[]')
+        except ValueError:
+            r['reqs'] = []
+        out.append(r)
+    return out
+
+
 # ── dispatch ──────────────────────────────────────────────────────────────────
 def import_any(character_id: int, raw: bytes, filename: str = '', path: str = '') -> dict:
     """Import whichever /outputfile export this is. Raises ValueError when the
@@ -287,6 +382,9 @@ def import_any(character_id: int, raw: bytes, filename: str = '', path: str = ''
     if kind == 'recipes':
         return import_recipes(character_id, raw, meta['skill'] if meta else None,
                               source_path=filename or path)
+    if kind == 'achievements':
+        return import_achievements(character_id, raw, source_path=filename or path)
     raise ValueError('not a recognised /outputfile export (expected an inventory, faction, '
-                     'or recipes file — the game names them <Name>_<server>-Inventory.txt, '
-                     '-Faction.txt, or -<Skill>-Recipes.txt)')
+                     'recipes or achievements file — the game names them '
+                     '<Name>_<server>-Inventory.txt, -<CLASS>-Factions.txt, '
+                     '-<Skill>-Recipes.txt, or -Achievements.txt)')

@@ -11,7 +11,7 @@ import io
 import time
 from typing import Callable, Dict, List, Tuple
 
-from . import db, factions, inventory, sessions, skyquests, tradeskills, zones
+from . import achievements, db, factions, inventory, sessions, skyquests, tradeskills, zones
 
 Columns = List[Tuple[str, str]]
 
@@ -58,6 +58,19 @@ def _recipes(cid: int) -> list:
 
 def _factions(cid: int) -> list:
     return factions.view(cid)['factions']
+
+
+def _achievements(cid: int) -> list:
+    out = []
+    for a in achievements.view(cid)['achievements']:
+        out.append({
+            'name': a['name'], 'group': a['group'], 'sub': a['sub'], 'points': a['points'],
+            'earned': a['earned'], 'ts': a['earned_at'],
+            'progress': (f"{a['progress']['done']}/{a['progress']['known']}"
+                         if a['progress']['known'] else ''),
+            'reqs': '; '.join(r['text'] for r in a['reqs']),
+            'in_wiki': a['in_wiki']})
+    return out
 
 
 def _skyquests(cid: int) -> list:
@@ -122,6 +135,10 @@ VIEWS: Dict[str, Tuple[Columns, Callable[[int], list]]] = {
                   ('zones', 'Zone changes'), ('first_zone', 'First zone'),
                   ('last_zone', 'Last zone')],
                  lambda cid: sessions.history(cid, limit=100000)),
+    'achievements': ([('name', 'Achievement'), ('group', 'Group'), ('sub', 'Category'),
+                      ('points', 'Points'), ('earned', 'Earned'), ('ts', 'Earned on'),
+                      ('progress', 'Requirements met'), ('reqs', 'Requirements'),
+                      ('in_wiki', 'On the wiki')], _achievements),
     'skyquests': ([('cls', 'Class'), ('name', 'Test'), ('status', 'Status'), ('source', 'Source'),
                    ('reward', 'Reward'), ('reward_owned', 'Reward owned'), ('rune', 'Rune'),
                    ('rune_have', 'Rune have'), ('items', 'Quest items (have/need)'),

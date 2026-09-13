@@ -144,7 +144,15 @@ tr.sq-ready td { background:var(--sel-bg); }
       statRow('Completed', fmt(t.done || 0), 'good'),
       statRow('Turn in now', turnIn, (t.covered || 0) > 0 ? 'good' : ''),
       statRow('Auto-detected', fmt(t.auto || 0)),
+      statRow('Classes unlocked (log)', el('span', { title: data.notes && data.notes.unlocked },
+        fmt(t.classes_unlocked || 0), t.unlocked ? el('span', { class: 'faint' }, ` · ${fmt(t.unlocked)} tests by unlock`) : ''),
+      (t.classes_unlocked || 0) > 0 ? 'good' : ''),
       statRow('Manual marks', fmt(t.manual || 0)),
+      statRow('Runes on hand', el('span', { title: data.notes && data.notes.runes },
+        t.runes_in_dump ? `${fmt(t.runes_in_dump)} in bags` : '',
+        t.runes_in_dump && t.runes_est ? ' · ' : '',
+        t.runes_est ? `≈${fmt(t.runes_est)} est. from log` : '',
+        !t.runes_in_dump && !t.runes_est ? el('span', { class: 'faint' }, 'none seen') : '')),
       statRow('Runes short', fmt(t.runes_short || 0), (t.runes_short || 0) > 0 ? 'bad' : 'good'),
       statRow('Inventory dump', inv),
       statRow('Test list', list),
@@ -165,7 +173,10 @@ tr.sq-ready td { background:var(--sel-bg); }
         title: c.pinned ? 'one of your classes (Overview: class 1–3) — click to filter the table'
           : 'click to filter the table to this class',
       },
-      el('span', { class: 'sq-cname' }, c.pinned ? '★ ' : '', c.name),
+      el('span', { class: 'sq-cname' }, c.pinned ? '★ ' : '', c.name,
+        c.unlocked ? el('span', { class: 'sq-badge good',
+          title: c.unlocked_at ? 'Primary Class Unlock in the log, ' + timeCell(c.unlocked_at)
+            : 'Primary Class Unlock complete in your achievements export' }, 'unlocked') : ''),
       bar(c.pct, `${c.pct.toFixed(0)}%`),
       el('span', { class: 'num' }, `${c.done}/${c.total}`),
       el('span', { class: 'num ' + (c.covered ? 'good' : 'faint'),
@@ -193,16 +204,23 @@ tr.sq-ready td { background:var(--sel-bg); }
     const runes = (data.runes || []).slice().sort((a, c) => c.short - a.short || a.name.localeCompare(c.name));
     for (const r of runes) {
       const short = r.short > 0;
-      const bits = [`${r.name}: ${r.supply} in the dump`, `${r.demand_open} open tests want one`];
-      if (r.supply && !r.supply_base) bits.push('only +N copies');
+      const estd = r.supply_source === 'log';
+      const bits = [estd ? `${r.name}: ≈${r.supply} estimated from the log (${r.looted} looted − ${r.consumed} handed in)`
+        : `${r.name}: ${r.supply} in the dump`, `${r.demand_open} open tests want one`];
+      if (r.supply && !r.supply_base && !estd) bits.push('only +N copies');
       bits.push(short ? `short ${r.short}` : 'enough for every open test');
       grid.append(el('span', { class: 'sq-rune' + (short ? ' short' : r.demand_open ? ' ok' : ' idle'),
         title: bits.join(' · ') },
         iconCell(r.icon),
         el('span', { class: 'sq-rname' }, r.name.replace(/^Wind Rune /, '')),
-        el('span', { class: 'num sq-rnum' }, `${r.supply}/${r.demand_open}`)));
+        el('span', { class: 'num sq-rnum' }, `${estd ? '≈' : ''}${r.supply}/${r.demand_open}`)));
     }
     b.replaceChildren(grid);
+    if (data.totals && data.totals.runes_est) {
+      b.append(el('div', { class: 'sq-note', title: data.notes && data.notes.runes },
+        `≈ estimated from the log: ${fmt(data.totals.runes_looted)} looted − ${fmt(data.totals.runes_consumed)} handed in. `
+        + 'The currency tab is invisible to the inventory export; runes destroyed or looted before the log began are not counted.'));
+    }
     if (!data.snapshot) {
       b.append(el('div', { class: 'sq-note' }, 'Import your inventory (sidebar) to see what you hold.'));
     }
@@ -212,14 +230,16 @@ tr.sq-ready td { background:var(--sel-bg); }
   function needChip(n) {
     const cb = el('input', { type: 'checkbox', disabled: '' });
     cb.checked = !!n.ok;
-    const bits = [`${n.have}/${n.qty} in the dump`];
+    const bits = [n.source === 'log' ? `≈${n.have} estimated from the log (looted minus handed in — the currency tab is invisible to the dump)`
+      : `${n.have}/${n.qty} in the dump`];
     if (n.have_upgraded) bits.push(`${n.have_upgraded} as +N`);
     if (n.no_drop) bits.push('no drop');
     if (n.src) bits.push('island/boss: ' + n.src);
     if (n.demand_open > 1) bits.push(`${n.demand_open} open tests want this`);
     const chip = el('span', { class: 'sq-need' + (n.ok ? '' : ' miss'), title: bits.join(' · ') },
       cb, iconCell(n.icon), el('span', {}, n.display));
-    if (n.have > 1) chip.append(el('span', { class: 'faint' }, ' ×' + n.have));
+    if (n.source === 'log') chip.append(el('span', { class: 'faint' }, ' ≈' + n.have));
+    else if (n.have > 1) chip.append(el('span', { class: 'faint' }, ' ×' + n.have));
     if (n.upgraded_only) chip.append(el('span', { class: 'faint', title: 'you only hold an upgraded (+N) copy' }, ' +N'));
     if (n.src) chip.append(el('span', { class: 'sq-src' }, ' (' + n.src + ')'));
     if (n.no_drop) chip.append(el('span', { class: 'sq-src', title: 'no drop' }, ' ND'));
@@ -254,6 +274,11 @@ tr.sq-ready td { background:var(--sel-bg); }
     const wrap = el('span', { class: 'sq-done-cell' }, cb);
     if (r.source === 'auto') {
       wrap.append(el('span', { class: 'sq-badge good', title: 'reward found in your inventory dump' }, 'auto'));
+    } else if (r.source === 'unlocked') {
+      wrap.append(el('span', { class: 'sq-badge good',
+        title: (r.unlocked_at ? `the log shows "Primary Class Unlock - ${r.cls}" on ${timeCell(r.unlocked_at)}; `
+          : `your achievements export marks "Primary Class Unlock - ${r.cls}" complete; `)
+          + 'the reward itself is not in your dump' }, 'unlocked'));
     } else if (r.source === 'manual') {
       wrap.append(el('span', { class: 'sq-badge info',
         title: r.auto_done && r.status === 'open' ? 'your tick overrides the dump (the reward IS in it)'

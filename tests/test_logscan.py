@@ -139,6 +139,11 @@ def _ext(check):
     from app.logscan.ext_parser import parse
 
     CASES = [
+        # achievements: only YOUR completions; the name keeps its trailing dots
+        ('[Sat Aug 22 12:43:56 2026] You have completed achievement: Primary Class Unlock - Paladin',
+         {'type': 'achievement', 'name': 'Primary Class Unlock - Paladin'}),
+        ('[Sat Aug 22 12:43:56 2026] You have completed achievement: Three Letter Word for Dead...',
+         {'type': 'achievement', 'name': 'Three Letter Word for Dead...'}),
         # real AA lines from a live EQ Legends log (all three shapes + variants)
         ('[Fri Jul 31 19:20:12 2026] You have gained an ability point!  '
          'You now have 12 ability points.',
@@ -481,6 +486,15 @@ def _agg_events(check):
                       "AND key='total_craft_errors'", (cid,))
     check('aggev: craft error counter', hl and hl['value_num'] == 1, hl)
 
+    # achievements: one row per name, the first completion's date wins
+    agg.feed({'type': 'achievement', 'ts': t0 + 7, 'name': 'Level 20'})
+    agg.feed({'type': 'achievement', 'ts': t0 + 8, 'name': 'Level 20'})
+    with db.tx() as c:
+        agg.flush(c, cid)
+    ach = db.query('SELECT name, name_norm, ts FROM achievements WHERE character_id=?', (cid,))
+    check('aggev: achievement row written once, first ts kept',
+          len(ach) == 1 and ach[0]['name'] == 'Level 20' and ach[0]['name_norm'] == 'level 20'
+          and ach[0]['ts'] == t0 + 7, [dict(r) for r in ach])
     # events-only mode (the backfill): events land, nothing additive is touched
     with db.tx() as c:
         c.execute("INSERT OR IGNORE INTO characters(name, server, created_at) "

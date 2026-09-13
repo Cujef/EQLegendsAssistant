@@ -50,7 +50,10 @@ tr.qp-sel td { background: var(--sel-bg); }
         {
           key: 'status', label: 'Status',
           render: (r) => r.status === 'completed'
-            ? el('span', { class: 'good' }, '✔ done') : el('span', { class: 'warn' }, 'tracked'),
+            ? el('span', { class: 'good', title: r.source === 'achievement'
+              ? `the log shows the achievement "${r.achievement}" earned` : '' },
+            '✔ done', r.source === 'achievement' ? el('span', { class: 'faint' }, ' · achievement') : '')
+            : el('span', { class: 'warn' }, 'tracked'),
         },
       ],
       rows: progress.quests || [],

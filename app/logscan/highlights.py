@@ -60,7 +60,7 @@ TRACKED_EVENTS = ('damage', 'miss', 'damage_taken', 'miss_taken', 'cast',
 # events the events-only (backfill) mode cares about
 EVENT_TYPES = ('craft', 'craft_capped', 'craft_error', 'depot_consume', 'depot_deposit',
                'depot_withdraw', 'faction', 'faction_capped', 'skill', 'upgrade',
-               'zone', 'xp', 'kill', 'loot')
+               'zone', 'xp', 'kill', 'loot', 'achievement')
 
 
 class Aggregator:
@@ -127,6 +127,7 @@ class Aggregator:
         self.faction = []      # (ts, faction, delta)
         self.faction_caps = []  # (faction, direction, ts)
         self.upgrades = []     # (ts, item, item_norm, tier)
+        self.achievements = []  # (ts, name, name_norm)
         self.zone_deltas = {}  # zone_base -> {seconds, kills, xp_pct, loot, visits, first_ts, last_ts}
         self.zone_visits = []  # (ts, raw zone, zone_base)
         self.loot = []         # (ts, item, item_norm, source, qty, zone_base|None)
@@ -325,6 +326,8 @@ class Aggregator:
         elif t == 'upgrade':
             self.upgrades.append((ts, ev['item'], normalize_name(ev['item']), ev.get('tier')))
             self._bump('total_upgrades')
+        elif t == 'achievement':
+            self.achievements.append((ts, ev['name'], normalize_name(ev['name'])))
 
     def feed(self, ev: dict):
         ts = ev['ts']
@@ -496,6 +499,12 @@ class Aggregator:
                 'INSERT INTO upgrade_events(character_id, ts, item, item_norm, tier) '
                 'VALUES(?,?,?,?,?)',
                 [(cid, ts, item, norm, tier) for ts, item, norm, tier in self.upgrades])
+        if self.achievements:
+            # first completion wins: a replay must never move an earned date
+            conn.executemany(
+                'INSERT OR IGNORE INTO achievements(character_id, name, name_norm, ts) '
+                'VALUES(?,?,?,?)',
+                [(cid, name, norm, ts) for ts, name, norm in self.achievements])
 
         # zone + loot history (v1.2) — additive deltas + per-line rows
         if self.zone_visits:

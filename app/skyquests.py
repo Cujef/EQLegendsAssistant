@@ -236,6 +236,14 @@ def view(character_id: int) -> dict:
     manual = {r['quest_key']: r for r in db.query(
         'SELECT quest_key, done, marked_at FROM sky_quest_progress WHERE character_id=?',
         (character_id,))}
+    # "Primary Class Unlock - X" in the log, or complete in the achievements
+    # export: the game's own word that the class is done. Jeff's rule: an
+    # unlocked class counts every test done, even when a reward is gone from
+    # the dump (sold, destroyed, merged away). The unlock also auto-completes
+    # for the creation class and can be bought with a token, so the source is
+    # labelled 'unlocked', never 'auto'.
+    from .achievements import earned_unlocks
+    unlocked = earned_unlocks(character_id, 'class')
     pinned = _pinned_classes(character_id)
     pin_rank = {c: i for i, c in enumerate(pinned)}
 
@@ -267,8 +275,10 @@ def view(character_id: int) -> dict:
                 })
         ev = _evidence(tally.get(q['reward']['name_norm']))
         auto_done = ev is not None
+        is_unlocked = q['cls'] in unlocked            # ts may be None: export-only
+        unlocked_at = unlocked.get(q['cls'])
         m = manual.get(q['key'])
-        done = bool(m['done']) if m else auto_done
+        done = bool(m['done']) if m else (auto_done or is_unlocked)
         missing = sum(1 for n in needs if not n['ok'])
         rows.append({
             'key': q['key'], 'cls': q['cls'], 'name': q['name'], 'phrase': q.get('phrase'),
@@ -280,12 +290,47 @@ def view(character_id: int) -> dict:
                        'wiki_url': _wiki_url(q['reward']['name']), 'evidence': ev},
             'needs': needs, 'missing': missing,
             'status': 'done' if done else 'open',
-            'source': 'manual' if m else ('auto' if auto_done else 'none'),
+            'source': ('manual' if m else 'auto' if auto_done
+                       else 'unlocked' if is_unlocked else 'none'),
             'auto_done': auto_done,
+            'unlocked': is_unlocked,
+            'unlocked_at': unlocked_at,
             'manual': ({'done': int(m['done']), 'marked_at': m['marked_at']} if m else None),
             'ready': (not done) and missing == 0,
             'covered': False,
         })
+
+    # Wind Runes usually sit in the currency tab, which no export can see (the
+    # game's own /outputfile usage line lists no currency target). The log is a
+    # ledger instead: runes are No Trade, so "looted minus handed in" is what is
+    # on hand, give or take runes destroyed or looted before the log began. The
+    # dump wins whenever it does hold copies (runes left in a bag).
+    rune_norms = _uniq([r['name_norm'] for q in quests for r in q['runes']])
+    looted: Dict[str, int] = {}
+    if rune_norms:
+        marks = ','.join('?' * len(rune_norms))
+        looted = {r['item_norm']: int(r['n'] or 0) for r in db.query(
+            f'SELECT item_norm, SUM(qty) AS n FROM loot_events WHERE character_id=? '
+            f'AND item_norm IN ({marks}) GROUP BY item_norm', (character_id, *rune_norms))}
+    consumed: Dict[str, int] = {}
+    for r in rows:
+        if r['status'] == 'done':
+            for n in r['needs']:
+                if n['kind'] == 'rune':
+                    consumed[n['name_norm']] = consumed.get(n['name_norm'], 0) + n['qty']
+    est = {k: max(0, looted.get(k, 0) - consumed.get(k, 0)) for k in rune_norms}
+    for r in rows:
+        changed = False
+        for n in r['needs']:
+            n['source'] = 'dump'
+            if n['kind'] == 'rune' and n['have'] == 0 and looted.get(n['name_norm']):
+                n['source'] = 'log'
+                n['have'] = est[n['name_norm']]
+                n['ok'] = n['have'] >= n['qty']
+                changed = True
+        if changed:
+            r['missing'] = sum(1 for n in r['needs'] if not n['ok'])
+            r['ready'] = r['status'] == 'open' and r['missing'] == 0
 
     # demand vs supply: the same rune (or Efreeti weapon) is wanted by several
     # open tests, so "ready" is honest only after a greedy allocation — pinned
@@ -318,11 +363,17 @@ def view(character_id: int) -> dict:
                 continue
             seen.add(ru['name_norm'])
             t = tally.get(ru['name_norm']) or {}
-            supply = t.get('base', 0) + t.get('upgraded', 0)
+            in_dump = t.get('base', 0) + t.get('upgraded', 0)
+            lo = looted.get(ru['name_norm'], 0)
+            src = 'dump' if in_dump else 'log' if lo else 'none'
+            supply = in_dump if in_dump else est.get(ru['name_norm'], 0)
             dem = demand_open.get(ru['name_norm'], 0)
             runes.append({'name': ru['name'], 'name_norm': ru['name_norm'],
                           'icon': icons.get(ru['name_norm']), 'supply': supply,
+                          'supply_source': src, 'in_dump': in_dump,
                           'supply_base': t.get('base', 0), 'supply_upgraded': t.get('upgraded', 0),
+                          'looted': lo, 'consumed': consumed.get(ru['name_norm'], 0),
+                          'est': est.get(ru['name_norm'], 0),
                           'demand_open': dem, 'short': max(0, dem - supply)})
 
     def pct(done_n, total_n):
@@ -335,7 +386,9 @@ def view(character_id: int) -> dict:
         classes.append({'name': c, 'total': len(cr), 'done': dn, 'pct': pct(dn, len(cr)),
                         'ready': sum(1 for r in cr if r['ready']),
                         'covered': sum(1 for r in cr if r['covered']),
-                        'pinned': c in pin_rank})
+                        'pinned': c in pin_rank,
+                        'unlocked': c in unlocked,
+                        'unlocked_at': unlocked.get(c)})
     classes.sort(key=lambda c: (pin_rank.get(c['name'], len(pin_rank)), CLASSES.index(c['name'])))
     done_n = sum(1 for r in rows if r['status'] == 'done')
     totals = {
@@ -344,7 +397,13 @@ def view(character_id: int) -> dict:
         'covered': sum(1 for r in rows if r['covered']),
         'manual': sum(1 for r in rows if r['source'] == 'manual'),
         'auto': sum(1 for r in rows if r['source'] == 'auto'),
+        'unlocked': sum(1 for r in rows if r['source'] == 'unlocked'),
+        'classes_unlocked': len(unlocked),
         'runes_short': sum(r['short'] for r in runes),
+        'runes_in_dump': sum(r['in_dump'] for r in runes),
+        'runes_est': sum(r['est'] for r in runes if r['supply_source'] == 'log'),
+        'runes_looted': sum(r['looted'] for r in runes),
+        'runes_consumed': sum(r['consumed'] for r in runes),
     }
     return {
         'snapshot': ({'id': snap['id'], 'imported_at': snap['imported_at']} if snap else None),
@@ -356,11 +415,20 @@ def view(character_id: int) -> dict:
         'quests': rows,
         'notes': {
             'auto': 'A test counts as done when its reward is in your inventory dump '
-                    '(+N and Exaltation copies included). Rewards you sold or destroyed '
-                    'need the manual tick; a manual tick beats the dump either way.',
+                    '(+N and Exaltation copies included), or when the log shows the class '
+                    'unlocked ("Primary Class Unlock"). A manual tick beats both.',
+            'unlocked': 'An unlocked class counts every one of its tests done — the game says '
+                        'the class is finished, even if a reward has since been sold, destroyed '
+                        'or merged away. The unlock also auto-completes for your creation class '
+                        'and can be bought with a token, so untick by hand if that is the case.',
             'needs': 'Turn-in ticks come from the dump only: tradeable copies count '
                      '(+N too), Exaltation copies and the trailing keyring lists do not. '
                      '"Shared" means other open tests want the same item.',
+            'runes': 'Wind Runes usually live in the currency tab, which no export can see. '
+                     'When the dump holds none, the count is estimated from the log: runes '
+                     'looted minus one per test marked done (runes are No Trade, so nothing '
+                     'else takes them). Runes destroyed, or looted before the log began, are '
+                     'invisible to it.',
             'src': "The (3-Gorga)-style tags are the wiki's island / boss labels: "
                    '3-Gorga, 4-KoS, 5-SL, 6-BZ, 7-SotS, 7-Trash, 8-EoV.',
             'ready': 'Ready counts every open test whose needs are all in the dump; '

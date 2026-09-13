@@ -394,6 +394,14 @@ def api_skyquest_done(key: str, body: dict, char: int = None):
     return {'ok': True, 'key': key, 'done': done}
 
 
+# ── achievements (from the log; definitions from the wiki) ───────────────────
+@app.get('/api/achievements')
+def api_achievements(char: int = None):
+    from . import achievements
+    c = _char_or_404(char)
+    return achievements.view(c['id'])
+
+
 # ── what to do / exaltations / tradeskills (M9-M10) ──────────────────────────
 @app.get('/api/whattodo')
 def api_whattodo(char: int = None):

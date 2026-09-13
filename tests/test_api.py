@@ -100,7 +100,14 @@ def run(check):
     check('api: every export view renders for this character',
           all(client.get(f'/api/export/{v}{q}').status_code == 200
               for v in ('inventory', 'merges', 'recipes', 'materials', 'known_recipes', 'factions',
-                        'fights', 'loot', 'zones', 'skyquests')))
+                        'fights', 'loot', 'zones', 'skyquests', 'achievements')))
+
+    # achievements
+    r = client.get('/api/achievements' + q)
+    j = r.json()
+    check('api: achievements view shape', r.status_code == 200 and j['totals']['in_wiki'] >= 50
+          and set(j['unlocks']) == {'race', 'class', 'deity'} and 'source' in j['notes'],
+          (r.status_code, j.get('totals')))
 
     # sky quests
     r = client.get('/api/skyquests' + q)

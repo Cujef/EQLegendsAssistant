@@ -90,6 +90,11 @@ RE_LOOT_SOLD = re.compile(
 RE_LOOT_MERGED = re.compile(
     r"^You looted (?:(\d+) )?(?:a |an |the )?(.+?) from (.+?)'s corpse to create (?:a |an |the )?(.+?)\.?$")
 
+# Achievements (119 of yours on the reference log). Other people's completions
+# read "Zari has completed achievement: X" / "Your guildmate X has completed Y
+# achievement." — anchoring on "You have" keeps them out. No trailing period.
+RE_ACHIEVEMENT = re.compile(r'^You have completed achievement: (.+?)\s*$')
+
 CRAFT_ERRORS = {
     "Sorry, but you don't have everything you need for this recipe in your general inventory.":
         'missing_materials',
@@ -168,6 +173,11 @@ def _dot_taken(text: str, ts: float) -> Optional[dict]:
             **_NO_FLAGS}
 
 
+def _achievement(text: str, ts: float) -> Optional[dict]:
+    m = RE_ACHIEVEMENT.match(text)
+    return {'type': 'achievement', 'ts': ts, 'name': m.group(1).strip()} if m else None
+
+
 def _merge(text: str, ts: float) -> Optional[dict]:
     m = RE_MERGE.match(text)
     if not m:
@@ -189,6 +199,8 @@ def parse(line: str, pet_name: Optional[str] = None,
         handler = _depot
     elif 'merged two items' in line:
         handler = _merge
+    elif 'completed achievement:' in line:
+        handler = _achievement
     elif "'s corpse and sold it" in line or "'s corpse to create" in line:
         handler = _loot_auto
     elif 'combine' in line or line.endswith('general inventory.'):

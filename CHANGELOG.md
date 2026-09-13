@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-13
+
+Achievements arrive from two sources, the Sky Quests page learns what the
+currency tab hides, and unlocks flow through to quests, classes and factions.
+
+### Added
+
+- **Achievements from the log.** "You have completed achievement: …" lines are
+  parsed (only yours — guildmates' and strangers' completions are ignored) into
+  an `achievements` table, with backfill revision 5 replaying your history on
+  first start. The log is the only source that carries a date.
+- **`/outputfile achievements` import.** The game's own achievement list
+  (`<Name>_<server>-Achievements.txt`: 26 categories, ~500 achievements, a
+  complete / incomplete flag per achievement and per requirement, counters like
+  `1399/10000`) is picked up by the folder watcher and the Import dialog like
+  the other exports. It knows completions from before the log began (22 on the
+  reference character, including a class unlock), carries no dates, and its
+  per-requirement flags beat anything the app derives. Achievements the wiki
+  does not list are shown from the export with the game's requirement text.
+- **Achievements page.** Race, class and deity unlocks (16 / 16 / 17) with an
+  earned date or per-requirement progress the app can already derive: faction
+  maxima from the faction export and log cap notices, Sky rewards from the
+  inventory dump, quest status, levels, key items. Points, categories, recently
+  earned, and the log-only achievements (Traveler, Hunter, faction, events) the
+  wiki does not list. Definitions come from the wiki's `Category:Achievements`
+  page, now synced as the `achievements` guide, with a bundled fallback
+  (`app/data/achievements.json`, `tools/gen_achievements.py`).
+  `GET /api/achievements`, export view `achievements`.
+- **Sky Quests: class unlocks.** A `Primary Class Unlock - <Class>` in the log
+  counts every test of that class done (source *unlocked*), so a reward you
+  sold, destroyed or merged away no longer hides a finished test. The class
+  list and overview show which classes the log says are unlocked. A manual
+  tick still beats it.
+- **Quests: achievement completions.** A quest whose achievement the log shows
+  earned (today: the deity-unlock quests) is completed on Quest Progress and
+  Quest Ideas whatever its tracked state, labelled *achievement*.
+- **Factions: Race Unlocks tile.** Each race with the factions it needs at
+  maximum, ticked from your faction export and log cap notices, and the unlock
+  date when the log has it.
+- **Sky Quests: Wind Runes counted from the log.** Runes usually live in the
+  currency tab, which no `/outputfile` target can read (the game's own usage
+  line lists none), so no rune ever reached the inventory export. When the dump
+  holds none, a rune's count is now estimated from the log — runes looted minus
+  one per test marked done; runes are No Trade, so nothing else takes them —
+  and shown as `≈N`. The dump still wins when it does hold copies. Runes
+  destroyed or looted before the log began stay invisible.
+
 ## [1.4.1] - 2026-09-12
 
 ### Changed
@@ -294,7 +341,8 @@ databases, and never writes to the game.
   on neither community site, `+N` upgrade stat scaling is in no item database,
   and exaltation transfer rules are assumed until confirmed.
 
-[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.2.0...v1.3.0

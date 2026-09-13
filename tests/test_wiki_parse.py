@@ -186,6 +186,7 @@ def run(check):
     _items(check)
     _quests(check)
     _guides(check)
+    _achievements(check)
     _malformed(check)
 
 
@@ -351,3 +352,137 @@ def _malformed(check):
     check('malformed: stats on junk', parse_statistics('junk')['caps'] == [])
     check('malformed: guide on empty', parse_generic_guide('')['sections'] == [])
     check('malformed: template None input', parse_template('', 'Itempage') is None)
+
+
+ACH_FIXTURE = """== Achievements ==
+intro
+
+{| class="eoTable2 mw-collapsible mw-collapsed" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Untapped Potential">Untapped Potential</span>
+|-
+|
+{| class="eoTable2 mw-collapsible mw-collapsed" id="races_unlock" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Races">Races</span>
+|-
+|
+{| class="eoTable2 mw-collapsible mw-collapsed" id="dwarf_unlock" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Race Unlock - Dwarf" style="cursor:pointer;">
+<div style="display:grid;">
+<div>[[File:EQLRaceUnlockDwarf.png|48px|Upload Image]]</div>
+<div style="color:#d8b75c;">Race Unlock — Dwarf</div>
+<div style="font-weight:bold;">5 Points</div>
+</div>
+</span>
+|-
+|
+'''Completing this achievement will allow you to select Dwarf as a Race in Loadouts.'''
+
+'''Requirements'''
+<ul style="list-style-type:none;">
+<li><span style="margin-right:0.6rem;">☐</span>Get maximum faction with [[Kazon Stormhammer]].</li>
+<li><span style="margin-right:0.6rem;">☐</span>Get maximum faction with [[Storm Guard]].</li>
+</ul>
+
+<div style="margin-top:0.75rem;">
+'''Notes'''
+<ul style="list-style-type:none;">
+<li>This achievement will be autocompleted if your character was created as a Dwarf.</li>
+<li>This achievement can be bypassed using a Race Unlock Token.</li>
+</ul>
+</div>
+|}
+{| class="eoTable2 mw-collapsible mw-collapsed" id="halfelf_unlock" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Race Unlock - Half Elf">
+<div><div>Race Unlock — Half Elf</div><div>5 Points</div></div>
+</span>
+|-
+|
+'''Requirements'''
+<ul><li><span>☐</span>This achievement will autocomplete when you unlock [[Human]] or [[Wood Elf]] as a race.</li></ul>
+<div>'''Notes'''
+<ul><li>This achievement can be bypassed using a Race Unlock Token.</li></ul></div>
+|}
+|}
+{| class="eoTable2 mw-collapsible mw-collapsed" id="deity_unlock" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Deity">Deity</span>
+|-
+|
+{| class="eoTable2 mw-collapsible mw-collapsed" id="agnostic_unlock" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Deity Unlock - Agnostic">
+<div><div>Deity Unlock — Agnostic</div><div>5 Points</div></div>
+</span>
+|-
+|
+'''Completing this achievement will allow you to select Agnostic as a Deity in Loadouts.'''
+
+'''Requirements'''
+<ul><li><span>☐</span>Complete the '[[Renouncing Your Faith]]' task for a mysterious Emissary.</li>
+<li><span>☐</span>This achievement will autocomplete if you chose to confirm your Deity as Agnostic.</li></ul>
+|}
+|}
+|}
+{| class="eoTable2 mw-collapsible mw-collapsed" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse General">General</span>
+|-
+|
+{| class="eoTable2 mw-collapsible mw-collapsed" id="keys" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Keys">Keys</span>
+|-
+|
+{| class="eoTable2 mw-collapsible mw-collapsed" id="islands_of_sky_keys" style="width:100%;"
+! style="text-align:left;" | <span class="mw-collapsible-toggle" title="Expand or collapse Islands of Sky Keys">
+<div><div>Islands of Sky Keys</div><div>10 Points</div></div>
+</span>
+|-
+|
+'''Islands of Sky Keys'''
+
+'''Requirements'''
+<ul><li><span>☐</span>Key of Swords</li><li><span>☐</span>Veeshan's Key</li></ul>
+|}
+|}
+|}
+
+== Template ==
+{| class="eoTable2 mw-collapsible mw-collapsed" id="template_row"
+! | <span class="mw-collapsible-toggle" title="Expand or collapse Achievement Name">x</span>
+|-
+|
+'''Achievement Name'''
+|}
+"""
+
+
+def _achievements(check):
+    from app.sync.wiki_parse import ach_key, parse_achievements
+
+    a = parse_achievements(ACH_FIXTURE)
+    names = [x['name'] for x in a]
+    check('ach: leaf tables parsed in order, groups skipped, template dropped',
+          names == ['Race Unlock - Dwarf', 'Race Unlock - Half Elf', 'Deity Unlock - Agnostic',
+                    'Islands of Sky Keys'], names)
+    d = a[0] if a else {}
+    check('ach: group / sub / points / key from the toggle title (ASCII hyphen)',
+          d.get('group') == 'Untapped Potential' and d.get('sub') == 'Races' and d.get('points') == 5
+          and d.get('key') == 'race-unlock-dwarf' and d.get('unlock') == {'kind': 'race', 'name': 'Dwarf'}, d)
+    check('ach: requirements keep link targets, notes split off under Notes',
+          [(r['text'], r['link']) for r in d.get('reqs', [])]
+          == [('Get maximum faction with Kazon Stormhammer.', 'Kazon Stormhammer'),
+              ('Get maximum faction with Storm Guard.', 'Storm Guard')]
+          and len(d.get('notes', [])) == 2 and 'Token' in d['notes'][1], d)
+    check('ach: description line kept, Requirements label is not one',
+          d.get('desc', '').startswith('Completing this achievement will allow you to select Dwarf'), d.get('desc'))
+    he = a[1] if len(a) > 1 else {}
+    check('ach: a requirement that mentions autocomplete stays a requirement when Notes exists',
+          len(he.get('reqs', [])) == 1 and he['reqs'][0]['link'] == 'Human' and len(he.get('notes', [])) == 1, he)
+    ag = a[2] if len(a) > 2 else {}
+    check('ach: deity unlock parsed with the quest link',
+          ag.get('unlock') == {'kind': 'deity', 'name': 'Agnostic'} and ag['reqs'][0]['link'] == 'Renouncing Your Faith'
+          and ag['sub'] == 'Deity', ag)
+    keys = a[3] if len(a) > 3 else {}
+    check('ach: keys: plain-text requirements, empty desc when it repeats the name',
+          keys.get('group') == 'General' and keys.get('sub') == 'Keys' and keys.get('points') == 10
+          and [r['text'] for r in keys.get('reqs', [])] == ['Key of Swords', "Veeshan's Key"]
+          and keys.get('desc') == '', keys)
+    check('ach: ach_key folds dashes', ach_key('Class Unlock — Bard') == 'class-unlock-bard')
+    check('ach: unrelated text parses to nothing', parse_achievements('== Foo ==\nbar\n') == [])

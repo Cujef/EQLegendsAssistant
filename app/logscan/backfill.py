@@ -21,6 +21,8 @@ Revisions:
   3  v1.2  zone / xp / kill / loot — the zone clock and loot history. The
            'experience!' gate is deliberate: "You gain party experience!" is
            the majority of XP lines.
+  4  v1.3  sessions (ungated; rebuilds zone/loot rows)
+  5  v1.5  achievement ("You have completed achievement: X")
 """
 import time
 from pathlib import Path
@@ -32,7 +34,7 @@ from .highlights import Aggregator
 
 GUARD_KEY = 'events_backfill_offset'   # bytes covered; its presence alone means rev 1 is done
 REV_KEY = 'events_backfill_rev'        # highest revision applied
-BACKFILL_REV = 4
+BACKFILL_REV = 5
 # `gates: None` means UNGATED — every line is parsed. Note the trap: an empty
 # gates tuple would make `any(...)` False and skip every line, so "no gating"
 # has to be its own case, not an empty sequence. Measured cost of an ungated
@@ -63,6 +65,10 @@ REVS = {
         'rebuild': ('sessions', 'zone_stats', 'zone_events', 'loot_events'),
         'reset_highlights': ('zone_clock_ts',),
         'recompute': True},
+    # v1.5: achievements. INSERT OR IGNORE rows keyed by name, so a replay over
+    # lines the live path already saw cannot duplicate or move a completion.
+    5: {'types': frozenset({'achievement'}),
+        'gates': ('completed achievement:',)},
 }
 CHUNK = 4 * 1024 * 1024
 

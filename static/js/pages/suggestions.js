@@ -84,7 +84,11 @@
           key: 'status', label: '',
           sortVal: (r) => r.status || '',
           render: (r) => {
-            if (r.status === 'completed') return el('span', { class: 'good' }, 'done');
+            if (r.status === 'completed') {
+              return el('span', { class: 'good', title: r.source === 'achievement'
+                ? `the log shows the achievement "${r.achievement}" earned` : '' },
+              'done', r.source === 'achievement' ? el('span', { class: 'faint' }, ' · achievement') : '');
+            }
             if (r.status === 'tracked') return el('span', { class: 'warn' }, 'tracked');
             const b2 = el('button', { class: 'metal-btn', style: 'font-size:11px;padding:2px 8px' }, 'Track');
             b2.addEventListener('click', async (ev) => {

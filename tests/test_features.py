@@ -287,6 +287,7 @@ def run(check):
     _gamefiles(check, db)
     _zones_and_loot(check, db)
     _skyquests(check, db)
+    _achievements(check, db)
 
 
 def _zones_and_loot(check, db):
@@ -846,6 +847,34 @@ def _skyquests(check, db):
                     and any(n['name_norm'] == rune_norm for n in r['needs']))
     check('sky: rune supply vs open demand', rune['supply'] == 1 and rune['demand_open'] == open_lena
           and rune['short'] == open_lena - 1 and open_lena >= 1, rune)
+    # rune ledger: runes in the currency tab never reach the dump, so a rune the
+    # dump lacks is counted from the log (looted minus handed in); a rune the
+    # dump DOES hold keeps the dump's count even with loot history
+    jaka = decep['runes'][0]                      # Deception is done -> one Jaka consumed
+    with db.tx() as c:
+        c.executemany('INSERT INTO loot_events(character_id, ts, item, item_norm, source, qty, zone) '
+                      'VALUES(?,?,?,?,?,?,?)', [
+                          (cid, 100, jaka['name'], jaka['name_norm'], 'an azarack', 1, 'Plane of Sky'),
+                          (cid, 101, jaka['name'], jaka['name_norm'], 'an azarack', 1, 'Plane of Sky'),
+                          (cid, 102, jaka['name'], jaka['name_norm'], 'a spiroc', 1, 'Plane of Sky'),
+                          (cid, 103, spirit['runes'][0]['name'], rune_norm, 'a spiroc', 5, 'Plane of Sky')])
+    vl = skyquests.view(cid)
+    rj = next(r for r in vl['runes'] if r['name_norm'] == jaka['name_norm'])
+    rl = next(r for r in vl['runes'] if r['name_norm'] == rune_norm)
+    jq = next(r for r in vl['quests'] if r['status'] == 'open'
+              and any(n['name_norm'] == jaka['name_norm'] for n in r['needs']))
+    jn = next(n for n in jq['needs'] if n['name_norm'] == jaka['name_norm'])
+    check('sky: rune missing from the dump is estimated from the log (3 looted - 1 handed in)',
+          rj['supply_source'] == 'log' and rj['looted'] == 3 and rj['consumed'] == 1 and rj['supply'] == 2
+          and jn['source'] == 'log' and jn['have'] == 2 and jn['ok'] is True, (rj, jn))
+    check('sky: a rune the dump holds keeps the dump count despite loot history',
+          rl['supply_source'] == 'dump' and rl['supply'] == 1 and rl['looted'] == 5, rl)
+    check('sky: ledger totals', vl['totals']['runes_est'] == 2 and vl['totals']['runes_in_dump'] == 1
+          and vl['totals']['runes_looted'] == 8 and vl['totals']['runes_consumed'] >= 1, vl['totals'])
+    db.execute('DELETE FROM loot_events WHERE character_id=?', (cid,))
+    v = skyquests.view(cid)
+    rows = {r['key']: r for r in v['quests']}
+    ot = rows[other['key']]
     on = next(n for n in ot['needs'] if n['name_norm'] == rune_norm)
     check('sky: the test with the rune and its items is ready + covered, rune flagged shared',
           ot['ready'] is True and ot['covered'] is True and on['ok'] is True
@@ -912,3 +941,207 @@ def _skyquests(check, db):
     check('sky: remove clears sky_quest_progress',
           db.query_one('SELECT COUNT(*) n FROM sky_quest_progress WHERE character_id IN (?,?)',
                        (cid, row2['id']))['n'] == 0)
+
+
+def _achievements(check, db):
+    """Achievements from seeded log rows joined to the bundled definitions:
+    unlock progress from factions / Sky rewards / quests, the class-unlock rule
+    on Sky Quests, and the achievement -> quest completion override."""
+    from app import achievements, characters, inventory, quests, skyquests
+    from app.quests import CLASSES
+
+    check('ach: match_key folds wiki vs log vs export spellings',
+          achievements.match_key('Class Unlock — Paladin') == achievements.match_key('Primary Class Unlock - Paladin')
+          and achievements.match_key('Paladin’s Combat Proficiency, Level 50')
+          == achievements.match_key("Paladin's Combat Proficiency, Level 50")
+          and achievements.match_key('Primary Class Unlock - Shadowknight')
+          == achievements.match_key('Class Unlock — Shadow Knight')
+          and achievements.class_name('Shadowknight') == 'Shadow Knight',
+          (achievements.match_key('Class Unlock — Paladin'), achievements.match_key('Primary Class Unlock - Paladin')))
+    db.execute("DELETE FROM guides WHERE slug='achievements'")
+    achievements._cache['stamp'] = None
+    defs, meta = achievements.load_defs()
+    kinds = {}
+    for d in defs:
+        if d.get('unlock'):
+            kinds[d['unlock']['kind']] = kinds.get(d['unlock']['kind'], 0) + 1
+    check('ach: bundled definitions load (16 races, 16 classes, 17 deities)',
+          meta['kind'] == 'bundled' and kinds == {'race': 16, 'class': 16, 'deity': 17}
+          and len({d['key'] for d in defs}) == len(defs), (meta, kinds))
+    by_name = {d['name']: d for d in defs}
+    pal = by_name.get('Class Unlock - Paladin')
+    check('ach: class unlock lists the Sky rewards',
+          pal is not None and [r['link'] for r in pal['reqs']] == ['Girdle of Faith', 'Truvinan',
+                                                                     'Aldryn, Blade of the Ocean', 'Thelvorn, Blade of Light'], pal)
+
+    row = characters.add('Ach', 'test', None, None, activate=False)
+    cid = row['id']
+    t0 = 1_800_300_000.0
+    with db.tx() as c:
+        c.executemany('INSERT INTO achievements(character_id, name, name_norm, ts) VALUES(?,?,?,?)', [
+            (cid, 'Primary Class Unlock - Paladin', 'primary class unlock - paladin', t0 + 10),
+            (cid, 'Race Unlock - Dwarf', 'race unlock - dwarf', t0 + 20),
+            (cid, 'Deity Unlock - Agnostic', 'deity unlock - agnostic', t0 + 30),
+            (cid, 'The Warrens Traveler', 'the warrens traveler', t0 + 40),
+            (cid, 'Hunter of Befallen', 'hunter of befallen', t0 + 50),
+            (cid, 'Level 20', 'level 20', t0 + 60),
+        ])
+        # a faction export: two of Dwarf's three factions at max, one of High Elf's
+        c.executemany('INSERT INTO faction_standings(character_id, faction, faction_id, value, to_max, '
+                      'imported_at) VALUES(?,?,?,?,?,?)', [
+                          (cid, 'Kazon Stormhammer', 1, 2000, 0, t0),
+                          (cid, 'Merchants of Kaladim', 2, 2000, 0, t0),
+                          (cid, 'Storm Guard', 3, 1500, 500, t0),
+                          (cid, 'Keepers of the Art', 4, 2000, 0, t0)])
+        c.execute('INSERT INTO level_history(character_id, level, ts) VALUES(?,?,?)', (cid, 27, t0))
+        c.execute("INSERT OR IGNORE INTO quests(id, name, wiki_url, parsed_ok) VALUES(59688, 'Renouncing Your Faith', "
+                  "'https://eqlwiki.com/Renouncing_Your_Faith', 1)")
+        c.execute("INSERT OR IGNORE INTO highlights(character_id, key, value_num, ts) VALUES(?, 'log_first_ts', ?, ?)",
+                  (cid, t0, t0))
+    inventory.import_bytes(cid, ('Location\tName\tID\tCount\tSlots\r\n'
+                                 'General 1\tBackpack\t17001\t1\t10\r\n'
+                                 'General 1-Slot1\tGirdle of Faith\t1\t1\t10\r\n'
+                                 'General 1-Slot2\tKey of Swords\t2\t1\t10\r\n').encode('utf-8'),
+                           source_path='ach.txt')
+
+    v = achievements.view(cid)
+    t = v['totals']
+    check('ach: totals count earned, unlocks and log-only entries',
+          t['earned'] == 6 and t['races'] == (1, 16) and t['classes'] == (1, 16) and t['deities'] == (1, 17)
+          and t['log_only'] == 2, t)
+    u = {x['name']: x for x in v['unlocks']['race']}
+    check('ach: earned race unlock ticks every requirement',
+          u['Dwarf']['earned'] and u['Dwarf']['progress'] == {'done': 3, 'known': 3, 'total': 3}, u['Dwarf'])
+    check('ach: race progress from the faction export (1 of 3 known, others unknown)',
+          not u['High Elf']['earned'] and u['High Elf']['progress']['done'] == 1
+          and u['High Elf']['progress']['known'] == 1 and u['High Elf']['progress']['total'] == 3
+          and [r['done'] for r in u['High Elf']['reqs']].count(None) == 2, u['High Elf'])
+    c_ = {x['name']: x for x in v['unlocks']['class']}
+    check('ach: class progress from Sky rewards in the dump',
+          c_['Paladin']['earned'] and c_['Bard']['progress']['known'] == 6
+          and c_['Bard']['progress']['done'] == 0, c_['Bard']['progress'])
+    d_ = {x['name']: x for x in v['unlocks']['deity']}
+    check('ach: deity unlock earned -> its quest requirement done',
+          d_['Agnostic']['earned'] and d_['Agnostic']['reqs'][0]['done'] is True, d_['Agnostic'])
+    rows = {r['name']: r for r in v['achievements']}
+    check('ach: log-only achievements are categorised',
+          rows['The Warrens Traveler']['sub'] == 'Traveler' and not rows['The Warrens Traveler']['in_wiki']
+          and rows['Hunter of Befallen']['sub'] == 'Hunter', (rows['The Warrens Traveler'], rows['Hunter of Befallen']))
+    check('ach: level milestones from level_history',
+          rows['Level 20']['earned'] and rows['Level 25']['reqs'][0]['done'] is True
+          and rows['Level 30']['reqs'][0]['done'] is False, (rows['Level 25'], rows['Level 30']))
+    keys = rows['Islands of Sky Keys']
+    check('ach: key items from the dump', [r['done'] for r in keys['reqs']][0] is True
+          and [r['done'] for r in keys['reqs']][1] is False, keys['reqs'][:2])
+    check('ach: recent sorted newest first, categories present',
+          v['recent'][0]['name'] == 'Level 20' and any(cat['name'] == 'Races' for cat in v['categories']))
+
+    # the Sky Quests class-unlock rule
+    sv = skyquests.view(cid)
+    pal_rows = {r['name']: r for r in sv['quests'] if r['cls'] == 'Paladin'}
+    check('sky: reward in the dump still wins over the unlock',
+          pal_rows['Paladin Test of Spirit']['status'] == 'done' and pal_rows['Paladin Test of Spirit']['source'] == 'auto')
+    check('sky: an unlocked class counts its other tests done, source unlocked',
+          pal_rows['Paladin Test of Compassion']['status'] == 'done'
+          and pal_rows['Paladin Test of Compassion']['source'] == 'unlocked'
+          and pal_rows['Paladin Test of Compassion']['unlocked_at'] == t0 + 10, pal_rows['Paladin Test of Compassion'])
+    check('sky: class row carries the unlock, totals count it',
+          next(cl for cl in sv['classes'] if cl['name'] == 'Paladin')['unlocked_at'] == t0 + 10
+          and sv['totals']['classes_unlocked'] == 1 and sv['totals']['unlocked'] == 3
+          and next(cl for cl in sv['classes'] if cl['name'] == 'Paladin')['done'] == 4, sv['totals'])
+    skyquests.set_done(cid, 'paladin-test-of-compassion', False)
+    sv2 = {r['key']: r for r in skyquests.view(cid)['quests']}
+    check('sky: a manual untick beats the unlock',
+          sv2['paladin-test-of-compassion']['status'] == 'open' and sv2['paladin-test-of-compassion']['source'] == 'manual')
+    skyquests.set_done(cid, 'paladin-test-of-compassion', None)
+
+    # the achievement -> quest completion override
+    qc = achievements.quest_completions(cid)
+    check('ach: deity achievement maps to its quest', qc.get(59688, {}).get('achievement') == 'Deity Unlock - Agnostic', qc)
+    lst = {q['id']: q for q in quests.list_quests(cid)}
+    check('quests: list shows the quest completed by achievement',
+          lst[59688]['status'] == 'completed' and lst[59688]['source'] == 'achievement'
+          and lst[59688]['achievement'] == 'Deity Unlock - Agnostic', lst.get(59688))
+    check('quests: hide_completed hides it', 59688 not in {q['id'] for q in quests.list_quests(cid, hide_completed=True)})
+    pv = {q['id']: q for q in quests.progress_view(cid)['quests']}
+    check('quests: progress view lists it without a tracked row',
+          pv.get(59688, {}).get('status') == 'completed' and pv[59688]['source'] == 'achievement'
+          and pv[59688]['completed_at'] == t0 + 30, pv.get(59688))
+    quests.set_status(cid, 59688, 'tracked')
+    pv2 = {q['id']: q for q in quests.progress_view(cid)['quests']}
+    check('quests: a tracked row is still overridden to completed',
+          pv2[59688]['status'] == 'completed' and pv2[59688]['source'] == 'achievement')
+    det = quests.quest_detail(cid, 59688)
+    check('quests: detail carries the override', det['status'] == 'completed' and det['source'] == 'achievement')
+    quests.set_status(cid, 59688, 'untracked')
+
+    # the achievements export: complete flags (no dates) merge with the log,
+    # per-requirement flags beat derived ones, unknown achievements are listed
+    from app import gamefiles
+    exp = ('Untapped Potential: Races\r\n'
+           'C\tRace Unlock - Gnome\r\n'
+           'C\t\tGet maximum faction with Gem Choppers.\r\n'
+           'C\t\tGet maximum faction with Eldritch Collective.\r\n'
+           'I\t\tThis achievement can be bypassed using a Race Unlock Token.\r\n'
+           'I\tRace Unlock - High Elf\r\n'
+           'I\t\tGet maximum faction with Keepers of the Art.\r\n'
+           'C\t\tGet maximum faction with Merchants of Felwithe.\r\n'
+           'I\t\tGet maximum faction with Clerics of Tunare.\r\n'
+           'Untapped Potential: Classes\r\n'
+           'C\tPrimary Class Unlock - Rogue\r\n'
+           'C\t\tObtain Thornstinger.\r\n'
+           'Slayer: Conquest\r\n'
+           "I\tDoesn't Play Well With Others\r\n"
+           'I\t\tThe playable races.\t1399/10000\r\n'
+           'EverQuest: Keys\r\n'
+           'C\tIslands of Sky Keys\r\n'
+           'C\t\tKey of Swords\r\n')
+    check('gf: achievements export name + content detection',
+          gamefiles.parse_outputfile_name('Cujef_halas-Achievements.txt')['kind'] == 'achievements'
+          and gamefiles.detect_kind('x.txt', exp) == 'achievements')
+    parsed = gamefiles.parse_achievements_export(exp)
+    check('gf: achievements export parsed (categories, flags, progress field)',
+          [a['name'] for a in parsed['achievements']] == ['Race Unlock - Gnome', 'Race Unlock - High Elf',
+                                                          'Primary Class Unlock - Rogue',
+                                                          "Doesn't Play Well With Others", 'Islands of Sky Keys']
+          and parsed['achievements'][0]['complete'] is True and parsed['achievements'][1]['complete'] is False
+          and parsed['achievements'][1]['reqs'][1]['complete'] is True
+          and parsed['achievements'][3]['reqs'][0]['progress'] == '1399/10000'
+          and parsed['achievements'][3]['group'] == 'Slayer' and parsed['achievements'][3]['sub'] == 'Conquest'
+          and len(parsed['categories']) == 4 and not parsed['skipped'], parsed)
+    r = gamefiles.import_any(cid, exp.encode('utf-8'), filename='Ach_test-Achievements.txt')
+    check('gf: achievements import replaces rows', r['kind'] == 'achievements' and r['rows'] == 5
+          and r['complete'] == 3, r)
+    v7 = achievements.view(cid)
+    u7 = {x['name']: x for x in v7['unlocks']['race']}
+    c7 = {x['name']: x for x in v7['unlocks']['class']}
+    rows7 = {r['name']: r for r in v7['achievements']}
+    check('ach: export-complete unlock counts as earned without a date',
+          u7['Gnome']['earned'] is True and u7['Gnome']['earned_at'] is None
+          and c7['Rogue']['earned'] is True and v7['totals']['export_only_earned'] >= 2
+          and v7['export']['count'] == 5 and v7['export']['complete'] == 3, (u7['Gnome'], v7['totals']))
+    check('ach: export requirement flags beat derived ones',
+          [(r['done'], r['source']) for r in u7['High Elf']['reqs']]
+          == [(False, 'export'), (True, 'export'), (False, 'export')], u7['High Elf']['reqs'])
+    check('ach: achievements the wiki lacks are listed from the export with progress text',
+          rows7["Doesn't Play Well With Others"]['in_wiki'] is False and rows7["Doesn't Play Well With Others"]['in_export']
+          and rows7["Doesn't Play Well With Others"]['sub'] == 'Conquest'
+          and rows7["Doesn't Play Well With Others"]['reqs'][0]['progress_text'] == '1399/10000', rows7.get("Doesn't Play Well With Others"))
+    sv7 = {r['key']: r for r in skyquests.view(cid)['quests']}
+    check('sky: an export-only class unlock counts the class done (no date)',
+          all(r['status'] == 'done' for r in sv7.values() if r['cls'] == 'Rogue')
+          and sv7['rogue-test-of-thievery']['source'] == 'unlocked' and sv7['rogue-test-of-thievery']['unlocked_at'] is None
+          and sv7['rogue-test-of-thievery']['unlocked'] is True, sv7['rogue-test-of-thievery'])
+    check('ach: log-earned still carries its date after the export merge',
+          rows7['Race Unlock - Dwarf']['earned_via'] == 'log' and rows7['Race Unlock - Dwarf']['earned_at'] == t0 + 20)
+
+    # no log at all: nothing earned, definitions still listed
+    row2 = characters.add('AchNone', 'test', None, None, activate=False)
+    v2 = achievements.view(row2['id'])
+    check('ach: no log -> nothing earned, list intact',
+          v2['totals']['earned'] == 0 and v2['has_log'] is False and v2['totals']['in_wiki'] == len(defs))
+    characters.remove(row2['id'])
+    characters.remove(cid)
+    check('ach: remove clears achievements + achievement_states',
+          db.query_one('SELECT COUNT(*) n FROM achievements WHERE character_id=?', (cid,))['n'] == 0
+          and db.query_one('SELECT COUNT(*) n FROM achievement_states WHERE character_id=?', (cid,))['n'] == 0)

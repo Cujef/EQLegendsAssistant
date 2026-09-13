@@ -471,6 +471,55 @@ MIGRATIONS = [
         PRIMARY KEY(character_id, quest_key)
     );
     """,
+    # v1.5: achievements from the log ("You have completed achievement: X").
+    # One row per achievement, first completion wins (INSERT OR IGNORE) — the
+    # game announces each exactly once, and a backfill replay must not move the
+    # date. name_norm is inventory.normalize_name (the wiki writes curly
+    # apostrophes and em-dashes where the log writes ASCII).
+    """
+    CREATE TABLE achievements(
+        character_id INTEGER NOT NULL REFERENCES characters(id),
+        name TEXT NOT NULL,                          -- as the log wrote it
+        name_norm TEXT NOT NULL,
+        ts REAL NOT NULL,
+        PRIMARY KEY(character_id, name_norm)
+    );
+    """,
+    # v1.5: the game's own achievement list, from /outputfile achievements
+    # (<Name>_<server>-Achievements.txt): every achievement with a complete /
+    # incomplete flag and the same per requirement — including completions
+    # from before the log began. Replace-all on import, like faction_standings.
+    # export_files is rebuilt because its kind CHECK has to admit the new file.
+    """
+    CREATE TABLE achievement_states(
+        character_id INTEGER NOT NULL REFERENCES characters(id),
+        name TEXT NOT NULL,
+        name_norm TEXT NOT NULL,
+        group_name TEXT,                             -- 'Untapped Potential'
+        sub TEXT,                                    -- 'Races'
+        complete INTEGER NOT NULL,
+        reqs_json TEXT,                              -- [{text, complete, progress}]
+        imported_at REAL NOT NULL,
+        source_path TEXT,
+        PRIMARY KEY(character_id, name_norm)
+    );
+    CREATE TABLE export_files_v2(
+        character_id INTEGER NOT NULL,
+        path_key TEXT NOT NULL,
+        path TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK(kind IN ('inventory','faction','recipes','achievements')),
+        skill TEXT,
+        mtime REAL, size INTEGER, sha256 TEXT,
+        imported_at REAL,
+        status TEXT NOT NULL CHECK(status IN ('imported','unchanged','error')),
+        error TEXT,
+        PRIMARY KEY(character_id, path_key)
+    );
+    INSERT INTO export_files_v2 SELECT character_id, path_key, path, kind, skill, mtime, size,
+        sha256, imported_at, status, error FROM export_files;
+    DROP TABLE export_files;
+    ALTER TABLE export_files_v2 RENAME TO export_files;
+    """,
 ]
 
 

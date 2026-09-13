@@ -116,7 +116,8 @@ def process_file(cid: int, f: dict, now: Optional[float] = None,
             db.execute('UPDATE characters SET inventory_path=? WHERE id=?', (f['path'], cid))
     return {**base, 'status': status, 'detail': {k: v for k, v in res.items()
                                                   if k in ('kind', 'rows', 'items', 'skill',
-                                                           'exaltations', 'skipped_count')}}
+                                                           'exaltations', 'skipped_count',
+                                                           'complete')}}
 
 
 def run_once(game_dir=None) -> dict:

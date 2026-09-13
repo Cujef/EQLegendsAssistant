@@ -144,11 +144,69 @@
         + 'these are movements since your log began.'));
   }
 
+  // ── tile: race unlocks (the factions each race unlock needs at max) ─────
+  let unlocks = null;      // /api/achievements payload's race list, fetched once per load
+  let unlocksErr = '';
+  function buildUnlocks(body) { els.unlocks = body; renderUnlocks(); }
+  function renderUnlocks() {
+    if (!els.unlocks || !els.unlocks.isConnected) return;
+    const b = els.unlocks;
+    if (!unlocks) {
+      b.replaceChildren(el('div', { class: 'empty-note' + (unlocksErr ? ' bad' : '') },
+        unlocksErr || 'Loading…'));
+      return;
+    }
+    const host = el('div', {});
+    b.replaceChildren(host);
+    renderTable(host, {
+      id: 'fx.unlocks',
+      columns: [
+        {
+          key: 'name', label: 'Race',
+          render: (r) => el('span', { class: r.earned ? 'good' : '' }, (r.earned ? '✔ ' : '') + r.name),
+        },
+        {
+          key: 'progress', label: 'Factions at max',
+          render: (r) => el('span', {}, r.reqs.map((q) => el('span', {
+            class: q.done === true ? 'good' : q.done === false ? 'muted' : 'faint',
+            style: 'display:inline-block;margin-right:10px',
+            title: q.done === null ? 'no standing known for this faction yet' : q.text,
+          }, (q.done === true ? '✔ ' : q.done === false ? '✘ ' : '· ') + (q.link || q.text)))),
+          sortVal: (r) => (r.earned ? 99 : r.progress.known ? r.progress.done / r.progress.known : -1),
+        },
+        {
+          key: 'earned_at', label: 'Unlocked', num: true,
+          render: (r) => r.earned ? dateCell(r.earned_at)
+            : r.progress.known ? el('span', { class: r.progress.done === r.progress.known ? 'warn' : 'faint' },
+              `${r.progress.done}/${r.progress.known}`) : el('span', { class: 'faint' }, '—'),
+        },
+      ],
+      rows: unlocks,
+      defaultSort: { key: 'progress', dir: -1 },
+      empty: 'No race-unlock definitions (run a Data Sync).',
+    });
+    b.append(el('div', { class: 'faint', style: 'margin-top:8px;font-size:11px;line-height:1.5' },
+      'From the wiki\'s achievement list: a race unlocks when every listed faction is at maximum. '
+      + '✔ from your faction export or a log "could not get any better" notice; unlocked dates come '
+      + 'from "You have completed achievement" lines in the log (the race you created as is auto-unlocked).'));
+  }
+  async function reloadUnlocks() {
+    unlocks = null; unlocksErr = '';
+    renderUnlocks();
+    try {
+      unlocks = (await API.get('/api/achievements' + App.q())).unlocks.race;
+    } catch (e) {
+      unlocksErr = e.message;
+    }
+    renderUnlocks();
+  }
+
   // ── tile registry ───────────────────────────────────────────────────────
   const DEFS = [
     { id: 'standing', title: 'Standing Changes', span: 8, height: 480, minSpan: 4, build: buildStanding },
     { id: 'summary',  title: 'Summary',          span: 4, height: 230, minSpan: 3, build: buildSummary },
     { id: 'recent',   title: 'Recent Changes',   span: 4, height: 250, minSpan: 3, build: buildRecent },
+    { id: 'unlocks',  title: 'Race Unlocks',     span: 8, height: 420, minSpan: 4, build: buildUnlocks },
   ];
 
   function renderAll() { renderStanding(); renderSummary(); renderRecent(); }
@@ -166,6 +224,7 @@
       error = e.message;
     }
     renderAll();
+    reloadUnlocks();
   }
 
   Pages.register({

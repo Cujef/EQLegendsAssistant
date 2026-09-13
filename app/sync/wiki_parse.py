@@ -633,3 +633,109 @@ def parse_generic_guide(wikitext: str) -> Dict[str, Any]:
         if rows or items:
             out_sections.append(sec)
     return {'sections': out_sections}
+
+
+# ── achievements (Category:Achievements) ─────────────────────────────────────
+# The category page IS the achievement list: nested `{| class="eoTable2
+# mw-collapsible"` tables. A group table (Untapped Potential > Races) holds
+# child tables; a leaf table is one achievement — its header row carries
+# `title="Expand or collapse <Name>"` (ASCII hyphen, unlike the display div's
+# em-dash) and a "<N> Points" div, its body a bold description line, a bold
+# 'Requirements' label and <li> items (☐ checkboxes), plus notes about
+# auto-completion at character creation and unlock tokens.
+
+RE_ACH_OPEN = re.compile(r'^\{\|([^\n]*)$', re.M)
+RE_ACH_CLOSE = re.compile(r'^\|\}\s*$', re.M)
+RE_ACH_TITLE = re.compile(r'title="Expand or collapse ([^"]+)"')
+RE_ACH_ID = re.compile(r'\bid="([^"]+)"')
+RE_ACH_POINTS = re.compile(r'(\d+)\s*Points?\b')
+RE_ACH_LI = re.compile(r'<li[^>]*>(.*?)</li>', re.S)
+RE_ACH_UNLOCK = re.compile(r'^(?:Primary\s+)?(Race|Class|Deity)\s+Unlock\s*[-—–]\s*(.+)$', re.I)
+RE_ACH_NOTE = re.compile(r'autocomplete|bypassed|unlock token', re.I)
+
+
+def ach_key(name: str) -> str:
+    """Slug used as the stable achievement key (matches the wiki's table ids
+    for most entries, e.g. 'race_unlock_-_dwarf' -> 'race-unlock-dwarf')."""
+    s = str(name or '').replace('—', '-').replace('–', '-').lower()
+    return re.sub(r'[^a-z0-9]+', '-', s).strip('-')
+
+
+def _ach_clean(s: str) -> str:
+    return strip_markup(str(s or '').replace('☐', '').replace('&nbsp;', ' '))
+
+
+def parse_achievements(wikitext: str) -> List[Dict[str, Any]]:
+    """[{key, name, group, sub, points, desc, reqs:[{text, link}], notes,
+    unlock:{kind, name}|None}] in page order. Empty on unrelated text."""
+    text = wikitext or ''
+    cut = re.search(r'^==\s*Template\s*==\s*$', text, re.M)   # the page's copy template
+    if cut:
+        text = text[:cut.start()]
+    events = sorted([(m.start(), 'open', m) for m in RE_ACH_OPEN.finditer(text)]
+                    + [(m.start(), 'close', m) for m in RE_ACH_CLOSE.finditer(text)],
+                    key=lambda e: e[0])
+    out: List[Dict[str, Any]] = []
+    stack: List[Dict[str, Any]] = []
+    for i, (pos, kind, m) in enumerate(events):
+        if kind == 'open':
+            nxt = events[i + 1][0] if i + 1 < len(events) else len(text)
+            head = text[m.end():nxt]
+            tm = RE_ACH_TITLE.search(head)
+            idm = RE_ACH_ID.search(m.group(1))
+            if stack:
+                stack[-1]['children'] += 1
+            stack.append({'start': m.end(), 'title': tm.group(1).strip() if tm else None,
+                          'id': idm.group(1) if idm else None, 'children': 0})
+            continue
+        if not stack:
+            continue
+        frame = stack.pop()
+        if frame['children'] or not frame['title']:
+            continue
+        body = text[frame['start']:pos]
+        row = body.find('\n|-')
+        desc_body = body[row:] if row >= 0 else body
+        pts = RE_ACH_POINTS.search(body)
+        reqs, notes = [], []
+        # requirements come first; everything under the '''Notes''' label is a
+        # note. Without that label, token / auto-complete sentences are notes.
+        nsplit = re.search(r"'''\s*Notes\s*'''", desc_body)
+        req_part = desc_body[:nsplit.start()] if nsplit else desc_body
+        note_part = desc_body[nsplit.end():] if nsplit else ''
+        for li in RE_ACH_LI.findall(req_part):
+            lm = RE_LINK.search(li)
+            txt = _ach_clean(li)
+            if not txt:
+                continue
+            if not nsplit and RE_ACH_NOTE.search(txt):
+                notes.append(txt)
+            else:
+                reqs.append({'text': txt, 'link': lm.group(1).strip() if lm else None})
+        for li in RE_ACH_LI.findall(note_part):
+            txt = _ach_clean(li)
+            if txt:
+                notes.append(txt)
+        desc = ''
+        for line in desc_body.split('\n'):
+            s = line.strip()
+            if s.startswith("'''") and 'Requirements' not in s:
+                desc = _ach_clean(s)
+                break
+        name = frame['title']
+        um = RE_ACH_UNLOCK.match(name)
+        groups = [f['title'] for f in stack if f['title']]
+        if not pts and not reqs:
+            continue                      # the page's own template rows
+        out.append({
+            'key': ach_key(name),
+            'name': name,
+            'group': groups[0] if groups else '',
+            'sub': groups[-1] if len(groups) > 1 else (groups[0] if groups else ''),
+            'points': int(pts.group(1)) if pts else None,
+            'desc': desc if desc and desc != name else '',
+            'reqs': reqs,
+            'notes': notes,
+            'unlock': ({'kind': um.group(1).lower(), 'name': um.group(2).strip()} if um else None),
+        })
+    return out

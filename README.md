@@ -115,7 +115,8 @@ Each page remembers its own arrangement and lock state.
 | Inventory | The parsed dump: worn/bags/bank/depot, exaltations, open aug sockets, bag & bank space (nested bags included), the +N upgrade ladder with merge history from the log, the trailing keyring lists, and a loot history with "where did … drop?" search |
 | Quest Progress | Tracked quests with per-step checklists |
 | Quest Ideas | The synced quest index — filter by class/race/level/completed |
-| Sky Quests | Every Plane of Sky class test for all 16 classes: which wind rune and island drops each needs vs what your imported inventory holds, per-class and overall completion, a "turn in now" count that respects runes shared between tests, and a manual done / not-done tick per test |
+| Sky Quests | Every Plane of Sky class test for all 16 classes: which wind rune and island drops each needs vs what your imported inventory holds, per-class and overall completion, a "turn in now" count that respects runes shared between tests, a manual done / not-done tick per test, and the class-unlock achievements from your log |
+| Achievements | Everything the log says you earned ("You have completed achievement: …") joined to the wiki's achievement list: race, class and deity unlocks with per-requirement progress (faction maxima, Sky rewards, quests, levels, keys), points, categories, recently earned, and the log-only ones the wiki does not list |
 | Parser | Current session (XP, coin, kills, damage, accuracy and more, with per-hour rates), session history, compact live combat tiles (drag/resize/lock), import and backfill progress |
 | Exaltations | Every effect you own, where it's socketed, where it could move |
 | What to do? | Quests your inventory items unlock, where to hunt at your level (ZEM guide), and where you actually leveled: active hours, XP and kills per hour per zone from your log |
@@ -147,6 +148,21 @@ Each page remembers its own arrangement and lock state.
   `(3-Gorga)`-style tags are the wiki's island / boss labels, not verified drop
   data. The test list is parsed from the synced wiki page, falling back to the
   snapshot in `app/data/sky_quests.json` (`tools/gen_sky_quests.py` refreshes it).
+- Wind Runes in the currency tab are invisible to the inventory export (no
+  `/outputfile` target reads that tab), so Sky Quests **estimates** them from the
+  log — looted minus one per test marked done — and marks the number `≈`. The
+  dump wins when it does hold copies; destroyed runes and runes looted before
+  the log began are not counted.
+- Achievements come from the log ("You have completed achievement: …", dated)
+  and from `/outputfile achievements` (complete / incomplete flags, no dates,
+  but it knows completions from before the log began). A `Primary Class
+  Unlock` in either counts every Sky test of that class **done**
+  (labelled *unlocked*, never *auto*), and a deity unlock marks its quest
+  completed (labelled *achievement*). Unlocks auto-complete for what you chose
+  at character creation and can be bought with tokens, so an unlock is the
+  game's verdict, not proof of the work; untick by hand if it misleads.
+  Definitions come from the wiki's achievement list (`app/data/achievements.json`
+  is the bundled fallback; `tools/gen_achievements.py` refreshes it).
 - A zone's **active time** is the sum of gaps of at most 30 minutes between your
   own zone / XP / kill / loot lines — not wall-clock time in the zone. The ZEM
   guide on the wiki publishes ratings, not numbers, so that is what is shown.

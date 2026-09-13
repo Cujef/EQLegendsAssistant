@@ -65,6 +65,9 @@ GUIDES = [
     ('Character_Classes', 'character_classes', 'reference'),
     ('Character_Races', 'character_races', 'reference'),
     ('Alternate_Advancement', 'alternate_advancement', 'reference'),
+    # the category page IS the achievement list (nested collapsible tables);
+    # parsed by wiki_parse.parse_achievements, consumed by app/achievements.py
+    ('Category:Achievements', 'achievements', 'reference'),
 ]
 
 # effect categories -> effects.effect_type rows (names only; no page fetches)
@@ -364,6 +367,9 @@ def _upsert_guide(c, unit, wikitext, url, fetched_at):
                 "VALUES(?,?,?,'wiki',?)",
                 [(cap['stat'], cap['level'], cap['cap'], fetched_at)
                  for cap in st['caps']])
+    elif slug == 'achievements':
+        a = wp.parse_achievements(wikitext)
+        parsed_json, parsed_ok = {'achievements': a}, 1 if len(a) >= 50 else 0
     else:
         g = wp.parse_generic_guide(wikitext)
         parsed_json, parsed_ok = g, 1 if g['sections'] else 0
