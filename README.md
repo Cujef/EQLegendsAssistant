@@ -115,6 +115,7 @@ Each page remembers its own arrangement and lock state.
 | Inventory | The parsed dump: worn/bags/bank/depot, exaltations, open aug sockets, bag & bank space (nested bags included), the +N upgrade ladder with merge history from the log, the trailing keyring lists, and a loot history with "where did … drop?" search |
 | Quest Progress | Tracked quests with per-step checklists |
 | Quest Ideas | The synced quest index — filter by class/race/level/completed |
+| Sky Quests | Every Plane of Sky class test for all 16 classes: which wind rune and island drops each needs vs what your imported inventory holds, per-class and overall completion, a "turn in now" count that respects runes shared between tests, and a manual done / not-done tick per test |
 | Parser | Current session (XP, coin, kills, damage, accuracy and more, with per-hour rates), session history, compact live combat tiles (drag/resize/lock), import and backfill progress |
 | Exaltations | Every effect you own, where it's socketed, where it could move |
 | What to do? | Quests your inventory items unlock, where to hunt at your level (ZEM guide), and where you actually leveled: active hours, XP and kills per hour per zone from your log |
@@ -138,6 +139,14 @@ Each page remembers its own arrangement and lock state.
 - Faction standing bands (Ally, Warmly, … Ready to Attack) are EverQuest's
   published thresholds, **assumed** for EQ Legends; "Est. now" is the imported
   value plus the log's movement since the import.
+- A Sky Quests test counts as **done** when its reward is in the dump (`+N`
+  and Exaltation copies included — the reward is no-drop, so a copy proves the
+  hand-in); a reward you sold or destroyed needs the manual tick, and a manual
+  tick beats the dump either way. Turn-in ticks count tradeable copies only
+  (`+N` too), never Exaltation copies or the trailing keyring lists. The
+  `(3-Gorga)`-style tags are the wiki's island / boss labels, not verified drop
+  data. The test list is parsed from the synced wiki page, falling back to the
+  snapshot in `app/data/sky_quests.json` (`tools/gen_sky_quests.py` refreshes it).
 - A zone's **active time** is the sum of gaps of at most 30 minutes between your
   own zone / XP / kill / loot lines — not wall-clock time in the zone. The ZEM
   guide on the wiki publishes ratings, not numbers, so that is what is shown.

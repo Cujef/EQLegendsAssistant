@@ -458,6 +458,19 @@ MIGRATIONS = [
     );
     CREATE INDEX idx_sessions_char_last ON sessions(character_id, last_ts);
     """,
+    # v1.4: Plane of Sky class-test progress (app/skyquests.py). MANUAL marks
+    # only — the effective status is derived at read time (the test's reward
+    # sitting in the inventory dump = done), so a row here is an override in
+    # either direction. Keyed by the slug of the wiki quest name.
+    """
+    CREATE TABLE sky_quest_progress(
+        character_id INTEGER NOT NULL REFERENCES characters(id),
+        quest_key TEXT NOT NULL,                     -- 'paladin-test-of-spirit'
+        done INTEGER NOT NULL,                       -- 1 = marked done, 0 = marked NOT done
+        marked_at REAL NOT NULL,
+        PRIMARY KEY(character_id, quest_key)
+    );
+    """,
 ]
 
 

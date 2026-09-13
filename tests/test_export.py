@@ -25,7 +25,7 @@ def run(check):
     check('csv: every view names columns as (key, label) pairs',
           all(isinstance(c, tuple) and len(c) == 2 for cols_, _ in export.VIEWS.values() for c in cols_)
           and {'inventory', 'recipes', 'materials', 'known_recipes', 'factions', 'fights', 'merges',
-               'loot', 'zones'} <= set(export.VIEWS))
+               'loot', 'zones', 'skyquests'} <= set(export.VIEWS))
     try:
         export.rows('nope', 1)
         check('csv: unknown view raises KeyError', False)

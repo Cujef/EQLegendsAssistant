@@ -286,6 +286,7 @@ def run(check):
     _inventory_view(check, db)
     _gamefiles(check, db)
     _zones_and_loot(check, db)
+    _skyquests(check, db)
 
 
 def _zones_and_loot(check, db):
@@ -657,3 +658,257 @@ def _inventory_view(check, db):
     check('invview: ensure_current tolerates a missing file',
           inventory.ensure_current(cid)['parse_rev'] == 3)
     characters.remove(cid)
+
+
+# Trimmed to the live shape of https://eqlwiki.com/Plane_of_Sky: a decoy row
+# after the section's end heading, a bare-number source tag, a piped link with
+# parentheses INSIDE the link, and a no-drop wrapper.
+SKY_FIXTURE = """== Plane of Sky ==
+intro text
+
+== Plane of Sky Class Quests ==
+These are the various class quests.
+
+=== Quest Givers ===
+find the '''[[Key Master]]''' and buy an [[Efreeti's Key]].
+
+=== [[Paladin]] Tests ===
+
+'''Quest Giver:''' [[Dason Goldblade]]
+
+{| class="eoTable3"
+|-
+! Reward || Quest || Trigger Phrases || Rune || Quest Items
+|-
+| {{:Girdle of Faith}}
+| Paladin Test of Spirit
+| spirit
+| <div class="checkbox-list eql-sky-table-checklist" style="margin:0; padding:0;">
+<ul style="margin:0; padding-left:0;">
+<li>[[Wind Rune Lena]]</li>
+</ul>
+</div>
+| <div class="checkbox-list eql-sky-table-checklist" style="margin:0; padding:0;">
+<ul style="margin:0; padding-left:0;">
+<li>'''{{SkyNoDrop|[[Ivory Sky Diamond]]}}''' (5-SL)</li>
+<li>[[Efreeti Zweihander]]</li>
+</ul>
+</div>
+|-
+| {{:Griffon Wing Spauldors}}
+| Paladin Test of Love
+| love
+| <div class="checkbox-list"><ul>
+<li>[[Wind Rune Lena]]</li>
+</ul></div>
+| <div class="checkbox-list"><ul>
+<li>'''{{SkyNoDrop|[[Bixie Essence]]}}''' (6)</li>
+</ul></div>
+|}
+
+=== [[Rogue]] Tests ===
+'''Quest Giver:''' [[Thalik Silenthand]]
+
+{| class="eoTable3"
+|-
+! Reward || Quest || Trigger Phrases || Rune || Quest Items
+|-
+| {{:Thornstinger}}
+| Rogue Test of Deception
+| deception
+| <div class="checkbox-list"><ul>
+<li>[[Wind Rune Jaka]]</li>
+</ul></div>
+| <div class="checkbox-list"><ul>
+<li>'''{{SkyNoDrop|[[Bixie Stinger (Bixie God's Stinger)|Bixie Stinger]]}}''' (6-BZ)</li>
+<li>'''{{SkyNoDrop|[[Bloodsky Sapphire]]}}''' (8-EoV)</li>
+</ul></div>
+|}
+
+= Random Drop Items =
+== Haste Belts ==
+{| class="eoTable3"
+|-
+| {{:Not A Quest}}
+| Decoy Test of Nothing
+| nothing
+| <li>[[Wind Rune Fake]]</li>
+| <li>[[Fake Item]]</li>
+|}
+"""
+
+
+def _skyquests(check, db):
+    """Parser on the fixture, the bundled fallback, then a real dump through
+    import_bytes read back through view()/set_done()."""
+    from app import characters, inventory, skyquests, stats
+    from app.quests import CLASSES
+
+    qs = skyquests.parse_wikitext(SKY_FIXTURE)
+    check('sky: parse count/classes (decoy after the section ignored)',
+          [q['cls'] for q in qs] == ['Paladin', 'Paladin', 'Rogue'], [q['name'] for q in qs])
+    check('sky: keys are name slugs, order is wiki order',
+          [q['key'] for q in qs] == ['paladin-test-of-spirit', 'paladin-test-of-love',
+                                     'rogue-test-of-deception']
+          and [q['order'] for q in qs] == [0, 1, 2], qs and [q['key'] for q in qs])
+    sp = qs[0] if qs else {}
+    check('sky: giver / reward / phrase', sp.get('giver') == 'Dason Goldblade'
+          and sp.get('reward', {}).get('name') == 'Girdle of Faith' and sp.get('phrase') == 'spirit', sp)
+    check('sky: one rune, items with src + no_drop',
+          [r['name'] for r in sp.get('runes', [])] == ['Wind Rune Lena']
+          and [(i['name'], i['src'], i['no_drop']) for i in sp.get('items', [])]
+          == [('Ivory Sky Diamond', '5-SL', True), ('Efreeti Zweihander', None, False)], sp.get('items'))
+    check('sky: bare numeric src tag', len(qs) > 1 and qs[1]['items'][0]['src'] == '6', qs[1:2])
+    bx = qs[2]['items'][0] if len(qs) > 2 else {}
+    check('sky: piped link keeps the target, aliases both spellings',
+          bx.get('name') == "Bixie Stinger (Bixie God's Stinger)" and bx.get('display') == 'Bixie Stinger'
+          and bx.get('name_norms') == ['bixie stinger (bixie gods stinger)', 'bixie stinger']
+          and bx.get('src') == '6-BZ' and bx.get('no_drop') is True, bx)
+    check('sky: unrelated text parses to nothing', skyquests.parse_wikitext('== Foo ==\nbar\n') == [])
+    check('sky: fixture is rejected as a full list', skyquests.valid(qs) is False)
+
+    # bundled fallback: the scratch DB has no synced page
+    db.execute('DELETE FROM raw_pages WHERE url=?', (skyquests.PAGE_URL,))
+    skyquests._cache['stamp'] = None
+    full, meta = skyquests.load_quests()
+    keys = [q['key'] for q in full]
+    check('sky: bundled list loads with no synced page', meta['kind'] == 'bundled'
+          and meta['warning'] is None and len(full) >= skyquests.MIN_QUESTS, meta)
+    check('sky: bundled list covers the 16 classes, unique keys, 1 rune + 1-3 items each',
+          {q['cls'] for q in full} == set(CLASSES) and len(set(keys)) == len(keys)
+          and all(len(q['runes']) == 1 and 1 <= len(q['items']) <= 3 for q in full))
+    with db.tx() as c:
+        c.execute('INSERT OR REPLACE INTO raw_pages(url, content, fetched_at) VALUES(?,?,?)',
+                  (skyquests.PAGE_URL, SKY_FIXTURE, 1.0))
+    skyquests._cache['stamp'] = None
+    full2, meta2 = skyquests.load_quests()
+    check('sky: a broken synced page falls back to bundled with a warning',
+          meta2['kind'] == 'bundled' and '3 tests' in (meta2['warning'] or '') and len(full2) == len(full),
+          meta2)
+    db.execute('DELETE FROM raw_pages WHERE url=?', (skyquests.PAGE_URL,))
+    skyquests._cache['stamp'] = None
+
+    by_key = {q['key']: q for q in full}
+    spirit = by_key.get('paladin-test-of-spirit')
+    decep = by_key.get('rogue-test-of-deception')
+    comp = by_key.get('paladin-test-of-compassion')
+    check('sky: the bundled list has the three tests the checks below lean on',
+          spirit is not None and decep is not None and comp is not None
+          and spirit['reward']['name'] == 'Girdle of Faith' and decep['reward']['name'] == 'Thornstinger'
+          and len(comp['items']) >= 2 and len(decep['items']) >= 2, (spirit, decep, comp))
+    if not (spirit and decep and comp):
+        return
+
+    # a rune shared by other open tests, plus every item one of those needs
+    rune_norm = spirit['runes'][0]['name_norm']
+    sharers = [q for q in full if q['runes'][0]['name_norm'] == rune_norm
+               and q['key'] not in ('paladin-test-of-spirit', 'rogue-test-of-deception')]
+    other = sharers[0]
+    spear_q = next((q for q in full if any('efreeti war spear' in it['name_norms'] for it in q['items'])), None)
+    lines = ['Location\tName\tID\tCount\tSlots',
+             'General 1\tBackpack\t17001\t1\t10',
+             'General 1-Slot1\tGirdle of Faith\t1\t1\t10',                      # base reward -> auto done
+             'Fingers\tRing of Test\t2\t1\t10',
+             'Fingers-Slot7\tThornstinger (Exaltation)\t3\t1\t10',             # exaltation copy of a reward
+             'Primary\t' + comp['items'][1]['name'] + ' +3\t4\t1\t10',         # +N-only turn-in copy
+             'General 1-Slot2\t' + decep['items'][-1]['name'] + ' (Exaltation)\t5\t1\t10',  # exaltation turn-in
+             'General 1-Slot3\t' + spirit['runes'][0]['name'] + '\t6\t1\t10',  # one shared rune
+             ]
+    for it in other['items']:
+        lines.append('General 1-Slot4\t' + it['name'] + '\t7\t1\t10')
+    lines.append('General 1-Slot5\t' + spirit['items'][0]['name'] + '\t8\t1\t10')
+    tail = ['', 'KeyRing\tName\tID\t', 'Equipment\tEfreeti War Spear\t9']      # trailing list: never a turn-in
+    text = '\r\n'.join(lines + tail) + '\r\n'
+    row = characters.add('Sky', 'test', None, None, activate=False)
+    cid = row['id']
+    inventory.import_bytes(cid, text.encode('utf-8'), source_path='sky.txt')
+    v = skyquests.view(cid)
+    rows = {r['key']: r for r in v['quests']}
+    sp, dp, ot = rows['paladin-test-of-spirit'], rows['rogue-test-of-deception'], rows[other['key']]
+    check('sky: base reward in the dump -> done / auto / evidence base',
+          sp['status'] == 'done' and sp['source'] == 'auto' and sp['reward']['evidence'] == 'base', sp['reward'])
+    check('sky: an Exaltation copy of a reward still proves the hand-in',
+          dp['status'] == 'done' and dp['reward']['evidence'] == 'exaltation', dp['reward'])
+    need = {n['name_norm']: n for n in rows['paladin-test-of-compassion']['needs']}
+    zwe = need[comp['items'][1]['name_norms'][0]]
+    check('sky: a +N-only turn-in copy counts, flagged upgraded_only',
+          zwe['ok'] is True and zwe['have'] == 1 and zwe['have_base'] == 0 and zwe['have_upgraded'] == 1
+          and zwe['upgraded_only'] is True, zwe)
+    dneed = {n['name_norm']: n for n in dp['needs']}
+    sap = dneed[decep['items'][-1]['name_norms'][0]]
+    check('sky: an Exaltation copy never satisfies a turn-in', sap['have'] == 0 and sap['ok'] is False, sap)
+    if spear_q:
+        sq = rows[spear_q['key']]
+        spear = next(n for n in sq['needs'] if n['name_norm'] == 'efreeti war spear')
+        check('sky: the trailing Equipment list never satisfies a turn-in', spear['have'] == 0, spear)
+    rune = next(r for r in v['runes'] if r['name_norm'] == rune_norm)
+    open_lena = sum(1 for r in v['quests'] if r['status'] == 'open'
+                    and any(n['name_norm'] == rune_norm for n in r['needs']))
+    check('sky: rune supply vs open demand', rune['supply'] == 1 and rune['demand_open'] == open_lena
+          and rune['short'] == open_lena - 1 and open_lena >= 1, rune)
+    on = next(n for n in ot['needs'] if n['name_norm'] == rune_norm)
+    check('sky: the test with the rune and its items is ready + covered, rune flagged shared',
+          ot['ready'] is True and ot['covered'] is True and on['ok'] is True
+          and on['contended'] is (open_lena > 1), (ot['ready'], ot['covered'], on))
+    check('sky: totals ready/covered', v['totals']['ready'] == 1 and v['totals']['covered'] == 1
+          and v['totals']['done'] == 2 and v['totals']['total'] == len(full), v['totals'])
+    # a second test sharing the same rune: both ready, only one covered, pinning decides which
+    if len(sharers) > 1:
+        second = sharers[1]
+        lines2 = lines + ['General 1-Slot6\t' + it['name'] + '\t10\t1\t10' for it in second['items']]
+        inventory.import_bytes(cid, ('\r\n'.join(lines2 + tail) + '\r\n').encode('utf-8'),
+                               source_path='sky2.txt')
+        v2 = skyquests.view(cid)
+        r2 = {r['key']: r for r in v2['quests']}
+        a, b = r2[other['key']], r2[second['key']]
+        check('sky: two ready tests, one rune -> exactly one covered',
+              a['ready'] and b['ready'] and (a['covered'] != b['covered'])
+              and v2['totals']['ready'] == 2 and v2['totals']['covered'] == 1, (a['covered'], b['covered']))
+        stats.set_manual(cid, 'class1', second['cls'])
+        v3 = skyquests.view(cid)
+        r3 = {r['key']: r for r in v3['quests']}
+        check('sky: pinned class wins the shared rune',
+              r3[second['key']]['covered'] is True and r3[second['key']]['pinned'] is True
+              and v3['pinned_classes'] == [second['cls']]
+              and v3['classes'][0]['name'] == second['cls'] and v3['classes'][0]['pinned'] is True,
+              (v3['pinned_classes'], v3['classes'][0]))
+        stats.set_manual(cid, 'class1', '')
+    # manual marks
+    skyquests.set_done(cid, 'paladin-test-of-love', True)
+    skyquests.set_done(cid, 'paladin-test-of-spirit', False)
+    v4 = {r['key']: r for r in skyquests.view(cid)['quests']}
+    check('sky: manual done', v4['paladin-test-of-love']['status'] == 'done'
+          and v4['paladin-test-of-love']['source'] == 'manual' and v4['paladin-test-of-love']['manual']['done'] == 1)
+    check('sky: manual NOT-done beats the dump', v4['paladin-test-of-spirit']['status'] == 'open'
+          and v4['paladin-test-of-spirit']['source'] == 'manual' and v4['paladin-test-of-spirit']['auto_done'] is True)
+    skyquests.set_done(cid, 'paladin-test-of-spirit', None)
+    v5 = skyquests.view(cid)
+    v5q = {r['key']: r for r in v5['quests']}
+    check('sky: clearing the mark returns to auto', v5q['paladin-test-of-spirit']['source'] == 'auto'
+          and v5q['paladin-test-of-spirit']['status'] == 'done')
+    try:
+        skyquests.set_done(cid, 'not-a-test', True)
+        check('sky: unknown key raises KeyError', False)
+    except KeyError:
+        check('sky: unknown key raises KeyError', True)
+    pal = next(c for c in v5['classes'] if c['name'] == 'Paladin')
+    pal_total = sum(1 for q in full if q['cls'] == 'Paladin')
+    check('sky: per-class pct', pal['total'] == pal_total and pal['done'] == 2
+          and pal['pct'] == round(200.0 / pal_total, 1), pal)
+    check('sky: totals pct + 16 classes in order when nothing is pinned',
+          v5['totals']['pct'] == round(100.0 * v5['totals']['done'] / len(full), 1)
+          and [c['name'] for c in v5['classes']] == CLASSES and v5['totals']['manual'] == 1, v5['totals'])
+    # no snapshot at all
+    row2 = characters.add('SkyNone', 'test', None, None, activate=False)
+    v6 = skyquests.view(row2['id'])
+    check('sky: no dump -> snapshot null, nothing owned, nothing auto',
+          v6['snapshot'] is None and v6['totals']['done'] == 0 and v6['totals']['ready'] == 0
+          and all(n['have'] == 0 for r in v6['quests'] for n in r['needs']))
+    skyquests.set_done(row2['id'], 'paladin-test-of-love', True)
+    check('sky: manual marks work without a dump',
+          skyquests.view(row2['id'])['totals']['done'] == 1)
+    characters.remove(row2['id'])
+    characters.remove(cid)
+    check('sky: remove clears sky_quest_progress',
+          db.query_one('SELECT COUNT(*) n FROM sky_quest_progress WHERE character_id IN (?,?)',
+                       (cid, row2['id']))['n'] == 0)

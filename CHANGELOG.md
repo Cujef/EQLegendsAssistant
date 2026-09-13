@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-12
+
+One new page: the Plane of Sky class tests, read against your inventory.
+
+### Added
+
+- **Sky Quests page.** Every Plane of Sky class test for all 16 classes in one
+  table, parsed from the synced wiki page (`Plane of Sky`) with a bundled
+  fallback for fresh installs. Each test shows its wind rune and island drops
+  ticked against your imported inventory dump (tradeable copies count, `+N`
+  included; Exaltation copies and the keyring lists never do), the reward, the
+  quest giver and the hail keyword. A test is marked done automatically when
+  its reward is anywhere in the dump, or by hand with a tick that beats the
+  dump either way (↺ clears it). The overview shows overall and per-class
+  completion, a "turn in now" count that allocates runes shared between open
+  tests once (your own classes from the Overview page first), and how many of
+  each wind rune you are short. Class filter, "My classes", hide-completed,
+  search, CSV/JSON export. `GET /api/skyquests`,
+  `POST /api/skyquests/{key}/done`, export view `skyquests`,
+  `tools/gen_sky_quests.py`.
+
+### Fixed
+
+- `.gitignore` ignored every directory named `data`, not just the one at the
+  repo root; anchored so bundled data under `app/` can ship.
+
 ## [1.3.0] - 2026-09-05
 
 Your play sessions become a first-class thing the app remembers, and two log
@@ -257,7 +283,8 @@ databases, and never writes to the game.
   on neither community site, `+N` upgrade stat scaling is in no item database,
   and exaltation transfer rules are assumed until confirmed.
 
-[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.0.0...v1.1.0

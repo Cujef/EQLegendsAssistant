@@ -100,7 +100,27 @@ def run(check):
     check('api: every export view renders for this character',
           all(client.get(f'/api/export/{v}{q}').status_code == 200
               for v in ('inventory', 'merges', 'recipes', 'materials', 'known_recipes', 'factions',
-                        'fights', 'loot', 'zones')))
+                        'fights', 'loot', 'zones', 'skyquests')))
+
+    # sky quests
+    r = client.get('/api/skyquests' + q)
+    j = r.json()
+    check('api: skyquests view shape', r.status_code == 200 and j['totals']['total'] >= 60
+          and len(j['classes']) == 16 and j['source']['kind'] in ('wiki', 'bundled')
+          and 'auto' in j['notes'], (r.status_code, j.get('totals')))
+    key = j['quests'][0]['key']
+    r = client.post(f'/api/skyquests/{key}/done' + q, json={'done': True})
+    st = next(x for x in client.get('/api/skyquests' + q).json()['quests'] if x['key'] == key)
+    check('api: skyquest manual done persists', r.status_code == 200 and st['status'] == 'done'
+          and st['source'] == 'manual', (r.text[:100], st['status'], st['source']))
+    check('api: skyquest bad body -> 422',
+          client.post(f'/api/skyquests/{key}/done' + q, json={'done': 'yes'}).status_code == 422)
+    check('api: skyquest unknown key -> 404',
+          client.post('/api/skyquests/nope/done' + q, json={'done': True}).status_code == 404)
+    r = client.post(f'/api/skyquests/{key}/done' + q, json={'done': None})
+    st = next(x for x in client.get('/api/skyquests' + q).json()['quests'] if x['key'] == key)
+    check('api: skyquest clearing the mark returns to the dump verdict',
+          r.status_code == 200 and st['source'] != 'manual', st['source'])
     check('api: unknown export view -> 404', client.get('/api/export/nope' + q).status_code == 404)
     check('api: bad export fmt -> 422', client.get('/api/export/zones' + q + '&fmt=xml').status_code == 422)
 

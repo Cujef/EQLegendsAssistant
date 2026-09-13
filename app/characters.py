@@ -173,7 +173,7 @@ _CHAR_TABLES = ('manual_stats', 'quest_progress', 'quest_step_progress', 'skill_
                 'log_source', 'craft_events', 'craft_caps', 'craft_recipe_skill',
                 'depot_events', 'faction_events', 'faction_caps', 'upgrade_events',
                 'faction_standings', 'known_recipes', 'export_files', 'zone_stats',
-                'zone_events', 'loot_events', 'sessions')
+                'zone_events', 'loot_events', 'sessions', 'sky_quest_progress')
 
 
 def remove(char_id: int) -> None:

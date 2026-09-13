@@ -11,7 +11,7 @@ import io
 import time
 from typing import Callable, Dict, List, Tuple
 
-from . import db, factions, inventory, sessions, tradeskills, zones
+from . import db, factions, inventory, sessions, skyquests, tradeskills, zones
 
 Columns = List[Tuple[str, str]]
 
@@ -60,6 +60,22 @@ def _factions(cid: int) -> list:
     return factions.view(cid)['factions']
 
 
+def _skyquests(cid: int) -> list:
+    out = []
+    for q in skyquests.view(cid)['quests']:
+        rune = next((n for n in q['needs'] if n['kind'] == 'rune'), None)
+        items = [n for n in q['needs'] if n['kind'] == 'item']
+        out.append({
+            'cls': q['cls'], 'name': q['name'], 'status': q['status'], 'source': q['source'],
+            'reward': q['reward']['name'], 'reward_owned': q['reward']['evidence'] or '',
+            'rune': rune['name'] if rune else '', 'rune_have': rune['have'] if rune else 0,
+            'items': '; '.join(f"{n['display']}{' (' + n['src'] + ')' if n['src'] else ''} "
+                               f"{n['have']}/{n['qty']}" for n in items),
+            'missing': q['missing'], 'ready': q['ready'], 'covered': q['covered'],
+            'giver': q['giver'] or '', 'phrase': q['phrase'] or ''})
+    return out
+
+
 VIEWS: Dict[str, Tuple[Columns, Callable[[int], list]]] = {
     'inventory': ([('location', 'Location'), ('name', 'Item'), ('count', 'Count'),
                    ('item_id', 'ID'), ('section', 'Section'), ('host_name', 'In / on'),
@@ -106,6 +122,11 @@ VIEWS: Dict[str, Tuple[Columns, Callable[[int], list]]] = {
                   ('zones', 'Zone changes'), ('first_zone', 'First zone'),
                   ('last_zone', 'Last zone')],
                  lambda cid: sessions.history(cid, limit=100000)),
+    'skyquests': ([('cls', 'Class'), ('name', 'Test'), ('status', 'Status'), ('source', 'Source'),
+                   ('reward', 'Reward'), ('reward_owned', 'Reward owned'), ('rune', 'Rune'),
+                   ('rune_have', 'Rune have'), ('items', 'Quest items (have/need)'),
+                   ('missing', 'Missing'), ('ready', 'Ready'), ('covered', 'Turn in now'),
+                   ('giver', 'Quest giver'), ('phrase', 'Say')], _skyquests),
     'zones': ([('zone', 'Zone'), ('hours', 'Active hours'), ('xp_pct', 'XP %'),
                ('xp_per_hour', 'XP % per hour'), ('kills', 'Kills'),
                ('kills_per_hour', 'Kills per hour'), ('loot', 'Loot'), ('visits', 'Visits'),

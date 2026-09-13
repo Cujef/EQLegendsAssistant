@@ -370,6 +370,30 @@ def api_quest_step(quest_id: int, step_index: int, char: int = None):
     return {'done': quests.toggle_step(c['id'], quest_id, step_index)}
 
 
+# ── sky quests (Plane of Sky class tests) ────────────────────────────────────
+@app.get('/api/skyquests')
+def api_skyquests(char: int = None):
+    from . import skyquests
+    c = _char_or_404(char)
+    return skyquests.view(c['id'])
+
+
+@app.post('/api/skyquests/{key}/done')
+def api_skyquest_done(key: str, body: dict, char: int = None):
+    """body {done: true|false|null} — null clears the manual mark (back to
+    the dump's verdict)."""
+    from . import skyquests
+    c = _char_or_404(char)
+    done = (body or {}).get('done')
+    if done is not None and not isinstance(done, bool):
+        raise HTTPException(422, 'done must be true, false or null')
+    try:
+        skyquests.set_done(c['id'], key, done)
+    except KeyError:
+        raise HTTPException(404, 'no such sky test')
+    return {'ok': True, 'key': key, 'done': done}
+
+
 # ── what to do / exaltations / tradeskills (M9-M10) ──────────────────────────
 @app.get('/api/whattodo')
 def api_whattodo(char: int = None):

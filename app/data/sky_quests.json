@@ -1,0 +1,3180 @@
+{
+ "count": 95,
+ "fetched_at": 1788386227.9146771,
+ "generated_at": 1789265219.3362827,
+ "quests": [
+  {
+   "cls": "Bard",
+   "giver": "Cilin Spellsinger",
+   "items": [
+    {
+     "display": "Light Woolen Mask",
+     "name": "Light Woolen Mask",
+     "name_norms": [
+      "light woolen mask"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "bard-test-of-tone",
+   "name": "Bard Test of Tone",
+   "order": 0,
+   "phrase": "tone",
+   "reward": {
+    "name": "Mask of Song",
+    "name_norm": "mask of song"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Meda",
+     "name_norm": "wind rune meda"
+    }
+   ]
+  },
+  {
+   "cls": "Bard",
+   "giver": "Cilin Spellsinger",
+   "items": [
+    {
+     "display": "Light Woolen Mantle",
+     "name": "Light Woolen Mantle",
+     "name_norms": [
+      "light woolen mantle"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "bard-test-of-voice",
+   "name": "Bard Test of Voice",
+   "order": 1,
+   "phrase": "voice",
+   "reward": {
+    "name": "Mantle of the Songweaver",
+    "name_norm": "mantle of the songweaver"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Bard",
+   "giver": "Cilin Spellsinger",
+   "items": [
+    {
+     "display": "Crude Wooden Flute",
+     "name": "Crude Wooden Flute",
+     "name_norms": [
+      "crude wooden flute"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "bard-test-of-pitch",
+   "name": "Bard Test of Pitch",
+   "order": 2,
+   "phrase": "pitch",
+   "reward": {
+    "name": "Ervaj's Flute of Flight",
+    "name_norm": "ervajs flute of flight"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Bard",
+   "giver": "Cilin Spellsinger",
+   "items": [
+    {
+     "display": "Amulet of Woven Hair",
+     "name": "Amulet of Woven Hair",
+     "name_norms": [
+      "amulet of woven hair"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "bard-test-of-wind",
+   "name": "Bard Test of Wind",
+   "order": 3,
+   "phrase": "wind",
+   "reward": {
+    "name": "Amulet of the Fae",
+    "name_norm": "amulet of the fae"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Caza",
+     "name_norm": "wind rune caza"
+    }
+   ]
+  },
+  {
+   "cls": "Bard",
+   "giver": "Cilin Spellsinger",
+   "items": [
+    {
+     "display": "Glowing Diamond",
+     "name": "Glowing Diamond",
+     "name_norms": [
+      "glowing diamond"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Efreeti War Horn",
+     "name": "Efreeti War Horn",
+     "name_norms": [
+      "efreeti war horn"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "bard-test-of-brass",
+   "name": "Bard Test of Brass",
+   "order": 4,
+   "phrase": "brass",
+   "reward": {
+    "name": "Denon's Horn of Disaster",
+    "name_norm": "denons horn of disaster"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Fana",
+     "name_norm": "wind rune fana"
+    }
+   ]
+  },
+  {
+   "cls": "Bard",
+   "giver": "Cilin Spellsinger",
+   "items": [
+    {
+     "display": "Nebulous Diamond",
+     "name": "Nebulous Diamond",
+     "name_norms": [
+      "nebulous diamond"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti War Spear",
+     "name": "Efreeti War Spear",
+     "name_norms": [
+      "efreeti war spear"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "bard-test-of-harmony",
+   "name": "Bard Test of Harmony",
+   "order": 5,
+   "phrase": "harmony",
+   "reward": {
+    "name": "Spear of Harmony",
+    "name_norm": "spear of harmony"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Heda",
+     "name_norm": "wind rune heda"
+    }
+   ]
+  },
+  {
+   "cls": "Beastlord",
+   "giver": "Animist Kratho",
+   "items": [
+    {
+     "display": "Spiroc Elder's Totem",
+     "name": "Spiroc Elder's Totem",
+     "name_norms": [
+      "spiroc elders totem"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "beastlord-test-of-aviak",
+   "name": "Beastlord Test of Aviak",
+   "order": 6,
+   "phrase": "aviak",
+   "reward": {
+    "name": "Spiroc Beak Earcuff",
+    "name_norm": "spiroc beak earcuff"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Beza",
+     "name_norm": "wind rune beza"
+    }
+   ]
+  },
+  {
+   "cls": "Beastlord",
+   "giver": "Animist Kratho",
+   "items": [
+    {
+     "display": "Azarack Skin",
+     "name": "Azarack Skin",
+     "name_norms": [
+      "azarack skin"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "2-PoS"
+    }
+   ],
+   "key": "beastlord-test-of-azarack",
+   "name": "Beastlord Test of Azarack",
+   "order": 7,
+   "phrase": "azarack",
+   "reward": {
+    "name": "Azarack Skin Wristwraps",
+    "name_norm": "azarack skin wristwraps"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Heda",
+     "name_norm": "wind rune heda"
+    }
+   ]
+  },
+  {
+   "cls": "Beastlord",
+   "giver": "Animist Kratho",
+   "items": [
+    {
+     "display": "Sphinx Claw",
+     "name": "Sphinx Claw",
+     "name_norms": [
+      "sphinx claw"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Mithril Bands",
+     "name": "Mithril Bands",
+     "name_norms": [
+      "mithril bands"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Brass Knuckles",
+     "name": "Brass Knuckles",
+     "name_norms": [
+      "brass knuckles"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "beastlord-test-of-claw",
+   "name": "Beastlord Test of Claw",
+   "order": 8,
+   "phrase": "claw",
+   "reward": {
+    "name": "Windhowl",
+    "name_norm": "windhowl"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Beastlord",
+   "giver": "Animist Kratho",
+   "items": [
+    {
+     "display": "Leather Cord",
+     "name": "Leather Cord",
+     "name_norms": [
+      "leather cord"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "beastlord-test-of-harpy",
+   "name": "Beastlord Test of Harpy",
+   "order": 9,
+   "phrase": "harpy",
+   "reward": {
+    "name": "Griffon-Hide Armguards",
+    "name_norm": "griffon-hide armguards"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Beastlord",
+   "giver": "Animist Kratho",
+   "items": [
+    {
+     "display": "Silken Wrap",
+     "name": "Silken Wrap",
+     "name_norms": [
+      "silken wrap"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "beastlord-test-of-wind",
+   "name": "Beastlord Test of Wind",
+   "order": 10,
+   "phrase": "wind",
+   "reward": {
+    "name": "Diaphonous Waistband",
+    "name_norm": "diaphonous waistband"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Geza",
+     "name_norm": "wind rune geza"
+    }
+   ]
+  },
+  {
+   "cls": "Berserker",
+   "giver": "Stragen The Hewer",
+   "items": [
+    {
+     "display": "Djinni War Blade",
+     "name": "Djinni War Blade",
+     "name_norms": [
+      "djinni war blade"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Efreeti Standard",
+     "name": "Efreeti Standard",
+     "name_norms": [
+      "efreeti standard"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "berserker-test-of-sharpness",
+   "name": "Berserker Test of Sharpness",
+   "order": 11,
+   "phrase": "sharpness",
+   "reward": {
+    "name": "Skycleaver",
+    "name_norm": "skycleaver"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Jaka",
+     "name_norm": "wind rune jaka"
+    }
+   ]
+  },
+  {
+   "cls": "Berserker",
+   "giver": "Stragen The Hewer",
+   "items": [
+    {
+     "display": "Pulsating Ruby",
+     "name": "Pulsating Ruby",
+     "name_norms": [
+      "pulsating ruby"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "berserker-test-of-will",
+   "name": "Berserker Test of Will",
+   "order": 12,
+   "phrase": "will",
+   "reward": {
+    "name": "Molten Coil",
+    "name_norm": "molten coil"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Berserker",
+   "giver": "Stragen The Hewer",
+   "items": [
+    {
+     "display": "High Quality Raiment",
+     "name": "High Quality Raiment",
+     "name_norms": [
+      "high quality raiment"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "berserker-test-of-ferocity",
+   "name": "Berserker Test of Ferocity",
+   "order": 13,
+   "phrase": "ferocity",
+   "reward": {
+    "name": "Sash of Ferocity",
+    "name_norm": "sash of ferocity"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ozah",
+     "name_norm": "wind rune ozah"
+    }
+   ]
+  },
+  {
+   "cls": "Berserker",
+   "giver": "Stragen The Hewer",
+   "items": [
+    {
+     "display": "Feathered Cape",
+     "name": "Feathered Cape",
+     "name_norms": [
+      "feathered cape"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "berserker-test-of-burden",
+   "name": "Berserker Test of Burden",
+   "order": 14,
+   "phrase": "burden",
+   "reward": {
+    "name": "Shroud of the Sky",
+    "name_norm": "shroud of the sky"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Berserker",
+   "giver": "Stragen The Hewer",
+   "items": [
+    {
+     "display": "Azarack Blood",
+     "name": "Azarack Blood",
+     "name_norms": [
+      "azarack blood"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "2-PoS"
+    }
+   ],
+   "key": "berserker-test-of-blood",
+   "name": "Berserker Test of Blood",
+   "order": 15,
+   "phrase": "blood",
+   "reward": {
+    "name": "Blood-Drawn Runes",
+    "name_norm": "blood-drawn runes"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Lena",
+     "name_norm": "wind rune lena"
+    }
+   ]
+  },
+  {
+   "cls": "Berserker",
+   "giver": "Stragen The Hewer",
+   "items": [
+    {
+     "display": "Jester's Mask",
+     "name": "Jester's Mask",
+     "name_norms": [
+      "jesters mask"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    },
+    {
+     "display": "Efreeti Great Staff",
+     "name": "Efreeti Great Staff",
+     "name_norms": [
+      "efreeti great staff"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": "8-EoV"
+    }
+   ],
+   "key": "berserker-test-of-fools-errand",
+   "name": "Berserker Test of Fools Errand",
+   "order": 16,
+   "phrase": "fools errand",
+   "reward": {
+    "name": "Cudgel of the Fool",
+    "name_norm": "cudgel of the fool"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Cleric",
+   "giver": "Josin Faithbringer",
+   "items": [
+    {
+     "display": "Silver Hoop",
+     "name": "Silver Hoop",
+     "name_norms": [
+      "silver hoop"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "cleric-test-of-courage",
+   "name": "Cleric Test of Courage",
+   "order": 17,
+   "phrase": "courage",
+   "reward": {
+    "name": "Truewind Earring",
+    "name_norm": "truewind earring"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Lena",
+     "name_norm": "wind rune lena"
+    }
+   ]
+  },
+  {
+   "cls": "Cleric",
+   "giver": "Josin Faithbringer",
+   "items": [
+    {
+     "display": "Small Shield",
+     "name": "Small Shield",
+     "name_norms": [
+      "small shield"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "cleric-test-of-skill",
+   "name": "Cleric Test of Skill",
+   "order": 18,
+   "phrase": "skill",
+   "reward": {
+    "name": "Aegis of the Wind",
+    "name_norm": "aegis of the wind"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Meda",
+     "name_norm": "wind rune meda"
+    }
+   ]
+  },
+  {
+   "cls": "Cleric",
+   "giver": "Josin Faithbringer",
+   "items": [
+    {
+     "display": "Shiny Pauldrons",
+     "name": "Shiny Pauldrons",
+     "name_norms": [
+      "shiny pauldrons"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "cleric-test-of-protection",
+   "name": "Cleric Test of Protection",
+   "order": 19,
+   "phrase": "protection",
+   "reward": {
+    "name": "Pauldrons of Piety",
+    "name_norm": "pauldrons of piety"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Caza",
+     "name_norm": "wind rune caza"
+    }
+   ]
+  },
+  {
+   "cls": "Cleric",
+   "giver": "Josin Faithbringer",
+   "items": [
+    {
+     "display": "Silvered Spiroc Necklace",
+     "name": "Silvered Spiroc Necklace",
+     "name_norms": [
+      "silvered spiroc necklace"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "cleric-test-of-resolution",
+   "name": "Cleric Test of Resolution",
+   "order": 20,
+   "phrase": "resolution",
+   "reward": {
+    "name": "Necklace of Resolution",
+    "name_norm": "necklace of resolution"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Neza",
+     "name_norm": "wind rune neza"
+    }
+   ]
+  },
+  {
+   "cls": "Cleric",
+   "giver": "Josin Faithbringer",
+   "items": [
+    {
+     "display": "Djinni Aura",
+     "name": "Djinni Aura",
+     "name_norms": [
+      "djinni aura"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Efreeti Mace",
+     "name": "Efreeti Mace",
+     "name_norms": [
+      "efreeti mace"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "cleric-test-of-theurgy",
+   "name": "Cleric Test of Theurgy",
+   "order": 21,
+   "phrase": "theurgy",
+   "reward": {
+    "name": "Theurgist's Star",
+    "name_norm": "theurgists star"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Cleric",
+   "giver": "Josin Faithbringer",
+   "items": [
+    {
+     "display": "Mithril Bands",
+     "name": "Mithril Bands",
+     "name_norms": [
+      "mithril bands"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti Standard",
+     "name": "Efreeti Standard",
+     "name_norms": [
+      "efreeti standard"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "cleric-test-of-the-weak",
+   "name": "Cleric Test of The Weak",
+   "order": 22,
+   "phrase": "weak",
+   "reward": {
+    "name": "Baton of the Sky",
+    "name_norm": "baton of the sky"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Druid",
+   "giver": "Strandar Pinemist",
+   "items": [
+    {
+     "display": "Worn Leather Mask",
+     "name": "Worn Leather Mask",
+     "name_norms": [
+      "worn leather mask"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "druid-test-of-wolf",
+   "name": "Druid Test of Wolf",
+   "order": 23,
+   "phrase": "wolf",
+   "reward": {
+    "name": "Drake-Hide Mask",
+    "name_norm": "drake-hide mask"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Meda",
+     "name_norm": "wind rune meda"
+    }
+   ]
+  },
+  {
+   "cls": "Druid",
+   "giver": "Strandar Pinemist",
+   "items": [
+    {
+     "display": "Mantle of Woven Grass",
+     "name": "Mantle of Woven Grass",
+     "name_norms": [
+      "mantle of woven grass"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "druid-test-of-bear",
+   "name": "Druid Test of Bear",
+   "order": 24,
+   "phrase": "bear",
+   "reward": {
+    "name": "Nature Walker's Mantle",
+    "name_norm": "nature walkers mantle"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Druid",
+   "giver": "Strandar Pinemist",
+   "items": [
+    {
+     "display": "Spiroc Battle Staff",
+     "name": "Spiroc Battle Staff",
+     "name_norms": [
+      "spiroc battle staff"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    },
+    {
+     "display": "Efreeti Statuette",
+     "name": "Efreeti Statuette",
+     "name_norms": [
+      "efreeti statuette"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "druid-test-of-tree",
+   "name": "Druid Test of Tree",
+   "order": 25,
+   "phrase": "tree",
+   "reward": {
+    "name": "Shillelagh",
+    "name_norm": "shillelagh"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Druid",
+   "giver": "Strandar Pinemist",
+   "items": [
+    {
+     "display": "Divine Honeycomb",
+     "name": "Divine Honeycomb",
+     "name_norms": [
+      "divine honeycomb"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "druid-test-of-the-bee",
+   "name": "Druid Test of The Bee",
+   "order": 26,
+   "phrase": "bee",
+   "reward": {
+    "name": "Honeycomb Belt",
+    "name_norm": "honeycomb belt"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Druid",
+   "giver": "Strandar Pinemist",
+   "items": [
+    {
+     "display": "Ethereal Ruby",
+     "name": "Ethereal Ruby",
+     "name_norms": [
+      "ethereal ruby"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Spiroc Elder's Totem",
+     "name": "Spiroc Elder's Totem",
+     "name_norms": [
+      "spiroc elders totem"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "druid-test-of-eagle",
+   "name": "Druid Test of Eagle",
+   "order": 27,
+   "phrase": "eagle",
+   "reward": {
+    "name": "Spiroc Banisher Focus",
+    "name_norm": "spiroc banisher focus"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Druid",
+   "giver": "Strandar Pinemist",
+   "items": [
+    {
+     "display": "Storm Sky Opal",
+     "name": "Storm Sky Opal",
+     "name_norms": [
+      "storm sky opal"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti Scimitar",
+     "name": "Efreeti Scimitar",
+     "name_norms": [
+      "efreeti scimitar"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "druid-test-of-nature",
+   "name": "Druid Test of Nature",
+   "order": 28,
+   "phrase": "nature",
+   "reward": {
+    "name": "Espri",
+    "name_norm": "espri"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Enchanter",
+   "giver": "Enchanter Jolas",
+   "items": [
+    {
+     "display": "Finely Woven Cloth Cord",
+     "name": "Finely Woven Cloth Cord",
+     "name_norms": [
+      "finely woven cloth cord"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "enchanter-test-of-illusion",
+   "name": "Enchanter Test of Illusion",
+   "order": 29,
+   "phrase": "illusion",
+   "reward": {
+    "name": "Sphinx Hair Cord",
+    "name_norm": "sphinx hair cord"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Meda",
+     "name_norm": "wind rune meda"
+    }
+   ]
+  },
+  {
+   "cls": "Enchanter",
+   "giver": "Enchanter Jolas",
+   "items": [
+    {
+     "display": "Light Cloth Mantle",
+     "name": "Light Cloth Mantle",
+     "name_norms": [
+      "light cloth mantle"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "enchanter-test-of-metamorphism",
+   "name": "Enchanter Test of Metamorphism",
+   "order": 30,
+   "phrase": "metamorphism",
+   "reward": {
+    "name": "Wind Walker's Mantle",
+    "name_norm": "wind walkers mantle"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ozah",
+     "name_norm": "wind rune ozah"
+    }
+   ]
+  },
+  {
+   "cls": "Enchanter",
+   "giver": "Enchanter Jolas",
+   "items": [
+    {
+     "display": "Silken Mask",
+     "name": "Silken Mask",
+     "name_norms": [
+      "silken mask"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "enchanter-test-of-deception",
+   "name": "Enchanter Test of Deception",
+   "order": 31,
+   "phrase": "deception",
+   "reward": {
+    "name": "Ivory Mask",
+    "name_norm": "ivory mask"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Beza",
+     "name_norm": "wind rune beza"
+    }
+   ]
+  },
+  {
+   "cls": "Enchanter",
+   "giver": "Enchanter Jolas",
+   "items": [
+    {
+     "display": "Adamantium Earring",
+     "name": "Adamantium Earring",
+     "name_norms": [
+      "adamantium earring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "enchanter-test-of-dislocation",
+   "name": "Enchanter Test of Dislocation",
+   "order": 32,
+   "phrase": "dislocation",
+   "reward": {
+    "name": "Earring of Displacement",
+    "name_norm": "earring of displacement"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Caza",
+     "name_norm": "wind rune caza"
+    }
+   ]
+  },
+  {
+   "cls": "Enchanter",
+   "giver": "Enchanter Jolas",
+   "items": [
+    {
+     "display": "Glowing Necklace",
+     "name": "Glowing Necklace",
+     "name_norms": [
+      "glowing necklace"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "enchanter-test-of-memorization",
+   "name": "Enchanter Test of Memorization",
+   "order": 33,
+   "phrase": "memorization",
+   "reward": {
+    "name": "Necklace of Whispering Winds",
+    "name_norm": "necklace of whispering winds"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Fana",
+     "name_norm": "wind rune fana"
+    }
+   ]
+  },
+  {
+   "cls": "Enchanter",
+   "giver": "Enchanter Jolas",
+   "items": [
+    {
+     "display": "Large Sky Sapphire",
+     "name": "Large Sky Sapphire",
+     "name_norms": [
+      "large sky sapphire"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti Wind Staff",
+     "name": "Efreeti Wind Staff",
+     "name_norms": [
+      "efreeti wind staff"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "enchanter-test-of-incapacitation",
+   "name": "Enchanter Test of Incapacitation",
+   "order": 34,
+   "phrase": "incapacitation",
+   "reward": {
+    "name": "Rod of the Protecting Winds",
+    "name_norm": "rod of the protecting winds"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Feathered Cape",
+     "name": "Feathered Cape",
+     "name_norms": [
+      "feathered cape"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "magician-test-of-clarification",
+   "name": "Magician Test of Clarification",
+   "order": 35,
+   "phrase": "clarification",
+   "reward": {
+    "name": "Bracelet of Clarification",
+    "name_norm": "bracelet of clarification"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Lena",
+     "name_norm": "wind rune lena"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Ceramic Mask",
+     "name": "Ceramic Mask",
+     "name_norms": [
+      "ceramic mask"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "magician-test-of-empowerment",
+   "name": "Magician Test of Empowerment",
+   "order": 36,
+   "phrase": "empowerment",
+   "reward": {
+    "name": "Mask of Empowerment",
+    "name_norm": "mask of empowerment"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Neza",
+     "name_norm": "wind rune neza"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Golden Coffer",
+     "name": "Golden Coffer",
+     "name_norms": [
+      "golden coffer"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "magician-test-of-shielding",
+   "name": "Magician Test of Shielding",
+   "order": 37,
+   "phrase": "shielding",
+   "reward": {
+    "name": "Gold White Pendant",
+    "name_norm": "gold white pendant"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Large Diamond",
+     "name": "Large Diamond",
+     "name_norms": [
+      "large diamond"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "magician-test-of-summoning",
+   "name": "Magician Test of Summoning",
+   "order": 38,
+   "phrase": "summoning",
+   "reward": {
+    "name": "Drake-Hide Amice",
+    "name_norm": "drake-hide amice"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Golden Efreeti Ring",
+     "name": "Golden Efreeti Ring",
+     "name_norms": [
+      "golden efreeti ring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "magician-test-of-interpretation",
+   "name": "Magician Test of Interpretation",
+   "order": 39,
+   "phrase": "interpretation",
+   "reward": {
+    "name": "Duennan Shielding Ring",
+    "name_norm": "duennan shielding ring"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Hazy Opal",
+     "name": "Hazy Opal",
+     "name_norms": [
+      "hazy opal"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti Magi Staff",
+     "name": "Efreeti Magi Staff",
+     "name_norms": [
+      "efreeti magi staff"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "magician-test-of-gesticulation",
+   "name": "Magician Test of Gesticulation",
+   "order": 40,
+   "phrase": "gesticulation",
+   "reward": {
+    "name": "Staff of The Magister",
+    "name_norm": "staff of the magister"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Jaka",
+     "name_norm": "wind rune jaka"
+    }
+   ]
+  },
+  {
+   "cls": "Magician",
+   "giver": "Magus Frinon",
+   "items": [
+    {
+     "display": "Crown of Elemental Mastery",
+     "name": "Crown of Elemental Mastery",
+     "name_norms": [
+      "crown of elemental mastery"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-Trash"
+    },
+    {
+     "display": "Large Opal",
+     "name": "Large Opal",
+     "name_norms": [
+      "large opal"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Djinni Stave",
+     "name": "Djinni Stave",
+     "name_norms": [
+      "djinni stave"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "magician-test-of-displacement",
+   "name": "Magician Test of Displacement",
+   "order": 41,
+   "phrase": "displacement",
+   "reward": {
+    "name": "Staff of Elemental Mastery: Air",
+    "name_norm": "staff of elemental mastery: air"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Heda",
+     "name_norm": "wind rune heda"
+    }
+   ]
+  },
+  {
+   "cls": "Monk",
+   "giver": "Holwin",
+   "items": [
+    {
+     "display": "Silken Strands",
+     "name": "Silken Strands",
+     "name_norms": [
+      "silken strands"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "monk-test-of-strength",
+   "name": "Monk Test of Strength",
+   "order": 42,
+   "phrase": "strength",
+   "reward": {
+    "name": "Back Straps of Mastery",
+    "name_norm": "back straps of mastery"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Caza",
+     "name_norm": "wind rune caza"
+    }
+   ]
+  },
+  {
+   "cls": "Monk",
+   "giver": "Holwin",
+   "items": [
+    {
+     "display": "Cracked Leather Eyepatch",
+     "name": "Cracked Leather Eyepatch",
+     "name_norms": [
+      "cracked leather eyepatch"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "monk-test-of-sight",
+   "name": "Monk Test of Sight",
+   "order": 43,
+   "phrase": "sight",
+   "reward": {
+    "name": "Ton Po's Eye Patch",
+    "name_norm": "ton pos eye patch"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Geza",
+     "name_norm": "wind rune geza"
+    }
+   ]
+  },
+  {
+   "cls": "Monk",
+   "giver": "Holwin",
+   "items": [
+    {
+     "display": "Dove Slippers",
+     "name": "Dove Slippers",
+     "name_norms": [
+      "dove slippers"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "monk-test-of-speed",
+   "name": "Monk Test of Speed",
+   "order": 44,
+   "phrase": "speed",
+   "reward": {
+    "name": "Sandals of Alacrity",
+    "name_norm": "sandals of alacrity"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Jaka",
+     "name_norm": "wind rune jaka"
+    }
+   ]
+  },
+  {
+   "cls": "Monk",
+   "giver": "Holwin",
+   "items": [
+    {
+     "display": "Silken Wrap",
+     "name": "Silken Wrap",
+     "name_norms": [
+      "silken wrap"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "monk-test-of-tears",
+   "name": "Monk Test of Tears",
+   "order": 45,
+   "phrase": "tears",
+   "reward": {
+    "name": "Ton Po's Shoulder Wraps",
+    "name_norm": "ton pos shoulder wraps"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Beza",
+     "name_norm": "wind rune beza"
+    }
+   ]
+  },
+  {
+   "cls": "Monk",
+   "giver": "Holwin",
+   "items": [
+    {
+     "display": "Nebulous Sapphire",
+     "name": "Nebulous Sapphire",
+     "name_norms": [
+      "nebulous sapphire"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Brass Knuckles",
+     "name": "Brass Knuckles",
+     "name_norms": [
+      "brass knuckles"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "monk-test-of-fists",
+   "name": "Monk Test of Fists",
+   "order": 46,
+   "phrase": "fists",
+   "reward": {
+    "name": "Wu's Fist of Mastery",
+    "name_norm": "wus fist of mastery"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Neza",
+     "name_norm": "wind rune neza"
+    }
+   ]
+  },
+  {
+   "cls": "Monk",
+   "giver": "Holwin",
+   "items": [
+    {
+     "display": "Tear of Quellious",
+     "name": "Tear of Quellious",
+     "name_norms": [
+      "tear of quellious"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    }
+   ],
+   "key": "monk-test-of-tranquility",
+   "name": "Monk Test of Tranquility",
+   "order": 47,
+   "phrase": "tranquility",
+   "reward": {
+    "name": "Golden Sash of Tranquility",
+    "name_norm": "golden sash of tranquility"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Lena",
+     "name_norm": "wind rune lena"
+    }
+   ]
+  },
+  {
+   "cls": "Necromancer",
+   "giver": "Drakis Bloodcaster",
+   "items": [
+    {
+     "display": "Griffon's Beak",
+     "name": "Griffon's Beak",
+     "name_norms": [
+      "griffons beak"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "necromancer-test-of-flight",
+   "name": "Necromancer Test of Flight",
+   "order": 48,
+   "phrase": "flight",
+   "reward": {
+    "name": "Bloody Griffon-Hide Wrist Guard",
+    "name_norm": "bloody griffon-hide wrist guard"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Lena",
+     "name_norm": "wind rune lena"
+    }
+   ]
+  },
+  {
+   "cls": "Necromancer",
+   "giver": "Drakis Bloodcaster",
+   "items": [
+    {
+     "display": "Black Silk Cape",
+     "name": "Black Silk Cape",
+     "name_norms": [
+      "black silk cape"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "necromancer-test-of-power",
+   "name": "Necromancer Test of Power",
+   "order": 49,
+   "phrase": "power",
+   "reward": {
+    "name": "Cloak of Spiroc Feathers",
+    "name_norm": "cloak of spiroc feathers"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Neza",
+     "name_norm": "wind rune neza"
+    }
+   ]
+  },
+  {
+   "cls": "Necromancer",
+   "giver": "Drakis Bloodcaster",
+   "items": [
+    {
+     "display": "Fine Cloth Raiment",
+     "name": "Fine Cloth Raiment",
+     "name_norms": [
+      "fine cloth raiment"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "necromancer-test-of-mind",
+   "name": "Necromancer Test of Mind",
+   "order": 50,
+   "phrase": "mind",
+   "reward": {
+    "name": "Bloodsoaked Raiment",
+    "name_norm": "bloodsoaked raiment"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ozah",
+     "name_norm": "wind rune ozah"
+    }
+   ]
+  },
+  {
+   "cls": "Necromancer",
+   "giver": "Drakis Bloodcaster",
+   "items": [
+    {
+     "display": "Pulsating Ruby",
+     "name": "Pulsating Ruby",
+     "name_norms": [
+      "pulsating ruby"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "necromancer-test-of-heart",
+   "name": "Necromancer Test of Heart",
+   "order": 51,
+   "phrase": "heart",
+   "reward": {
+    "name": "Sphinx Heart Amulet",
+    "name_norm": "sphinx heart amulet"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Necromancer",
+   "giver": "Drakis Bloodcaster",
+   "items": [
+    {
+     "display": "Ring of Veeshan",
+     "name": "Ring of Veeshan",
+     "name_norms": [
+      "ring of veeshan"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "necromancer-test-of-finger",
+   "name": "Necromancer Test of Finger",
+   "order": 52,
+   "phrase": "finger",
+   "reward": {
+    "name": "Band of Wailing Winds",
+    "name_norm": "band of wailing winds"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Caza",
+     "name_norm": "wind rune caza"
+    }
+   ]
+  },
+  {
+   "cls": "Necromancer",
+   "giver": "Drakis Bloodcaster",
+   "items": [
+    {
+     "display": "Gorgon Head",
+     "name": "Gorgon Head",
+     "name_norms": [
+      "gorgon head"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    },
+    {
+     "display": "Efreeti Great Staff",
+     "name": "Efreeti Great Staff",
+     "name_norms": [
+      "efreeti great staff"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": "8-EoV"
+    }
+   ],
+   "key": "necromancer-test-of-hands",
+   "name": "Necromancer Test of Hands",
+   "order": 53,
+   "phrase": "hands",
+   "reward": {
+    "name": "Gorgon Head Staff",
+    "name_norm": "gorgon head staff"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Fana",
+     "name_norm": "wind rune fana"
+    }
+   ]
+  },
+  {
+   "cls": "Paladin",
+   "giver": "Dason Goldblade",
+   "items": [
+    {
+     "display": "Ivory Sky Diamond",
+     "name": "Ivory Sky Diamond",
+     "name_norms": [
+      "ivory sky diamond"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "paladin-test-of-spirit",
+   "name": "Paladin Test of Spirit",
+   "order": 54,
+   "phrase": "spirit",
+   "reward": {
+    "name": "Girdle of Faith",
+    "name_norm": "girdle of faith"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Lena",
+     "name_norm": "wind rune lena"
+    }
+   ]
+  },
+  {
+   "cls": "Paladin",
+   "giver": "Dason Goldblade",
+   "items": [
+    {
+     "display": "Bixie Sword Blade",
+     "name": "Bixie Sword Blade",
+     "name_norms": [
+      "bixie sword blade"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "paladin-test-of-sacrifice",
+   "name": "Paladin Test of Sacrifice",
+   "order": 55,
+   "phrase": "sacrifice",
+   "reward": {
+    "name": "Aldryn, Blade of the Ocean",
+    "name_norm": "aldryn, blade of the ocean"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ozah",
+     "name_norm": "wind rune ozah"
+    }
+   ]
+  },
+  {
+   "cls": "Paladin",
+   "giver": "Dason Goldblade",
+   "items": [
+    {
+     "display": "Golden Hilt",
+     "name": "Golden Hilt",
+     "name_norms": [
+      "golden hilt"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-Trash"
+    },
+    {
+     "display": "Sphinx Claw",
+     "name": "Sphinx Claw",
+     "name_norms": [
+      "sphinx claw"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "paladin-test-of-love",
+   "name": "Paladin Test of Love",
+   "order": 56,
+   "phrase": "love",
+   "reward": {
+    "name": "Thelvorn, Blade of Light",
+    "name_norm": "thelvorn, blade of light"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Geza",
+     "name_norm": "wind rune geza"
+    }
+   ]
+  },
+  {
+   "cls": "Paladin",
+   "giver": "Dason Goldblade",
+   "items": [
+    {
+     "display": "Large Sky Diamond",
+     "name": "Large Sky Diamond",
+     "name_norms": [
+      "large sky diamond"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti Zweihander",
+     "name": "Efreeti Zweihander",
+     "name_norms": [
+      "efreeti zweihander"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "paladin-test-of-compassion",
+   "name": "Paladin Test of Compassion",
+   "order": 57,
+   "phrase": "compassion",
+   "reward": {
+    "name": "Truvinan",
+    "name_norm": "truvinan"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Ranger",
+   "giver": "Ranger Spirit",
+   "items": [
+    {
+     "display": "Griffon Talon",
+     "name": "Griffon Talon",
+     "name_norms": [
+      "griffon talon"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "ranger-test-of-body",
+   "name": "Ranger Test of Body",
+   "order": 58,
+   "phrase": "body",
+   "reward": {
+    "name": "Griffon Talon Necklace",
+    "name_norm": "griffon talon necklace"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Meda",
+     "name_norm": "wind rune meda"
+    }
+   ]
+  },
+  {
+   "cls": "Ranger",
+   "giver": "Ranger Spirit",
+   "items": [
+    {
+     "display": "Fine Velvet Cloak",
+     "name": "Fine Velvet Cloak",
+     "name_norms": [
+      "fine velvet cloak"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "ranger-test-of-defense",
+   "name": "Ranger Test of Defense",
+   "order": 59,
+   "phrase": "defense",
+   "reward": {
+    "name": "Dark Cloak of the Sky",
+    "name_norm": "dark cloak of the sky"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Neza",
+     "name_norm": "wind rune neza"
+    }
+   ]
+  },
+  {
+   "cls": "Ranger",
+   "giver": "Ranger Spirit",
+   "items": [
+    {
+     "display": "Spiroc Earth Totem",
+     "name": "Spiroc Earth Totem",
+     "name_norms": [
+      "spiroc earth totem"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "ranger-test-of-the-earth",
+   "name": "Ranger Test of The Earth",
+   "order": 60,
+   "phrase": "elemental earth",
+   "reward": {
+    "name": "Earthshaker's Mantle",
+    "name_norm": "earthshakers mantle"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Ranger",
+   "giver": "Ranger Spirit",
+   "items": [
+    {
+     "display": "White Gold Earring",
+     "name": "White Gold Earring",
+     "name_norms": [
+      "white gold earring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "ranger-test-of-thunder",
+   "name": "Ranger Test of Thunder",
+   "order": 61,
+   "phrase": "elemental thunder",
+   "reward": {
+    "name": "Thunderforged Earring",
+    "name_norm": "thunderforged earring"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Ranger",
+   "giver": "Ranger Spirit",
+   "items": [
+    {
+     "display": "Circlet of Brambles",
+     "name": "Circlet of Brambles",
+     "name_norms": [
+      "circlet of brambles"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Efreeti Long Sword",
+     "name": "Efreeti Long Sword",
+     "name_norms": [
+      "efreeti long sword"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "ranger-test-of-blade",
+   "name": "Ranger Test of Blade",
+   "order": 62,
+   "phrase": "blade",
+   "reward": {
+    "name": "Arydryidriyorn",
+    "name_norm": "arydryidriyorn"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Ranger",
+   "giver": "Ranger Spirit",
+   "items": [
+    {
+     "display": "Shimmering Pearl",
+     "name": "Shimmering Pearl",
+     "name_norms": [
+      "shimmering pearl"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti War Bow",
+     "name": "Efreeti War Bow",
+     "name_norms": [
+      "efreeti war bow"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "ranger-test-of-ranged-attack",
+   "name": "Ranger Test of Ranged Attack",
+   "order": 63,
+   "phrase": "ranged attack",
+   "reward": {
+    "name": "Windstriker",
+    "name_norm": "windstriker"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Heda",
+     "name_norm": "wind rune heda"
+    }
+   ]
+  },
+  {
+   "cls": "Rogue",
+   "giver": "Thalik Silenthand",
+   "items": [
+    {
+     "display": "Inlaid Choker",
+     "name": "Inlaid Choker",
+     "name_norms": [
+      "inlaid choker"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "rogue-test-of-thievery",
+   "name": "Rogue Test of Thievery",
+   "order": 64,
+   "phrase": "thievery",
+   "reward": {
+    "name": "Wispy Choker of Vigor",
+    "name_norm": "wispy choker of vigor"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ozah",
+     "name_norm": "wind rune ozah"
+    }
+   ]
+  },
+  {
+   "cls": "Rogue",
+   "giver": "Thalik Silenthand",
+   "items": [
+    {
+     "display": "Sphinxian Circlet",
+     "name": "Sphinxian Circlet",
+     "name_norms": [
+      "sphinxian circlet"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "rogue-test-of-trickery",
+   "name": "Rogue Test of Trickery",
+   "order": 65,
+   "phrase": "trickery",
+   "reward": {
+    "name": "Renard's Belt of Quickness",
+    "name_norm": "renards belt of quickness"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Rogue",
+   "giver": "Thalik Silenthand",
+   "items": [
+    {
+     "display": "Spiroc Sky Totem",
+     "name": "Spiroc Sky Totem",
+     "name_norms": [
+      "spiroc sky totem"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "rogue-test-of-silence",
+   "name": "Rogue Test of Silence",
+   "order": 66,
+   "phrase": "silence",
+   "reward": {
+    "name": "Griffon Wing Spauldors",
+    "name_norm": "griffon wing spauldors"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Rogue",
+   "giver": "Thalik Silenthand",
+   "items": [
+    {
+     "display": "Jester's Mask",
+     "name": "Jester's Mask",
+     "name_norms": [
+      "jesters mask"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "rogue-test-of-cunning",
+   "name": "Rogue Test of Cunning",
+   "order": 67,
+   "phrase": "cunning",
+   "reward": {
+    "name": "Crystal Mask",
+    "name_norm": "crystal mask"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Rogue",
+   "giver": "Thalik Silenthand",
+   "items": [
+    {
+     "display": "Fine Wool Cloak",
+     "name": "Fine Wool Cloak",
+     "name_norms": [
+      "fine wool cloak"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "rogue-test-of-stealth",
+   "name": "Rogue Test of Stealth",
+   "order": 68,
+   "phrase": "stealth",
+   "reward": {
+    "name": "Shimmering Bracer of Protection",
+    "name_norm": "shimmering bracer of protection"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Geza",
+     "name_norm": "wind rune geza"
+    }
+   ]
+  },
+  {
+   "cls": "Rogue",
+   "giver": "Thalik Silenthand",
+   "items": [
+    {
+     "display": "Bixie Stinger",
+     "name": "Bixie Stinger (Bixie God's Stinger)",
+     "name_norms": [
+      "bixie stinger (bixie gods stinger)",
+      "bixie stinger"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    },
+    {
+     "display": "Bloodsky Sapphire",
+     "name": "Bloodsky Sapphire",
+     "name_norms": [
+      "bloodsky sapphire"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    }
+   ],
+   "key": "rogue-test-of-deception",
+   "name": "Rogue Test of Deception",
+   "order": 69,
+   "phrase": "deception",
+   "reward": {
+    "name": "Thornstinger",
+    "name_norm": "thornstinger"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Jaka",
+     "name_norm": "wind rune jaka"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Finely Crafted Amulet",
+     "name": "Finely Crafted Amulet",
+     "name_norms": [
+      "finely crafted amulet"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "shadow-knight-test-of-bash",
+   "name": "Shadow Knight Test of Bash",
+   "order": 70,
+   "phrase": "bash",
+   "reward": {
+    "name": "Amulet of the Sphinx Eye",
+    "name_norm": "amulet of the sphinx eye"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ozah",
+     "name_norm": "wind rune ozah"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Silvery Ring",
+     "name": "Silvery Ring",
+     "name_norms": [
+      "silvery ring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "shadow-knight-test-of-smash",
+   "name": "Shadow Knight Test of Smash",
+   "order": 71,
+   "phrase": "smash",
+   "reward": {
+    "name": "Crimson Ring of the Djinni",
+    "name_norm": "crimson ring of the djinni"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Beza",
+     "name_norm": "wind rune beza"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Finely Woven Cloth Belt",
+     "name": "Finely Woven Cloth Belt",
+     "name_norms": [
+      "finely woven cloth belt"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "shadow-knight-test-of-slash",
+   "name": "Shadow Knight Test of Slash",
+   "order": 72,
+   "phrase": "slash",
+   "reward": {
+    "name": "Pegasus-Hide Belt",
+    "name_norm": "pegasus-hide belt"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Rusted Pauldrons",
+     "name": "Rusted Pauldrons",
+     "name_norms": [
+      "rusted pauldrons"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    }
+   ],
+   "key": "shadow-knight-test-of-disempowerment",
+   "name": "Shadow Knight Test of Disempowerment",
+   "order": 73,
+   "phrase": "disempowerment",
+   "reward": {
+    "name": "Blood Sky Face Plate",
+    "name_norm": "blood sky face plate"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Fana",
+     "name_norm": "wind rune fana"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Efreeti War Shield",
+     "name": "Efreeti War Shield",
+     "name_norms": [
+      "efreeti war shield"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "shadow-knight-test-of-envenoming",
+   "name": "Shadow Knight Test of Envenoming",
+   "order": 74,
+   "phrase": "envenoming",
+   "reward": {
+    "name": "Obtenebrate Mithril Guard",
+    "name_norm": "obtenebrate mithril guard"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Heda",
+     "name_norm": "wind rune heda"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Sphinxian Ring",
+     "name": "Sphinxian Ring",
+     "name_norms": [
+      "sphinxian ring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Fae Pauldrons",
+     "name": "Fae Pauldrons",
+     "name_norms": [
+      "fae pauldrons"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    }
+   ],
+   "key": "shadow-knight-raising-of-the-dead",
+   "name": "Shadow Knight Raising of the Dead",
+   "order": 75,
+   "phrase": "raising of the dead",
+   "reward": {
+    "name": "Pearlescent Pauldrons",
+    "name_norm": "pearlescent pauldrons"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Shadow Knight",
+   "giver": "Sarkis Ebonblade",
+   "items": [
+    {
+     "display": "Blood Sky Ruby",
+     "name": "Blood Sky Ruby",
+     "name_norms": [
+      "blood sky ruby"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti War Axe",
+     "name": "Efreeti War Axe",
+     "name_norms": [
+      "efreeti war axe"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "shadow-knight-test-of-necropotence",
+   "name": "Shadow Knight Test of Necropotence",
+   "order": 76,
+   "phrase": "necropotence",
+   "reward": {
+    "name": "Khyldorn the Blood Drinker",
+    "name_norm": "khyldorn the blood drinker"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Shaman",
+   "giver": "Medicine Man Veetra",
+   "items": [
+    {
+     "display": "Leather Cord",
+     "name": "Leather Cord",
+     "name_norms": [
+      "leather cord"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "shaman-test-of-might",
+   "name": "Shaman Test of Might",
+   "order": 77,
+   "phrase": "might",
+   "reward": {
+    "name": "Amulet of the Fang",
+    "name_norm": "amulet of the fang"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Meda",
+     "name_norm": "wind rune meda"
+    }
+   ]
+  },
+  {
+   "cls": "Shaman",
+   "giver": "Medicine Man Veetra",
+   "items": [
+    {
+     "display": "Ceremonial Belt",
+     "name": "Ceremonial Belt",
+     "name_norms": [
+      "ceremonial belt"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "shaman-test-of-health",
+   "name": "Shaman Test of Health",
+   "order": 78,
+   "phrase": "health",
+   "reward": {
+    "name": "Bracelet of the Spirits",
+    "name_norm": "bracelet of the spirits"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Kala",
+     "name_norm": "wind rune kala"
+    }
+   ]
+  },
+  {
+   "cls": "Shaman",
+   "giver": "Medicine Man Veetra",
+   "items": [
+    {
+     "display": "Light Damask Mantle",
+     "name": "Light Damask Mantle",
+     "name_norms": [
+      "light damask mantle"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "shaman-test-of-sight",
+   "name": "Shaman Test of Sight",
+   "order": 79,
+   "phrase": "sight",
+   "reward": {
+    "name": "Fairy-Hide Mantle",
+    "name_norm": "fairy-hide mantle"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Beza",
+     "name_norm": "wind rune beza"
+    }
+   ]
+  },
+  {
+   "cls": "Shaman",
+   "giver": "Medicine Man Veetra",
+   "items": [
+    {
+     "display": "Corrosive Venom",
+     "name": "Corrosive Venom",
+     "name_norms": [
+      "corrosive venom"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    },
+    {
+     "display": "Efreeti War Club",
+     "name": "Efreeti War Club",
+     "name_norms": [
+      "efreeti war club"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "shaman-test-of-shrink",
+   "name": "Shaman Test of Shrink",
+   "order": 80,
+   "phrase": "shrink",
+   "reward": {
+    "name": "Warhammer of the Wind",
+    "name_norm": "warhammer of the wind"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Ena",
+     "name_norm": "wind rune ena"
+    }
+   ]
+  },
+  {
+   "cls": "Shaman",
+   "giver": "Medicine Man Veetra",
+   "items": [
+    {
+     "display": "Bixie Essence",
+     "name": "Bixie Essence",
+     "name_norms": [
+      "bixie essence"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6"
+    },
+    {
+     "display": "Spiritualist`s Ring",
+     "name": "Spiritualist`s Ring",
+     "name_norms": [
+      "spiritualists ring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "shaman-test-of-snake",
+   "name": "Shaman Test of Snake",
+   "order": 81,
+   "phrase": "snake",
+   "reward": {
+    "name": "Vermilion Sky Ring",
+    "name_norm": "vermilion sky ring"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Heda",
+     "name_norm": "wind rune heda"
+    }
+   ]
+  },
+  {
+   "cls": "Shaman",
+   "giver": "Medicine Man Veetra",
+   "items": [
+    {
+     "display": "Symbol of Veeshan",
+     "name": "Symbol of Veeshan",
+     "name_norms": [
+      "symbol of veeshan"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti War Maul",
+     "name": "Efreeti War Maul",
+     "name_norms": [
+      "efreeti war maul"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "shaman-test-of-the-witch-doctor",
+   "name": "Shaman Test of The Witch Doctor",
+   "order": 82,
+   "phrase": "witch doctor",
+   "reward": {
+    "name": "Garduk",
+    "name_norm": "garduk"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Geza",
+     "name_norm": "wind rune geza"
+    }
+   ]
+  },
+  {
+   "cls": "Warrior",
+   "giver": "Torgon Blademaster",
+   "items": [
+    {
+     "display": "Azure Ring",
+     "name": "Azure Ring",
+     "name_norms": [
+      "azure ring"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "warrior-test-of-skill",
+   "name": "Warrior Test of Skill",
+   "order": 83,
+   "phrase": "skill",
+   "reward": {
+    "name": "Azure Ruby Ring",
+    "name_norm": "azure ruby ring"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Neza",
+     "name_norm": "wind rune neza"
+    }
+   ]
+  },
+  {
+   "cls": "Warrior",
+   "giver": "Torgon Blademaster",
+   "items": [
+    {
+     "display": "Stone Amulet",
+     "name": "Stone Amulet",
+     "name_norms": [
+      "stone amulet"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "warrior-test-of-strength",
+   "name": "Warrior Test of Strength",
+   "order": 84,
+   "phrase": "strength",
+   "reward": {
+    "name": "Runed Wind Amulet",
+    "name_norm": "runed wind amulet"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Azia",
+     "name_norm": "wind rune azia"
+    }
+   ]
+  },
+  {
+   "cls": "Warrior",
+   "giver": "Torgon Blademaster",
+   "items": [
+    {
+     "display": "Spiroc Air Totem",
+     "name": "Spiroc Air Totem",
+     "name_norms": [
+      "spiroc air totem"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "warrior-test-of-force",
+   "name": "Warrior Test of Force",
+   "order": 85,
+   "phrase": "force",
+   "reward": {
+    "name": "Pauldrons of the Blue Sky",
+    "name_norm": "pauldrons of the blue sky"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Beza",
+     "name_norm": "wind rune beza"
+    }
+   ]
+  },
+  {
+   "cls": "Warrior",
+   "giver": "Torgon Blademaster",
+   "items": [
+    {
+     "display": "Wind Tablet",
+     "name": "Wind Tablet",
+     "name_norms": [
+      "wind tablet"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    },
+    {
+     "display": "Efreeti Belt",
+     "name": "Efreeti Belt",
+     "name_norms": [
+      "efreeti belt"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "warrior-test-of-think",
+   "name": "Warrior Test of Think",
+   "order": 86,
+   "phrase": "think",
+   "reward": {
+    "name": "Belt of the Four Winds",
+    "name_norm": "belt of the four winds"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Fana",
+     "name_norm": "wind rune fana"
+    }
+   ]
+  },
+  {
+   "cls": "Warrior",
+   "giver": "Torgon Blademaster",
+   "items": [
+    {
+     "display": "Djinni War Blade",
+     "name": "Djinni War Blade",
+     "name_norms": [
+      "djinni war blade"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    },
+    {
+     "display": "Gem of Invigoration",
+     "name": "Gem of Invigoration",
+     "name_norms": [
+      "gem of invigoration"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-Trash"
+    }
+   ],
+   "key": "warrior-test-of-smash",
+   "name": "Warrior Test of Smash",
+   "order": 87,
+   "phrase": "smash",
+   "reward": {
+    "name": "Dagas",
+    "name_norm": "dagas"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Jaka",
+     "name_norm": "wind rune jaka"
+    }
+   ]
+  },
+  {
+   "cls": "Warrior",
+   "giver": "Torgon Blademaster",
+   "items": [
+    {
+     "display": "Ethereal Emerald",
+     "name": "Ethereal Emerald",
+     "name_norms": [
+      "ethereal emerald"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti Battle Axe",
+     "name": "Efreeti Battle Axe",
+     "name_norms": [
+      "efreeti battle axe"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "warrior-test-of-bash",
+   "name": "Warrior Test of Bash",
+   "order": 88,
+   "phrase": "bash",
+   "reward": {
+    "name": "Fangol",
+    "name_norm": "fangol"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Wizard",
+   "giver": "Wizard Schrock",
+   "items": [
+    {
+     "display": "Grey Damask Cloak",
+     "name": "Grey Damask Cloak",
+     "name_norms": [
+      "grey damask cloak"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "3-Gorga"
+    }
+   ],
+   "key": "wizard-test-of-concentration",
+   "name": "Wizard Test of Concentration",
+   "order": 89,
+   "phrase": "concentration",
+   "reward": {
+    "name": "Augmentor's Mask",
+    "name_norm": "augmentors mask"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Dena",
+     "name_norm": "wind rune dena"
+    }
+   ]
+  },
+  {
+   "cls": "Wizard",
+   "giver": "Wizard Schrock",
+   "items": [
+    {
+     "display": "Woven Skull Cap",
+     "name": "Woven Skull Cap",
+     "name_norms": [
+      "woven skull cap"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "4-KoS"
+    }
+   ],
+   "key": "wizard-test-of-focus",
+   "name": "Wizard Test of Focus",
+   "order": 90,
+   "phrase": "focus",
+   "reward": {
+    "name": "Al`Kabor's Cap of Binding",
+    "name_norm": "alkabors cap of binding"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Fana",
+     "name_norm": "wind rune fana"
+    }
+   ]
+  },
+  {
+   "cls": "Wizard",
+   "giver": "Wizard Schrock",
+   "items": [
+    {
+     "display": "High Quality Raiment",
+     "name": "High Quality Raiment",
+     "name_norms": [
+      "high quality raiment"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "5-SL"
+    }
+   ],
+   "key": "wizard-test-of-meditation",
+   "name": "Wizard Test of Meditation",
+   "order": 91,
+   "phrase": "meditation",
+   "reward": {
+    "name": "Raiment of Thunder",
+    "name_norm": "raiment of thunder"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Geza",
+     "name_norm": "wind rune geza"
+    }
+   ]
+  },
+  {
+   "cls": "Wizard",
+   "giver": "Wizard Schrock",
+   "items": [
+    {
+     "display": "Box of Winds",
+     "name": "Box of Winds",
+     "name_norms": [
+      "box of winds"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "6-BZ"
+    },
+    {
+     "display": "Efreeti Statuette",
+     "name": "Efreeti Statuette",
+     "name_norms": [
+      "efreeti statuette"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "wizard-test-of-conception",
+   "name": "Wizard Test of Conception",
+   "order": 92,
+   "phrase": "conception",
+   "reward": {
+    "name": "Solidate Mithril Ring",
+    "name_norm": "solidate mithril ring"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Izah",
+     "name_norm": "wind rune izah"
+    }
+   ]
+  },
+  {
+   "cls": "Wizard",
+   "giver": "Wizard Schrock",
+   "items": [
+    {
+     "display": "Amethyst Amulet",
+     "name": "Amethyst Amulet",
+     "name_norms": [
+      "amethyst amulet"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "7-SotS"
+    }
+   ],
+   "key": "wizard-test-of-visualization",
+   "name": "Wizard Test of Visualization",
+   "order": 93,
+   "phrase": "visualization",
+   "reward": {
+    "name": "Amulet of the Void",
+    "name_norm": "amulet of the void"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Jaka",
+     "name_norm": "wind rune jaka"
+    }
+   ]
+  },
+  {
+   "cls": "Wizard",
+   "giver": "Wizard Schrock",
+   "items": [
+    {
+     "display": "Large Sky Lapis",
+     "name": "Large Sky Lapis",
+     "name_norms": [
+      "large sky lapis"
+     ],
+     "no_drop": true,
+     "qty": 1,
+     "src": "8-EoV"
+    },
+    {
+     "display": "Efreeti War Staff",
+     "name": "Efreeti War Staff",
+     "name_norms": [
+      "efreeti war staff"
+     ],
+     "no_drop": false,
+     "qty": 1,
+     "src": null
+    }
+   ],
+   "key": "wizard-test-of-preparation",
+   "name": "Wizard Test of Preparation",
+   "order": 94,
+   "phrase": "preparation",
+   "reward": {
+    "name": "Nargon's Staff",
+    "name_norm": "nargons staff"
+   },
+   "runes": [
+    {
+     "name": "Wind Rune Caza",
+     "name_norm": "wind rune caza"
+    }
+   ]
+  }
+ ],
+ "revid": 175973,
+ "source_url": "https://eqlwiki.com/Plane_of_Sky"
+}
