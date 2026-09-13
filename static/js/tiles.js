@@ -7,6 +7,7 @@
      Tiles.mount(container, {
        storageKey: 'eqa.parserLayout.v1',
        defs: [{id, title, span, height, minSpan, build(bodyEl, tileApi)}],
+       defaultLocked?: false,       // start unlocked on first visit (default: locked)
      }) -> {refresh(), locked}
 
    Layout blob: {order: [ids], spans: {id: n}, heights: {id: px},
@@ -102,7 +103,9 @@ function _mountGrid(container, opts) {
       spans:   l.spans   || {},
       heights: l.heights || {},
       closed:  (Array.isArray(l.closed) ? l.closed : []).filter((id) => known.has(id)),
-      locked:  l.locked !== false,          // locked by default: safe first-run
+      // locked by default: safe first-run. A page may opt into starting
+      // unlocked (defaultLocked: false); a saved layout's own flag always wins.
+      locked:  typeof l.locked === 'boolean' ? l.locked : opts.defaultLocked !== false,
     };
   }
   function save() {

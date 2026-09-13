@@ -32,8 +32,19 @@ tr.sq-done td, tr.sq-done td a { color:var(--text-faint); }
 tr.sq-done td .sq-need.miss { color:var(--text-faint); }
 tr.sq-ready td { background:var(--sel-bg); }
 .sq-filters { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+.sq-hide { font-size:12px; padding:3px 9px; white-space:nowrap; }
 .sq-toggle { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim);
   cursor:pointer; user-select:none; }
+.sq-runes { display:flex; flex-wrap:wrap; gap:4px 6px; }
+.sq-rune { display:inline-flex; align-items:center; gap:5px; padding:1px 6px 1px 3px; font-size:12px;
+  border:1px solid var(--edge); background:var(--bg-alt); white-space:nowrap; line-height:20px; }
+.sq-rune .item-icon.small { margin-right:-14px; }
+.sq-rune .sq-rnum { font-size:11px; }
+.sq-rune.short { border-color:var(--bad); }
+.sq-rune.short .sq-rnum { color:var(--bad); }
+.sq-rune.ok { border-color:var(--good); }
+.sq-rune.ok .sq-rnum { color:var(--good); }
+.sq-rune.idle { color:var(--text-faint); }
 .sq-classes { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:2px 18px; }
 .sq-class { display:grid; grid-template-columns:120px minmax(0, 1fr) 56px 60px; align-items:center;
   gap:8px; cursor:pointer; padding:2px 4px; font-size:12px; }
@@ -48,11 +59,13 @@ tr.sq-ready td { background:var(--sel-bg); }
 .sq-note { color:var(--text-faint); font-size:11px; line-height:1.5; margin-top:8px; }
 `;
   const SKEY = 'eqa.layout.skyquests.v1';
+  const HIDE_KEY = 'eqa.skyquests.hideDone.v1';   // the show/hide-completed toggle, remembered
   const els = {};
   let data = null;
   let loadedFor = null;
   let error = '';
   let filter = { cls: 'all', hideDone: false, q: '' };
+  try { filter.hideDone = localStorage.getItem(HIDE_KEY) === '1'; } catch (e) { /* private mode */ }
   let spriteCache = {};
   let lastAutoReload = 0;
 
@@ -170,33 +183,26 @@ tr.sq-ready td { background:var(--sel-bg); }
         'Finish every test of a class to unlock it as a primary class. Your classes are pinned first.'));
   }
 
-  // ── tile: runes ─────────────────────────────────────────────────────────
+  // ── tile: runes (one compact chip per rune: have / open tests that want it) ──
   function buildRunes(body) { els.runes = body; renderRunes(); }
   function renderRunes() {
     if (!els.runes || !els.runes.isConnected) return;
     const b = els.runes;
     if (pending(b)) return;
-    const host = el('div', {});
-    b.replaceChildren(host);
-    renderTable(host, {
-      id: 'sq.runes',
-      columns: [
-        { key: 'name', label: 'Wind Rune', render: (r) => el('span', {}, iconCell(r.icon), ' ', r.name) },
-        {
-          key: 'supply', label: 'Have', num: true,
-          render: (r) => el('span', { class: r.supply ? '' : 'faint' }, fmt(r.supply),
-            r.supply && !r.supply_base ? el('span', { class: 'faint', title: 'only +N copies' }, ' +N') : ''),
-        },
-        { key: 'demand_open', label: 'Open tests want', num: true },
-        {
-          key: 'short', label: 'Short', num: true,
-          render: (r) => el('span', { class: r.short ? 'bad' : 'good' }, r.short ? fmt(r.short) : '✔'),
-        },
-      ],
-      rows: data.runes || [],
-      defaultSort: { key: 'short', dir: -1 },
-      empty: 'No runes in the list.',
-    });
+    const grid = el('div', { class: 'sq-runes' });
+    const runes = (data.runes || []).slice().sort((a, c) => c.short - a.short || a.name.localeCompare(c.name));
+    for (const r of runes) {
+      const short = r.short > 0;
+      const bits = [`${r.name}: ${r.supply} in the dump`, `${r.demand_open} open tests want one`];
+      if (r.supply && !r.supply_base) bits.push('only +N copies');
+      bits.push(short ? `short ${r.short}` : 'enough for every open test');
+      grid.append(el('span', { class: 'sq-rune' + (short ? ' short' : r.demand_open ? ' ok' : ' idle'),
+        title: bits.join(' · ') },
+        iconCell(r.icon),
+        el('span', { class: 'sq-rname' }, r.name.replace(/^Wind Rune /, '')),
+        el('span', { class: 'num sq-rnum' }, `${r.supply}/${r.demand_open}`)));
+    }
+    b.replaceChildren(grid);
     if (!data.snapshot) {
       b.append(el('div', { class: 'sq-note' }, 'Import your inventory (sidebar) to see what you hold.'));
     }
@@ -297,9 +303,22 @@ tr.sq-ready td { background:var(--sel-bg); }
     sel.value = filter.cls;
     sel.addEventListener('change', () => { filter.cls = sel.value; renderClasses(); renderQuestsTable(); });
     els.clsSelect = sel;
-    const hide = el('input', { type: 'checkbox' });
-    hide.checked = filter.hideDone;
-    hide.addEventListener('change', () => { filter.hideDone = hide.checked; renderQuestsTable(); });
+    const hide = el('button', { class: 'metal-btn sq-hide' });
+    const labelHide = () => {
+      const n = (data.quests || []).filter((r) => r.status === 'done').length;
+      hide.textContent = (filter.hideDone ? 'Show completed' : 'Hide completed') + ` (${n})`;
+      hide.title = filter.hideDone ? 'completed tests are hidden — click to show them'
+        : 'click to hide completed tests';
+      hide.classList.toggle('primary', filter.hideDone);
+    };
+    labelHide();
+    hide.addEventListener('click', () => {
+      filter.hideDone = !filter.hideDone;
+      try { localStorage.setItem(HIDE_KEY, filter.hideDone ? '1' : '0'); } catch (e) { /* private mode */ }
+      labelHide();
+      renderQuestsTable();
+    });
+    els.hideBtn = labelHide;
     const search = el('input', { type: 'search', placeholder: 'test, reward, item, NPC…', style: 'width:220px' });
     search.value = filter.q;
     search.addEventListener('input', () => { filter.q = search.value; renderQuestsTable(); });
@@ -307,8 +326,7 @@ tr.sq-ready td { background:var(--sel-bg); }
     // below it keeps the search box's focus and caret while you type.
     const table = el('div', {});
     els.questsTable = table;
-    b.append(el('div', { class: 'sq-filters' }, sel,
-      el('label', { class: 'sq-toggle' }, hide, 'hide completed'), search,
+    b.append(el('div', { class: 'sq-filters' }, sel, hide, search,
       el('span', { class: 'faint', style: 'font-size:11px', title: data.notes && data.notes.needs },
         'ticks come from the inventory dump; the ✔ column is yours')), table);
     renderQuestsTable();
@@ -382,7 +400,7 @@ tr.sq-ready td { background:var(--sel-bg); }
   const DEFS = [
     { id: 'overview', title: 'Completion',   span: 4,  height: 300, minSpan: 3, build: buildOverview },
     { id: 'classes',  title: 'By Class',     span: 8,  height: 300, minSpan: 5, build: buildClasses },
-    { id: 'runes',    title: 'Wind Runes',   span: 12, height: 260, minSpan: 4, build: buildRunes },
+    { id: 'runes',    title: 'Wind Runes',   span: 12, height: 110, minSpan: 3, build: buildRunes },
     { id: 'quests',   title: 'Class Tests',  span: 12, height: 700, minSpan: 6, build: buildQuests },
   ];
 
@@ -418,7 +436,9 @@ tr.sq-ready td { background:var(--sel-bg); }
       container.append(el('h1', { class: 'page-title' }, 'Sky Quests'));
       const host = el('div', {});
       container.append(host);
-      Tiles.mount(host, { storageKey: SKEY, defs: DEFS });
+      // starts unlocked so every tile is draggable / resizable straight away;
+      // the 🔒 button still locks it, and that choice is remembered
+      Tiles.mount(host, { storageKey: SKEY, defs: DEFS, defaultLocked: false });
       reload();
     },
     onSnapshot(snap) {

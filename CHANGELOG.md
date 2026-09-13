@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-09-12
+
+### Changed
+
+- Sky Quests: the hide-completed checkbox is a proper **Hide / Show completed**
+  button that remembers its state; the Wind Runes tile is a compact row of
+  chips (`have/wanted` per rune, red when short) instead of a 15-row table;
+  the page starts with its layout **unlocked**, so every tile can be dragged
+  and resized straight away (🔒 still locks it, and that choice is remembered).
+  Tile grids gained a `defaultLocked` option for this.
+
 ## [1.4.0] - 2026-09-12
 
 One new page: the Plane of Sky class tests, read against your inventory.
@@ -283,7 +294,8 @@ databases, and never writes to the game.
   on neither community site, `+N` upgrade stat scaling is in no item database,
   and exaltation transfer rules are assumed until confirmed.
 
-[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cujef/EQLegendsAssistant/compare/v1.1.0...v1.2.0
